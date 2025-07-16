@@ -1,0 +1,9 @@
+@import "./variables";
+
+body {
+  background-color: "#13682";
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+  font-family: $fontFamily;
+}
