@@ -4,6 +4,10 @@
   --sidebarWidth: 200px;
 }
 
+.nav-icon{
+  height: 24px;
+}
+
 .app-layout {
   display: flex;
   flex-direction: column; /* Stacks Header on top of content-wrapper */
@@ -14,7 +18,6 @@
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
   height: 60px; /* Example height */
   background-color: #333;
   color: white;
@@ -49,18 +52,19 @@
     100vw - var(--sidebarWidth)
   ); /* Fill remaining horizontal space */
   overflow-y: auto;
-  /*transition: margin-left 0.3s ease-in-out; /* If using margin-left for shift */
 }
 
 .footerPage {
   position: fixed;
-  bottom:0;
+  left: O;
+  bottom: 0;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
+  font-size: 14px;
   height: 40px;
+  text-transform: capitalize;
 }
 
 /* Custom styles */
@@ -119,4 +123,3 @@
     }
   }
 }
-

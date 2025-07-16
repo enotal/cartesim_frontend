@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import DefaultLayout from "./layouts/DefaultLayout";
 import { Home } from "./views/Home";
 import { Dashboard } from "./views/Dashboard";
@@ -12,12 +12,10 @@ import "./styles/default.css";
 function App() {
   return (
     <DefaultLayout>
-      <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route exact path="/dashboard" element={<Dashboard />} />
         </Routes>
-      </BrowserRouter>
     </DefaultLayout>
   );
 }

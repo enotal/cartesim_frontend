@@ -1,10 +1,13 @@
 import React, { useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import Logo from "../assets/brand/uvbf-login.png";
 import { FaUser, FaLock } from "react-icons/fa";
 
 export const Home = () => {
   const formRef = useRef();
   const loginFormBtnLaunchRef = useRef();
+  const loginFormBtnCancelRef = useRef();
+  const navigate = useNavigate();
 
   // Clear User session before authentication
   // localStorage.removeItem("optiacademiqplus_auth"); // Remove a specific item
@@ -28,8 +31,18 @@ export const Home = () => {
     //
   };
 
-  const handleSubmit = (e) => {
-    //
+  const handleSubmit = async (e) => {
+    e.preventDefault(); // Prevents page reload
+    // get and prepare form data
+    const formData = new FormData(formRef.current);
+    formData.append("tokenType", "Bearer");
+    formData.append("tokenValue", "auth");
+    const formValues = Object.fromEntries(formData);
+    localStorage.setItem("optiacademiqplus_auth", JSON.stringify(formValues));
+    if (loginFormBtnCancelRef.current) {
+      loginFormBtnCancelRef.current.click();
+      navigate("/dashboard");
+    }
   };
 
   return (
@@ -139,6 +152,7 @@ export const Home = () => {
                   Connexion
                 </button>
                 <button
+                  ref={loginFormBtnCancelRef}
                   type="button"
                   className="btn btn-secondary"
                   data-bs-dismiss="modal"
