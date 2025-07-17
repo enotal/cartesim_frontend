@@ -32,8 +32,8 @@ const AppHeaderDropdown = ({ isAuthenticated }) => {
     // Clear User session before authentication
     localStorage.removeItem('optiacademiqplus_auth') // Remove a specific item
     localStorage.clear() // Clear all items from localStorage
-    navigate('/')
-    // document.location.href = '/'
+    // navigate('/')
+    document.location.href = '/'
   }
   return (
     <CDropdown variant="nav-item">

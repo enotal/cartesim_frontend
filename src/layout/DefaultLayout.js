@@ -1,18 +1,17 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { AppContent, AppSidebar, AppFooter, AppHeader } from '../components/index'
-import { isAuthenticated } from '../authService.js'
 
-const DefaultLayout = () => {
+const DefaultLayout = ({ isAuthenticated }) => {
   // localStorage.removeItem('optiacademiqplus_auth')
   return (
     <div>
-      <AppSidebar isAuthenticated={isAuthenticated()} />
+      <AppSidebar isAuthenticated={isAuthenticated} />
       <div className="wrapper d-flex flex-column min-vh-100">
-        <AppHeader isAuthenticated={isAuthenticated()} />
+        <AppHeader isAuthenticated={isAuthenticated} />
         <div className="body flex-grow-1">
           <AppContent />
         </div>
-        <AppFooter isAuthenticated={isAuthenticated()} />
+        <AppFooter isAuthenticated={isAuthenticated} />
       </div>
     </div>
   )

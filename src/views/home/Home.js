@@ -44,7 +44,7 @@ const Home = () => {
     if (loginFormBtnCancelRef.current) {
       loginFormBtnCancelRef.current.click()
         navigate('/dashboard')
-    //   document.location.href = '/dashboard'
+      document.location.href = '/dashboard'
     }
   }
 
@@ -121,7 +121,7 @@ const Home = () => {
                     aria-describedby="username-basic-addon1"
                     id="username"
                     name="username"
-                    required
+                    // required
                     autoFocus={true}
                   />
                 </div>
@@ -138,7 +138,7 @@ const Home = () => {
                     aria-describedby="password-basic-addon1"
                     id="password"
                     name="password"
-                    required
+                    // required
                   />
                 </div>
               </div>
