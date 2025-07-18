@@ -1,16 +1,16 @@
 import React, { useState } from 'react'
-import ItemList from '../../components/crud/ItemList'
-import ThematiqueCreate from './ThematiqueCreate'
+import ItemList from '../../../components/crud/ItemList'
+import QuestionCreate from './QuestionCreate'
 
-const Thematique = () => {
+const Question = () => {
   const tableAlias = 'usr'
 
   const columns = [
     { title: null, data: 'select' },
     // { title: null, data: "" },
-    { title: 'Libellé court', data: 'libellecourt' },
-    { title: 'Libellé long', data: 'libellelong' },
-    { title: 'Code', data: 'code' },
+    { title: 'Libellé', data: 'libelle' },
+    { title: 'Modalité', data: 'modalite' },
+    { title: 'Déclencheur', data: 'declencheur' },
   ]
 
   const apiResource = {
@@ -23,9 +23,9 @@ const Thematique = () => {
 
   const credentials = [
     ['id', 'id'],
-    ['libelleCourt', 'libellecourt'],
-    ['libelleLong', 'libellelong'],
-    ['code', 'code'],
+    ['libelle', 'libelle'],
+    ['modalite', 'modalite'],
+    ['declencheur', 'declencheur'],
   ]
 
   const colvisNotVisibleColumns = ':second-child'
@@ -56,24 +56,27 @@ const Thematique = () => {
   const [data, setData] = useState([
     {
       id: 1,
-      libellecourt: 'Suivi et insertion',
-      libellelong: 'Suivi postuniversitaire et insertion socioprofessionnelle',
-      code: 'T4',
+      libelle: 'Suivi et insertion',
+      modalite: 'chiffre',
+      declencheur: null,
     },
     {
       id: 2,
-      libellecourt: 'Profil et identité',
-      libellelong: "Profil et identité de l'étudiant",
-      code: 'T3',
+      libelle: 'Profil et identité',
+      modalite: 'chiffre',
+      declencheur: null,
     },
   ])
 
   const newRow = {
     id: null,
-    libellecourt: null,
-    libellelong: null,
-    code: null,
+    libelle: null,
+    modalite: null,
+    declencheur: null,
   }
+
+  const variables = []
+  const modalites = []
 
   return (
     <div>
@@ -82,7 +85,7 @@ const Thematique = () => {
         apiResource={apiResource}
         columns={columns}
         credentials={credentials}
-        children={<ThematiqueCreate />}
+        children={<QuestionCreate variables={variables} modalites={modalites} />}
         data={data}
         setData={setData}
         newRow={newRow}
@@ -91,4 +94,4 @@ const Thematique = () => {
   )
 }
 
-export default Thematique
+export default Question

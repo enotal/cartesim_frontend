@@ -1,5 +1,5 @@
 import React from 'react'
-import { RequiredField } from '../../components/crud/RequiredField'
+import { RequiredField } from '../../../components/crud/RequiredField'
 
 const ThematiqueCreate = () => {
   return (

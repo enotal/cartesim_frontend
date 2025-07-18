@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import ItemList from '../../components/crud/ItemList'
+import ItemList from '../../../components/crud/ItemList'
 import VariableCreate from './VariableCreate'
 
 const Variable = () => {

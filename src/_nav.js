@@ -9,7 +9,8 @@ import {
   cilGroup,
   cilUserPlus,
   cilGrain,
-  cilLockUnlocked,cilCommentBubble
+  cilLockUnlocked,
+  cilCommentBubble,
 } from '@coreui/icons'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 
@@ -20,11 +21,43 @@ const _nav = [
     to: '/dashboard',
     icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
   },
+  // {
+  //   component: CNavItem,
+  //   name: 'Formulaire 1',
+  //   to: '/formulaire1',
+  //   icon: <CIcon icon={cilDescription} customClassName="nav-icon" />,
+  // },
+  {
+    component: CNavTitle,
+    name: 'FORMULAIRE',
+  },
   {
     component: CNavItem,
-    name: 'Formulaire',
-    to: '/formulaire',
+    name: 'Parcours & Performance',
+    to: '/formulaire/pipa',
     icon: <CIcon icon={cilDescription} customClassName="nav-icon" />,
+  },
+  {
+    component: CNavItem,
+    name: 'Qualité & Pédagogie',
+    to: '/formulaire/qeap',
+    icon: <CIcon icon={cilDescription} customClassName="nav-icon" />,
+  },
+  {
+    component: CNavItem,
+    name: 'Suivi & Insertion',
+    to: '/formulaire/spis',
+    icon: <CIcon icon={cilDescription} customClassName="nav-icon" />,
+  },
+  {
+    component: CNavItem,
+    name: 'Gouvernance',
+    to: '/formulaire/gici',
+    icon: <CIcon icon={cilDescription} customClassName="nav-icon" />,
+  },
+  {
+    component: CNavTitle,
+    name: '',
   },
   {
     component: CNavItem,

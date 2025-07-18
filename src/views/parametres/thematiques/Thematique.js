@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
-import ItemList from '../../components/crud/ItemList'
-import DimensionCreate from './DimensionCreate'
+import ItemList from '../../../components/crud/ItemList'
+import ThematiqueCreate from './ThematiqueCreate'
 
-const Dimension = () => {
+const Thematique = () => {
   const tableAlias = 'usr'
 
   const columns = [
@@ -11,7 +11,6 @@ const Dimension = () => {
     { title: 'Libellé court', data: 'libellecourt' },
     { title: 'Libellé long', data: 'libellelong' },
     { title: 'Code', data: 'code' },
-    { title: 'Type répondant', data: 'typerepondant' },
   ]
 
   const apiResource = {
@@ -27,7 +26,6 @@ const Dimension = () => {
     ['libelleCourt', 'libellecourt'],
     ['libelleLong', 'libellelong'],
     ['code', 'code'],
-    ['typeRepondant', 'typerepondant'],
   ]
 
   const colvisNotVisibleColumns = ':second-child'
@@ -61,14 +59,12 @@ const Dimension = () => {
       libellecourt: 'Suivi et insertion',
       libellelong: 'Suivi postuniversitaire et insertion socioprofessionnelle',
       code: 'T4',
-      typerepondant: 'étudiant,enseignant',
     },
     {
       id: 2,
       libellecourt: 'Profil et identité',
       libellelong: "Profil et identité de l'étudiant",
       code: 'T3',
-      typerepondant: 'personnel ATOS',
     },
   ])
 
@@ -77,11 +73,8 @@ const Dimension = () => {
     libellecourt: null,
     libellelong: null,
     code: null,
-    typerepondant: null,
   }
 
-  const thematiques = []
-  
   return (
     <div>
       <ItemList
@@ -89,7 +82,7 @@ const Dimension = () => {
         apiResource={apiResource}
         columns={columns}
         credentials={credentials}
-        children={<DimensionCreate thematiques={thematiques} />}
+        children={<ThematiqueCreate />}
         data={data}
         setData={setData}
         newRow={newRow}
@@ -98,4 +91,4 @@ const Dimension = () => {
   )
 }
 
-export default Dimension
+export default Thematique

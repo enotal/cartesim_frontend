@@ -1,16 +1,17 @@
 import React, { useState } from 'react'
-import ItemList from '../../components/crud/ItemList'
-import QuestionCreate from './QuestionCreate'
+import ItemList from '../../../components/crud/ItemList'
+import DimensionCreate from './DimensionCreate'
 
-const Question = () => {
+const Dimension = () => {
   const tableAlias = 'usr'
 
   const columns = [
     { title: null, data: 'select' },
     // { title: null, data: "" },
-    { title: 'Libellé', data: 'libelle' },
-    { title: 'Modalité', data: 'modalite' },
-    { title: 'Déclencheur', data: 'declencheur' },
+    { title: 'Libellé court', data: 'libellecourt' },
+    { title: 'Libellé long', data: 'libellelong' },
+    { title: 'Code', data: 'code' },
+    { title: 'Type répondant', data: 'typerepondant' },
   ]
 
   const apiResource = {
@@ -23,9 +24,10 @@ const Question = () => {
 
   const credentials = [
     ['id', 'id'],
-    ['libelle', 'libelle'],
-    ['modalite', 'modalite'],
-    ['declencheur', 'declencheur'],
+    ['libelleCourt', 'libellecourt'],
+    ['libelleLong', 'libellelong'],
+    ['code', 'code'],
+    ['typeRepondant', 'typerepondant'],
   ]
 
   const colvisNotVisibleColumns = ':second-child'
@@ -56,28 +58,30 @@ const Question = () => {
   const [data, setData] = useState([
     {
       id: 1,
-      libelle: 'Suivi et insertion',
-      modalite: 'chiffre',
-      declencheur: null,
+      libellecourt: 'Suivi et insertion',
+      libellelong: 'Suivi postuniversitaire et insertion socioprofessionnelle',
+      code: 'T4',
+      typerepondant: 'étudiant,enseignant',
     },
     {
       id: 2,
-      libelle: 'Profil et identité',
-      modalite: 'chiffre',
-      declencheur: null,
+      libellecourt: 'Profil et identité',
+      libellelong: "Profil et identité de l'étudiant",
+      code: 'T3',
+      typerepondant: 'personnel ATOS',
     },
   ])
 
   const newRow = {
     id: null,
-    libelle: null,
-    modalite: null,
-    declencheur: null,
+    libellecourt: null,
+    libellelong: null,
+    code: null,
+    typerepondant: null,
   }
 
-  const variables = []
-  const modalites = []
-
+  const thematiques = []
+  
   return (
     <div>
       <ItemList
@@ -85,7 +89,7 @@ const Question = () => {
         apiResource={apiResource}
         columns={columns}
         credentials={credentials}
-        children={<QuestionCreate variables={variables} modalites={modalites} />}
+        children={<DimensionCreate thematiques={thematiques} />}
         data={data}
         setData={setData}
         newRow={newRow}
@@ -94,4 +98,4 @@ const Question = () => {
   )
 }
 
-export default Question
+export default Dimension
