@@ -1,9 +1,35 @@
 import React from 'react'
 import { RequiredField } from '../../components/crud/RequiredField'
 
-const DimensionCreate = () => {
+const DimensionCreate = ({ thematiques }) => {
   return (
     <div>
+      <div className="mb-2 row">
+        <label htmlFor="thematique" className="col-form-label py-0">
+          <RequiredField tagP={0} />
+          Thématiques
+        </label>
+        <div className="">
+          <select
+            className="form-select"
+            aria-label="Default select example"
+            id="thematique"
+            name="thematique"
+            required
+            autoFocus
+          >
+            <option value="">Sélectionner ici !</option>
+            {thematiques.map((thematique, index) => {
+              return (
+                <option key={'thematique' + index} value={thematique.id}>
+                  {thematique.libellelong}
+                </option>
+              )
+            })}
+          </select>
+        </div>
+      </div>
+      
       <div className="mb-2 row">
         <label htmlFor="libelleCourt" className="col-form-label py-0">
           <RequiredField tagP={0} />
@@ -16,7 +42,6 @@ const DimensionCreate = () => {
             id="libelleCourt"
             name="libelleCourt"
             required
-            autoFocus={true}
           />
         </div>
       </div>
@@ -43,13 +68,7 @@ const DimensionCreate = () => {
           Code
         </label>
         <div className="">
-          <input
-            type="text"
-            className="form-control"
-            id="code"
-            name="code"
-            required
-          />
+          <input type="text" className="form-control" id="code" name="code" required />
         </div>
       </div>
 

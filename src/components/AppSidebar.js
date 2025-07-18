@@ -14,7 +14,7 @@ import CIcon from '@coreui/icons-react'
 
 import { AppSidebarNav } from './AppSidebarNav'
 
-// import { logo } from 'src/assets/brand/logo-uvbf.png'
+import { logo } from 'src/assets/brand/logo'
 // import { sygnet } from 'src/assets/brand/sygnet'
 // import uvbfLogo from '../assets/brand/logo-uvbf.png'
 
@@ -39,9 +39,10 @@ const AppSidebar = ({ isAuthenticated }) => {
         }}
         style={{ backgroundColor: '#17376e' }}
       >
-        <CSidebarHeader className="border-bottom">
+        <CSidebarHeader className="pt-1">
           <CSidebarBrand>
-            <CIcon customClassName="sidebar-brand-narrow" icon={""} height={32} />
+            {/* <CIcon customClassName="sidebar-brand-narrow" icon={logo} height={32} /> */}
+            <CImage className="" src={logo} height={64} />
           </CSidebarBrand>
           <CCloseButton
             className="d-lg-none"

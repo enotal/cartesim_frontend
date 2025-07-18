@@ -71,9 +71,12 @@ const Question = () => {
   const newRow = {
     id: null,
     libelle: null,
-    modalite:null,
-    declencheur:null,
+    modalite: null,
+    declencheur: null,
   }
+
+  const variables = []
+  const modalites = []
 
   return (
     <div>
@@ -82,7 +85,7 @@ const Question = () => {
         apiResource={apiResource}
         columns={columns}
         credentials={credentials}
-        children={<QuestionCreate />}
+        children={<QuestionCreate variables={variables} modalites={modalites} />}
         data={data}
         setData={setData}
         newRow={newRow}

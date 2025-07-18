@@ -65,6 +65,8 @@ const Variable = () => {
     libelle: null,
   }
 
+  const dimensions = []
+
   return (
     <div>
       <ItemList
@@ -72,7 +74,7 @@ const Variable = () => {
         apiResource={apiResource}
         columns={columns}
         credentials={credentials}
-        children={<VariableCreate />}
+        children={<VariableCreate dimensions={dimensions} />}
         data={data}
         setData={setData}
         newRow={newRow}

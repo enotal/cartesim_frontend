@@ -13,6 +13,7 @@ import {
   CNavLink,
   CNavItem,
   useColorModes,
+  CImage,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import {
@@ -28,6 +29,8 @@ import {
 import { AppBreadcrumb } from './index'
 import { AppHeaderDropdown } from './header/index'
 
+import { logo } from 'src/assets/brand/logo'
+
 const AppHeader = ({ isAuthenticated }) => {
   const headerRef = useRef()
   const { colorMode, setColorMode } = useColorModes('coreui-free-react-admin-template-theme')
@@ -42,23 +45,28 @@ const AppHeader = ({ isAuthenticated }) => {
     })
   }, [])
 
-  
-
   return (
     <CHeader
       position="sticky"
-      className="mb-4 p-0"
+      className="mb-4 p-0 AppHeader"
       ref={headerRef}
       style={{ backgroundColor: '#17376e' }}
     >
-      <CContainer className="border-bottom px-4" fluid>
-        {isAuthenticated && (
+      {isAuthenticated && (
+        <div className="px-4 pt-1 mb-0 cardtitle">
+          optiacademiq+<span>Un plus pour la qualité de notre Université !</span>
+        </div>
+      )}
+      <CContainer className="border-bottom px-4 py-0" fluid>
+        {isAuthenticated ? (
           <CHeaderToggler
             onClick={() => dispatch({ type: 'set', sidebarShow: !sidebarShow })}
             style={{ marginInlineStart: '-14px' }}
           >
             <CIcon icon={cilMenu} size="lg" className="text-light" />
           </CHeaderToggler>
+        ) : (
+          <CImage className="py-1" src={logo} height={64} />
         )}
         <CHeaderNav className="ms-auto">
           {isAuthenticated && (

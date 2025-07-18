@@ -10,7 +10,7 @@ const Home = () => {
 
   const navigate = useNavigate()
 
-   const handleSignIn = (e) => {
+  const handleSignIn = (e) => {
     const linkClass = e.target.className
 
     if (linkClass.includes('sign-in-this')) {
@@ -58,21 +58,14 @@ const Home = () => {
           </p>
         </div>
       </div>
-      <div className="grid">
-        <a
+      <div className="">
+        <button
           href="#"
-          className="btn btn-sm btn-primary me-3 mb-3 sign-in-this"
+          className="btn btn-block btn-primary sign-in-this"
           onClick={(e) => handleSignIn(e)}
         >
-          Se connecter depuis cette plateforme
-        </a>
-        <a
-          href="#"
-          className="btn btn-sm btn-primary mb-3 sign-in-portal"
-          onClick={(e) => handleSignIn(e)}
-        >
-          Se connecter via un portail
-        </a>
+          Se connecter
+        </button>
       </div>
 
       <form ref={formRef} onSubmit={handleSubmit}>

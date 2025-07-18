@@ -80,6 +80,8 @@ const Dimension = () => {
     typerepondant: null,
   }
 
+  const thematiques = []
+  
   return (
     <div>
       <ItemList
@@ -87,7 +89,7 @@ const Dimension = () => {
         apiResource={apiResource}
         columns={columns}
         credentials={credentials}
-        children={<DimensionCreate />}
+        children={<DimensionCreate thematiques={thematiques} />}
         data={data}
         setData={setData}
         newRow={newRow}

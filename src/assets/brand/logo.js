@@ -1,4 +1,6 @@
-export const logo = [
+import LogoUvbf from '../brand/logo-uvbf.png'
+export const logo = LogoUvbf
+/*export const logo = [
   '599 116',
   `<g>
     <g fill="none" fill-rule="nonzero">
@@ -15,4 +17,4 @@ export const logo = [
       </g>
     </g>
   </g>`,
-]
+]*/
