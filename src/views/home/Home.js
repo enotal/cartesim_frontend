@@ -7,15 +7,10 @@ const Home = () => {
   const formRef = useRef()
   const loginFormBtnLaunchRef = useRef()
   const loginFormBtnCancelRef = useRef()
+
   const navigate = useNavigate()
 
-  useEffect(() => {
-    // Clear User session before authentication
-    localStorage.removeItem('optiacademiqplus_auth') // Remove a specific item
-    localStorage.clear() // Clear all items from localStorage
-  }, [navigate])
-
-  const handleSignIn = (e) => {
+   const handleSignIn = (e) => {
     const linkClass = e.target.className
 
     if (linkClass.includes('sign-in-this')) {
@@ -43,8 +38,8 @@ const Home = () => {
     localStorage.setItem('optiacademiqplus_auth', JSON.stringify(formValues))
     if (loginFormBtnCancelRef.current) {
       loginFormBtnCancelRef.current.click()
-        navigate('/dashboard')
-      document.location.href = '/dashboard'
+      navigate('/dashboard', { replace: true })
+      navigate(0)
     }
   }
 

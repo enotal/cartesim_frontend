@@ -42,6 +42,8 @@ const AppHeader = ({ isAuthenticated }) => {
     })
   }, [])
 
+  
+
   return (
     <CHeader
       position="sticky"

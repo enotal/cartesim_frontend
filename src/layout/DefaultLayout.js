@@ -1,17 +1,20 @@
 import React, { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { AppContent, AppSidebar, AppFooter, AppHeader } from '../components/index'
 
-const DefaultLayout = ({ isAuthenticated }) => {
-  // localStorage.removeItem('optiacademiqplus_auth')
+import { isAuthenticated } from '../authService'
+
+const DefaultLayout = () => {
+  const isLoggedIn = isAuthenticated()
   return (
     <div>
-      <AppSidebar isAuthenticated={isAuthenticated} />
+      <AppSidebar isAuthenticated={isLoggedIn} />
       <div className="wrapper d-flex flex-column min-vh-100">
-        <AppHeader isAuthenticated={isAuthenticated} />
+        <AppHeader isAuthenticated={isLoggedIn} />
         <div className="body flex-grow-1">
           <AppContent />
         </div>
-        <AppFooter isAuthenticated={isAuthenticated} />
+        <AppFooter isAuthenticated={isLoggedIn} />
       </div>
     </div>
   )
