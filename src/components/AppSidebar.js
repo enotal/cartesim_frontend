@@ -32,6 +32,7 @@ const AppSidebar = ({ isAuthenticated }) => {
         className="border-end"
         colorScheme="dark"
         position="fixed"
+        size='lg'
         unfoldable={unfoldable}
         visible={sidebarShow}
         onVisibleChange={(visible) => {
@@ -42,7 +43,7 @@ const AppSidebar = ({ isAuthenticated }) => {
         <CSidebarHeader className="pt-1">
           <CSidebarBrand>
             {/* <CIcon customClassName="sidebar-brand-narrow" icon={logo} height={32} /> */}
-            <CImage className="" src={logo} height={64} />
+            <CImage className="" src={logo} height={84} />
           </CSidebarBrand>
           <CCloseButton
             className="d-lg-none"

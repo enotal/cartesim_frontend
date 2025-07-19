@@ -13,6 +13,7 @@ import {
   cilCommentBubble,
 } from '@coreui/icons'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
+import { thematiques } from './views/formulaires/data'
 
 const _nav = [
   {
@@ -51,7 +52,7 @@ const _nav = [
   },
   {
     component: CNavItem,
-    name: 'Gouvernance',
+    name: 'Gouvernance & Infrastructures',
     to: '/formulaire/gici',
     icon: <CIcon icon={cilDescription} customClassName="nav-icon" />,
   },

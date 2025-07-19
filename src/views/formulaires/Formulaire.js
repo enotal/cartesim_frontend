@@ -1,32 +1,8 @@
 import React from 'react'
+import { thematiques } from './data'
 
 const Formulaire = () => {
-  const thematiques = [
-    {
-      id: 1,
-      libellecourt: 'Parcours & Performance',
-      libellelong: 'Parcours individuel et performance académique',
-      code: 'PIPA',
-    },
-    {
-      id: 2,
-      libellecourt: 'Qualité & Pédagogie',
-      libellelong: 'Qualité des enseignements et accompagnement pédagogique',
-      code: 'QEAP',
-    },
-    {
-      id: 3,
-      libellecourt: 'Suivi & Insertion',
-      libellelong: 'Suivi postuniversitaire et insertion socioprofessionnelle',
-      code: 'SPIS',
-    },
-    {
-      id: 4,
-      libellecourt: 'Gouvernance & Infrastructure',
-      libellelong: 'Gouvernance, infrastructures & cadre institutionnel',
-      code: 'GICI',
-    },
-  ]
+    
 
   const handleChangeThematique = (e) => {
     console.log(e.target.checked)
