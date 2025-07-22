@@ -25,10 +25,7 @@ import {
   cilMoon,
   cilSun,
 } from '@coreui/icons'
-
-import { AppBreadcrumb } from './index'
 import { AppHeaderDropdown } from './header/index'
-
 import { logo } from 'src/assets/brand/logo'
 import { isAuthenticated } from '../authService'
 
@@ -56,8 +53,9 @@ const AppHeader = () => {
       style={{ backgroundColor: '#17376e' }}
     >
       {isLoggedIn && (
-        <div className="px-4 pt-1 mb-0 cardtitle">
-          optiacademiq+<span>Un plus pour la qualité de notre Université !</span>
+        <div className="px-4 pt-1 pb-0 mb-0 header-title">
+          <div className="application-name">optiacademiq+</div>
+          <div className='application-slogan'>Un plus pour la qualité de notre Université !</div>
         </div>
       )}
       <CContainer className="border-bottom px-4 py-0" fluid>
@@ -69,19 +67,19 @@ const AppHeader = () => {
             <CIcon icon={cilMenu} size="lg" className="text-light" />
           </CHeaderToggler>
         ) : (
-          <CImage className="py-1" src={logo} height={64} />
+          <CImage className="home-image-appHeader py-1" src={logo} />
         )}
-        <CHeaderNav className="ms-auto">
+        <CHeaderNav className="ms-auto me-3">
           {isLoggedIn && (
             <>
               <CNavItem>
-                <CNavLink href="#" className="text-light">
+                <CNavLink href="/#/dashboard" className="text-light">
                   <CIcon icon={cilBell} size="lg" className="me-1" />
                   Notifications
                 </CNavLink>
               </CNavItem>
               <CNavItem>
-                <CNavLink href="#" className="text-light">
+                <CNavLink href="/#/dashboard" className="text-light">
                   <CIcon icon={cilEnvelopeOpen} size="lg" className="me-1" />
                   Messages
                 </CNavLink>
@@ -90,7 +88,7 @@ const AppHeader = () => {
           )}
         </CHeaderNav>
         <CHeaderNav>
-          {isLoggedIn && (
+          {/* {isLoggedIn && (
             <>
               <li className="nav-item py-1">
                 <div className="vr h-100 mx-2 text-body text-opacity-75"></div>
@@ -139,15 +137,10 @@ const AppHeader = () => {
                 <div className="vr h-100 mx-2 text-body text-opacity-75"></div>
               </li>
             </>
-          )}
+          )} */}
           <AppHeaderDropdown />
         </CHeaderNav>
       </CContainer>
-      {/* {isAuthenticated && (
-        <CContainer className="px-4" fluid>
-          <AppBreadcrumb />
-        </CContainer>
-      )} */}
     </CHeader>
   )
 }

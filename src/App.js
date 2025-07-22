@@ -17,6 +17,7 @@ import 'bootstrap/dist/js/bootstrap.min.js'
 import '@fortawesome/fontawesome-free/js/all.js'
 
 // Containers
+const Home = React.lazy(() => import('./Home'))
 const DefaultLayout = React.lazy(() => import('./layout/DefaultLayout'))
 
 // Pages
@@ -57,7 +58,8 @@ const App = () => {
           <Route exact path="/register" name="Register Page" element={<Register />} />
           <Route exact path="/404" name="Page 404" element={<Page404 />} />
           <Route exact path="/500" name="Page 500" element={<Page500 />} />
-          <Route path="*" name="Home" element={<DefaultLayout />} />
+          <Route exact path="/" name="Accueil" element={<Home />} />
+          <Route path="*" name="Dashboard" element={<DefaultLayout />} />
         </Routes>
       </Suspense>
     </HashRouter>

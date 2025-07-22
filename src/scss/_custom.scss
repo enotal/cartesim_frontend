@@ -1,57 +1,106 @@
 // Here you can add other styles
+.defaultLayout-main-container,
+.home-main-container {
+  background-image: url('../assets/images/background.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
 
-.homePage {
-  display: flex;
-  flex-direction: column;
-  /* flex: 1; */
-  justify-content: center;
-  align-items: center;
-  height: calc(100% - 40px);
-  //   padding-top: 50px;
-  overflow-y: auto;
-  //   background-color: aquamarine;
+.home-image-appHeader {
+  height: 80px;
+  display: block;
+}
 
-  img {
-    height: 124px;
-    margin-bottom: 30px;
+.home-main-container {
+  .home-image {
+    height: 128px;
+    display: block;
   }
 
-  .cardtitle {
-    text-transform: uppercase;
-    font-size: 30px;
-    font-weight: bold;
-    margin-bottom: 5px;
-    color: #17376e;
+  .home-title {
+    font-weight: bolder;
+    span {
+      color: #17376e;
+      font-size: 30px;
+      text-transform: uppercase;
+    }
     p {
-      text-transform: none;
-      font-size: 16px;
-      font-style: italic;
+      font-size: 20px;
       color: #cd2009;
-      margin-top: 2px;
+      font-style: italic;
     }
   }
-
-  .card {
-    width: 70%;
-    padding: 2%;
-    margin-bottom: 15px;
+  .card-body {
+    p {
+      padding: 0;
+      font-size: 18px;
+      text-align: justify;
+    }
   }
+}
 
-  .card-body p {
-    font-size: 16px;
-  }
-
-  .modal {
-    position: absolute;
-    left: 5%;
-    @media (max-width: 768px) {
-      width: 70%;
+.AppHeader {
+  color: lightgray;
+  margin: 0;
+  padding: 0;
+  .header-title {
+    font-weight: bolder;
+    display: flex;
+    flex-direction: row;
+    justify-content: center; 
+    align-items: center;
+    .application-name {
+      color: light;
+      font-size: 30px;
+      text-transform: uppercase;
+    }
+    .application-slogan {
+      font-size: 20px;
+      color: #cd2009;
+      font-style: italic;
+      padding-top: 10px;
     }
   }
 }
 
 @media (max-width: 768px) {
-  .homePage {
+  .home-main-container {
+    .home-image {
+      height: 64px;
+      display: none;
+    }
+
+    .home-title {
+      span {
+        font-size: 24px;
+      }
+      p {
+        font-size: 16px;
+      }
+    }
+
+    .card-body {
+      padding: 0;
+      p {
+        font-size: 14px;
+      }
+    }
+
+    .AppHeader {
+      .header-title {
+        display: flex;
+        flex-direction: column;
+        .application-name {
+          font-size: 24px;
+        }
+        .application-slogan {
+          font-size: 12px;
+        }
+      }
+    }
+  }
+  /*.homePage {
     padding: 0;
     margin-top: 0;
 
@@ -78,33 +127,5 @@
         }
       }
     }
-  }
-}
-
-.AppHeader {
-  color: lightgray;
-  margin: 0;
-  padding: 0;
-  .cardtitle {
-    text-transform: uppercase;
-    font-size: 16px;
-    font-weight: bold;
-    margin: 0;
-    padding: 0;
-
-    span {
-      text-transform: none;
-      font-size: 16px;
-      font-style: italic;
-      color: #cd2009;
-      margin: 0 0 0 15px;
-      padding: 0;
-    }
-
-    @media (max-width: 768px) {
-      span {
-        display: none;
-      }
-    }
-  }
+  }*/
 }

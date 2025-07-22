@@ -1,6 +1,6 @@
 import React from 'react'
 
-const Home = React.lazy(() => import('./views/home/Home'))
+// const Home = React.lazy(() => import('./Home'))
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 const Formulaire1 = React.lazy(() => import('./views/formulaires/Formulaire1'))
 // const Formulaire = React.lazy(() => import('./views/formulaires/Formulaire'))
@@ -17,7 +17,7 @@ const Variable = React.lazy(() => import('./views/parametres/variables/Variable'
 const Question = React.lazy(() => import('./views/parametres/questions/Question'))
 
 const routes = [
-  { path: '/', exact: true, name: 'Home', element: Home },
+  // { path: '/', exact: true, name: 'Home', element: Home },
   { path: '/dashboard', name: 'Dashboard', element: Dashboard },
   // { path: '/formulaire1', name: 'Formulaire1', element: Formulaire1 },
   // { path: '/formulaire', name: 'Formulaire', element: Formulaire },

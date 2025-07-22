@@ -9,12 +9,13 @@ const DefaultLayout = () => {
   const isLoggedIn = isAuthenticated()
   return (
     <div
-      style={{
-        backgroundImage: `url(${isLoggedIn ? '' : myBackground})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-      }}
+      className="defaultLayout-main-container"
+      // style={{
+      //   backgroundImage: `url(${isLoggedIn ? '' : myBackground})`,
+      //   backgroundSize: 'cover',
+      //   backgroundPosition: 'center',
+      //   backgroundRepeat: 'no-repeat',
+      // }}
     >
       <AppSidebar />
       <div className="wrapper d-flex flex-column min-vh-100">
