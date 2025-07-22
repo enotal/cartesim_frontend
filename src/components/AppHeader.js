@@ -30,8 +30,9 @@ import { AppBreadcrumb } from './index'
 import { AppHeaderDropdown } from './header/index'
 
 import { logo } from 'src/assets/brand/logo'
+import { isAuthenticated } from '../authService'
 
-const AppHeader = ({ isAuthenticated }) => {
+const AppHeader = () => {
   const headerRef = useRef()
   const { colorMode, setColorMode } = useColorModes('coreui-free-react-admin-template-theme')
 
@@ -45,6 +46,8 @@ const AppHeader = ({ isAuthenticated }) => {
     })
   }, [])
 
+  const isLoggedIn = isAuthenticated()
+
   return (
     <CHeader
       position="sticky"
@@ -52,13 +55,13 @@ const AppHeader = ({ isAuthenticated }) => {
       ref={headerRef}
       style={{ backgroundColor: '#17376e' }}
     >
-      {isAuthenticated && (
+      {isLoggedIn && (
         <div className="px-4 pt-1 mb-0 cardtitle">
           optiacademiq+<span>Un plus pour la qualité de notre Université !</span>
         </div>
       )}
       <CContainer className="border-bottom px-4 py-0" fluid>
-        {isAuthenticated ? (
+        {isLoggedIn ? (
           <CHeaderToggler
             onClick={() => dispatch({ type: 'set', sidebarShow: !sidebarShow })}
             style={{ marginInlineStart: '-14px' }}
@@ -69,7 +72,7 @@ const AppHeader = ({ isAuthenticated }) => {
           <CImage className="py-1" src={logo} height={64} />
         )}
         <CHeaderNav className="ms-auto">
-          {isAuthenticated && (
+          {isLoggedIn && (
             <>
               <CNavItem>
                 <CNavLink href="#" className="text-light">
@@ -87,7 +90,7 @@ const AppHeader = ({ isAuthenticated }) => {
           )}
         </CHeaderNav>
         <CHeaderNav>
-          {isAuthenticated && (
+          {isLoggedIn && (
             <>
               <li className="nav-item py-1">
                 <div className="vr h-100 mx-2 text-body text-opacity-75"></div>
@@ -137,7 +140,7 @@ const AppHeader = ({ isAuthenticated }) => {
               </li>
             </>
           )}
-          <AppHeaderDropdown isAuthenticated={isAuthenticated} />
+          <AppHeaderDropdown />
         </CHeaderNav>
       </CContainer>
       {/* {isAuthenticated && (

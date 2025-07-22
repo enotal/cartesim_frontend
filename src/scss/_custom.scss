@@ -14,9 +14,6 @@
   img {
     height: 124px;
     margin-bottom: 30px;
-    @media (max-width: 768px) {
-      height: 90px;
-    }
   }
 
   .cardtitle {
@@ -25,7 +22,6 @@
     font-weight: bold;
     margin-bottom: 5px;
     color: #17376e;
-
     p {
       text-transform: none;
       font-size: 16px;
@@ -36,12 +32,9 @@
   }
 
   .card {
-    width: 50%;
-    padding: 3%;
+    width: 70%;
+    padding: 2%;
     margin-bottom: 15px;
-    @media (max-width: 768px) {
-      width: 100%;
-    }
   }
 
   .card-body p {
@@ -53,6 +46,37 @@
     left: 5%;
     @media (max-width: 768px) {
       width: 70%;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .homePage {
+    padding: 0;
+    margin-top: 0;
+
+    img {
+      height: 64px;
+    }
+
+    .cardtitle {
+      font-size: 18px;
+      margin-top: 0;
+      padding-top: 0;
+      p {
+        font-size: 12px;
+      }
+    }
+
+    .card {
+      width: 100%;
+      padding: 0;
+      .card-body {
+        p {
+          margin-bottom: 5px;
+          font-size: small;
+        }
+      }
     }
   }
 }

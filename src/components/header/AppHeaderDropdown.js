@@ -24,20 +24,23 @@ import {
 import CIcon from '@coreui/icons-react'
 
 import avatar8 from './../../assets/images/avatars/8.jpg'
+import { isAuthenticated } from '../../authService'
 
-const AppHeaderDropdown = ({ isAuthenticated }) => {
+const AppHeaderDropdown = () => {
   const navigate = useNavigate()
-  
+
+  const isLoggedIn = isAuthenticated()
+
   const handleLogout = () => {
     // Clear User session before authentication
     localStorage.removeItem('optiacademiqplus_auth') // Remove a specific item
     localStorage.clear() // Clear all items from localStorage
-    navigate('/')
-    navigate(0)
+    document.location.href = '/'
+    // navigate(0)
   }
   return (
     <CDropdown variant="nav-item">
-      {isAuthenticated ? (
+      {isLoggedIn ? (
         <>
           <CDropdownToggle
             placement="bottom-end"

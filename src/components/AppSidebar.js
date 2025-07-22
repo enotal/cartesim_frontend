@@ -20,19 +20,22 @@ import { logo } from 'src/assets/brand/logo'
 
 // sidebar nav config
 import navigation from '../_nav'
+import { isAuthenticated } from '../authService'
 
-const AppSidebar = ({ isAuthenticated }) => {
+const AppSidebar = () => {
   const dispatch = useDispatch()
   const unfoldable = useSelector((state) => state.sidebarUnfoldable)
   const sidebarShow = useSelector((state) => state.sidebarShow)
 
-  if (isAuthenticated) {
+  const isLoggedIn = isAuthenticated()
+
+  if (isLoggedIn) {
     return (
       <CSidebar
         className="border-end"
         colorScheme="dark"
         position="fixed"
-        size='lg'
+        size="lg"
         unfoldable={unfoldable}
         visible={sidebarShow}
         onVisibleChange={(visible) => {

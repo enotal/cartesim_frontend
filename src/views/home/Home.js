@@ -51,10 +51,25 @@ const Home = () => {
       </h5>
       <div className="card">
         <div className="card-body">
-          <p className="card-text">
-            Analyse des déterminants de la réussite et du décrochage des étudiants à l’Université
-            Virtuelle du Burkina Faso (UV-BF) en vue de la mise en place d’un modèle prédictif
-            d’accompagnement personnalisé.  
+          <p key="cardtitle1">
+            <b>OptiAcadémiQ+</b> est une plateforme innovante développée par l’Université Virtuelle
+            du Burkina Faso (UV-BF), visant à optimiser les parcours académiques et professionnels
+            des étudiants. Elle permet d’identifier et d’analyser les déterminants de la réussite et
+            du décrochage universitaire, tout en offrant un modèle prédictif d’accompagnement
+            personnalisé adapté au contexte du Burkina Faso.
+          </p>
+          <p key="cardtitle2">
+            Le nom OptiAcadémiQ+ découle d’une combinaison stratégique des notions{' '}
+            <b>« Optimisation »</b>,<b>« Académique »</b> et <b>« IQ »</b> (quotient intellectuel),
+            rehaussée par le symbole <b>« + »</b>, qui incarne la valeur ajoutée, l’excellence
+            continue et un encadrement renforcé des étudiants.
+          </p>
+          <p key="cardtitle3">
+            Bien au-delà d’un simple outil technologique, cette plateforme porte une vision
+            audacieuse de la réussite étudiante. Elle s’appuie sur des technologies intelligentes,
+            des ressources pédagogiques ciblées et des approches d’apprentissage adaptatives, afin
+            de booster les performances, encourager l’autonomie et accompagner durablement
+            l’épanouissement académique et professionnel des apprenants.
           </p>
         </div>
       </div>
