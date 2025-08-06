@@ -1,9 +1,13 @@
-import React, { useState } from 'react'
+import { useEffect, useState } from 'react'
+import axios from 'axios'
+import { baseUrl } from '../../../backend/serverParams'
 import ItemList from '../../../components/crud/ItemList'
 import QuestionCreate from './QuestionCreate'
 
 const Question = () => {
-  const tableAlias = 'usr'
+  const [variables, setVariables] = useState([])
+  const [questions, setQuestions] = useState([])
+  const [modalites, setModalites] = useState([])
 
   const columns = [
     { title: null, data: 'select' },
@@ -11,14 +15,16 @@ const Question = () => {
     { title: 'Libellé', data: 'libelle' },
     { title: 'Modalité', data: 'modalite' },
     { title: 'Déclencheur', data: 'declencheur' },
+    { title: 'Question mère', data: 'question_id' },
+    { title: 'Variable', data: 'variable_id' },
   ]
 
   const apiResource = {
-    get: 'users',
-    create: 'users',
-    read: 'users/',
-    update: 'users/',
-    delete: 'users/',
+    get: 'questions',
+    create: 'questions',
+    read: 'questions/',
+    update: 'questions/',
+    delete: 'questions/',
   }
 
   const credentials = [
@@ -26,6 +32,8 @@ const Question = () => {
     ['libelle', 'libelle'],
     ['modalite', 'modalite'],
     ['declencheur', 'declencheur'],
+    ['question', 'question_id'],
+    ['variable', 'variable_id'],
   ]
 
   const colvisNotVisibleColumns = ':second-child'
@@ -37,58 +45,73 @@ const Question = () => {
     delete: 1,
   }
 
-  // const [data, setData] = useState([])
-
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       const response = await FetchGet("roles");
-  //       setData(response);
-  //     } catch (err) {
-  //       // setError(err);
-  //     } finally {
-  //       // setLoading(false);
-  //     }
-  //   };
-  //   fetchData();
-  // }, []);
-
-  const [data, setData] = useState([
-    {
-      id: 1,
-      libelle: 'Suivi et insertion',
-      modalite: 'chiffre',
-      declencheur: null,
-    },
-    {
-      id: 2,
-      libelle: 'Profil et identité',
-      modalite: 'chiffre',
-      declencheur: null,
-    },
-  ])
-
   const newRow = {
     id: null,
     libelle: null,
     modalite: null,
     declencheur: null,
+    question_id: null,
+    variable_id: null,
   }
 
-  const variables = []
-  const modalites = []
+  const inputChecking = []
+
+  const FetchGetVariables = async () => {
+    try {
+      const response = await axios.get(baseUrl + 'variables')
+      if (response.status !== 200) {
+        throw new Error()
+      }
+      setVariables(response.data.data)
+    } catch (error) {
+      console.error('Error fetching items:', error)
+      return 'Error fetching items:', error
+    }
+  }
+
+  const FetchGetQuestions = async () => {
+    try {
+      const response = await axios.get(baseUrl + 'questions')
+      if (response.status !== 200) {
+        throw new Error()
+      }
+      setQuestions(response.data.data)
+    } catch (error) {
+      console.error('Error fetching items:', error)
+      return 'Error fetching items:', error
+    }
+  }
+
+  const FetchGetModalites = async () => {
+    try {
+      const response = await axios.get(baseUrl + 'modalites')
+      if (response.status !== 200) {
+        throw new Error()
+      }
+      setModalites(response.data.data)
+    } catch (error) {
+      console.error('Error fetching items:', error)
+      return 'Error fetching items:', error
+    }
+  }
+
+  useEffect(() => {
+    FetchGetVariables()
+    FetchGetQuestions()
+    FetchGetModalites()
+  }, [])
 
   return (
     <div>
       <ItemList
-        tableAlias={tableAlias}
         apiResource={apiResource}
         columns={columns}
         credentials={credentials}
-        children={<QuestionCreate variables={variables} modalites={modalites} />}
-        data={data}
-        setData={setData}
+        children={
+          <QuestionCreate variables={variables} questions={questions} modalites={modalites} />
+        }
         newRow={newRow}
+        inputChecking={inputChecking}
       />
     </div>
   )

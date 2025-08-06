@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
+import axios from 'axios'
+import { baseUrl } from '../../backend/serverParams'
 
 import 'jquery'
 import $ from 'jquery'
@@ -22,16 +24,7 @@ import { CustomAlert } from '../../components/crud/CustomAlert'
 import { CreateComponent } from '../../components/crud/CreateComponent'
 import { DeleteComponent } from '../../components/crud/DeleteComponent'
 
-const ItemList = ({
-  tableAlias,
-  apiResource,
-  columns,
-  credentials,
-  children,
-  data,
-  setData,
-  newRow,
-}) => {
+const ItemList = ({ apiResource, columns, credentials, children, newRow, inputChecking }) => {
   const tableRef = useRef()
   const formRef = useRef()
   const createFormBtnLaunchRef = useRef()
@@ -40,26 +33,31 @@ const ItemList = ({
   const deleteFormBtnLaunchRef = useRef()
   const deleteFormBtnCloseRef = useRef()
 
-  //   const [data, setData] = useState([
-  //     {
-  //       id: 1,
-  //       libellecourt: 'Suivi et insertion',
-  //       libellelong: 'Suivi postuniversitaire et insertion socioprofessionnelle',
-  //       code: 'T4',
-  //     },
-  //     {
-  //       id: 2,
-  //       libellecourt: 'Profil et identité',
-  //       libellelong: "Profil et identité de l'étudiant",
-  //       code: 'T3',
-  //     },
-  //   ])
+  const [data, setData] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+
   const [deleteSet, setDeleteSet] = useState([])
   const [formAction, setFormAction] = useState(null)
 
   const [alert, setAlert] = useState(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
+
+  const FetchGet = async () => {
+    try {
+      const response = await axios.get(baseUrl + apiResource.get)
+      if (response.status !== 200) {
+        throw new Error()
+      }
+      setData(response.data.data)
+    } catch (error) {
+      console.error('Error fetching items:', error)
+      return 'Error fetching items:', error
+    }
+  }
+
+  useEffect(() => {
+    FetchGet()
+  }, [])
 
   useEffect(() => {
     if (tableRef.current) {
@@ -128,6 +126,19 @@ const ItemList = ({
                     if (obj.length && row[0][credentials[i][1]]) {
                       obj.val(row[0][credentials[i][1]])
                     }
+                  }
+                  if (inputChecking.length > 0) {
+                    var itemFrom = ''
+                    var itemTo = ''
+                    inputChecking.forEach((element) => {
+                      itemFrom = $('input[name="' + element.from + '"]').val()
+                      itemTo = $('input[name="' + element.to + '"]')
+                      for (var i = 0; i < itemTo.length; i++) {
+                        if (itemFrom.includes(itemTo[i].value)) {
+                          itemTo[i].checked = true
+                        }
+                      }
+                    })
                   }
                   if (createFormBtnLaunchRef.current) {
                     createFormBtnLaunchRef.current.click()
@@ -251,10 +262,10 @@ const ItemList = ({
   const handleSubmitCreateForm = async (e) => {
     e.preventDefault() // Prevents page reload
     setAlert(null)
-    // get and prepare files
+
+    // récupération des données du formulaire
     const formData = new FormData(formRef.current)
     const formValues = Object.fromEntries(formData)
-
     for (var i = 0; i < credentials.length; i++) {
       if (credentials[i][0] !== 'id') {
         newRow[credentials[i][1]] = formValues[credentials[i][0]]
@@ -262,26 +273,41 @@ const ItemList = ({
     }
 
     // envoi des données à l'API
+    // création
     if (formAction === 'create') {
-      newRow.id = data.length + 1
-      const LengthBefore = data.length
-      setData([...data, newRow]) // Use spread operator to create a new array
-      if (newRow.id > LengthBefore) {
+      try {
+        const response = await axios.post(baseUrl + apiResource.create, newRow)
+        if (response.status !== 200) {
+          //
+        }
+        FetchGet()
         setAlert({ type: 'success', action: 'create' })
         if (createFormBtnResetRef.current) {
           createFormBtnResetRef.current.click()
         }
-      } else {
+      } catch (error) {
+        console.error('Error fetching items:', error)
         setAlert({ type: 'danger', action: 'create' })
       }
     }
 
+    // mise à jour
     if (formAction === 'update') {
       const editingRowId = $(tableRef.current).DataTable().rows({ selected: true }).data()[0].id
       newRow.id = editingRowId
-      setData(data.map((row) => (row.id === editingRowId ? newRow : row)))
-      setAlert({ type: 'success', action: 'update' })
-      handleCancelCreateForm()
+
+      try {
+        const response = await axios.patch(baseUrl + apiResource.update + editingRowId, newRow)
+        if (response.status !== 200) {
+          //
+        }
+        FetchGet()
+        setAlert({ type: 'success', action: 'update' })
+        handleCancelCreateForm()
+      } catch (error) {
+        console.error('Error fetching items:', error)
+        setAlert({ type: 'danger', action: 'update' })
+      }
     }
   }
   //===
@@ -303,21 +329,31 @@ const ItemList = ({
     setAlert(null)
     // récupération des id
     var response = null
-    var deleted = []
-    deleted = $(tableRef.current).DataTable().rows({ selected: true }).data()
-    console.log(deleted)
-    // Filter out the row with the matching id
-    const updatedData = data.filter((row) => deleted.find(row.id))
-    // Update the state with the new array
-    setData(updatedData)
+    var selectedRowsIds = []
+    selectedRowsIds = $(tableRef.current)
+      .DataTable()
+      .rows({ selected: true })
+      .data()
+      .pluck('id')
+      .toArray()
 
-    // envoi des données à l'API
-    if (updatedData.length === data.length) {
-      setAlert({ type: 'danger', action: 'delete' })
-    } else {
-      setAlert({ type: 'success', action: 'delete' })
+    if (selectedRowsIds.length > 0) {
+      // console.log(baseUrl + apiResource.delete + selectedRowsIds.toString())
+      try {
+        const response = await axios.delete(
+          baseUrl + apiResource.delete + selectedRowsIds.toString(),
+        )
+        if (response.status !== 200) {
+          //
+        }
+        FetchGet()
+        setAlert({ type: 'success', action: 'delete' })
+        handleCancelDeleteForm()
+      } catch (error) {
+        console.error('Error fetching items:', error)
+        setAlert({ type: 'danger', action: 'delete' })
+      }
     }
-    handleCancelDeleteForm()
   }
   // ===
 

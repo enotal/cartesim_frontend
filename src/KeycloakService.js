@@ -1,12 +1,12 @@
-//== Keycloak-js
-
 import Keycloak from 'keycloak-js'
 import { isAuthenticated } from './authService'
 
+const isLoggedIn = isAuthenticated()
+
 const keycloakConfig = {
-  url: 'http://localhost:8189',
-  realm: 'optiacademiqplus',
-  clientId: 'optiacademiqplus-front',
+  url: 'https://login.campusfaso.bf/auth/realms/campusFaso',
+  realm: 'campusFaso',
+  clientId: 'optiacademiqplus',
 }
 
 const keycloak = new Keycloak(keycloakConfig)
@@ -20,8 +20,8 @@ export const KeycloakService = {
     if (!initPromise) {
       initPromise = keycloak
         .init(options)
-        .then((authenticated) => {
-          return authenticated
+        .then((isLoggedIn) => {
+          return isLoggedIn
         })
         .catch((error) => {
           // Réinitialisation si échec pour retenter proprement

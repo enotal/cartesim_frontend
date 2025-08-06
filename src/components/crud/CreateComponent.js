@@ -12,6 +12,7 @@ export const CreateComponent = ({
   onHandleCancelCreateForm,
   alert,
   children,
+  self,
 }) => {
   return (
     <form ref={formRef} onSubmit={onHandleSubmitCreateForm}>

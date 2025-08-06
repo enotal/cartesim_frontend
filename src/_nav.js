@@ -1,4 +1,3 @@
-import React from 'react'
 import CIcon from '@coreui/icons-react'
 import {
   cilCursor,
@@ -75,6 +74,18 @@ const _nav = [
   {
     component: CNavTitle,
     name: 'Paramètres',
+  },
+  {
+    component: CNavItem,
+    name: 'Types de répondant',
+    to: '/parametres/typerepondants',
+    icon: <CIcon icon={cilPuzzle} customClassName="nav-icon" />,
+  },
+  {
+    component: CNavItem,
+    name: 'Modalités',
+    to: '/parametres/modalites',
+    icon: <CIcon icon={cilPuzzle} customClassName="nav-icon" />,
   },
   {
     component: CNavItem,

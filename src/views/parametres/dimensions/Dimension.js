@@ -1,25 +1,28 @@
-import React, { useState } from 'react'
+import { useEffect, useState } from 'react'
+import axios from 'axios'
+import { baseUrl } from '../../../backend/serverParams'
 import ItemList from '../../../components/crud/ItemList'
 import DimensionCreate from './DimensionCreate'
 
 const Dimension = () => {
-  const tableAlias = 'usr'
+  const [thematiques, setThematiques] = useState([])
+  const [typerepondants, setTyperepondants] = useState([])
 
   const columns = [
     { title: null, data: 'select' },
-    // { title: null, data: "" },
     { title: 'Libellé court', data: 'libellecourt' },
     { title: 'Libellé long', data: 'libellelong' },
     { title: 'Code', data: 'code' },
     { title: 'Type répondant', data: 'typerepondant' },
+    { title: 'Thématique', data: 'thematiqueLibellecourt' },
   ]
 
   const apiResource = {
-    get: 'users',
-    create: 'users',
-    read: 'users/',
-    update: 'users/',
-    delete: 'users/',
+    get: 'dimensions',
+    create: 'dimensions',
+    read: 'dimensions/',
+    update: 'dimensions/',
+    delete: 'dimensions/',
   }
 
   const credentials = [
@@ -28,6 +31,7 @@ const Dimension = () => {
     ['libelleLong', 'libellelong'],
     ['code', 'code'],
     ['typeRepondant', 'typerepondant'],
+    ['thematique', 'thematique_id'],
   ]
 
   const colvisNotVisibleColumns = ':second-child'
@@ -39,39 +43,6 @@ const Dimension = () => {
     delete: 1,
   }
 
-  // const [data, setData] = useState([])
-
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       const response = await FetchGet("roles");
-  //       setData(response);
-  //     } catch (err) {
-  //       // setError(err);
-  //     } finally {
-  //       // setLoading(false);
-  //     }
-  //   };
-  //   fetchData();
-  // }, []);
-
-  const [data, setData] = useState([
-    {
-      id: 1,
-      libellecourt: 'Suivi et insertion',
-      libellelong: 'Suivi postuniversitaire et insertion socioprofessionnelle',
-      code: 'T4',
-      typerepondant: 'étudiant,enseignant',
-    },
-    {
-      id: 2,
-      libellecourt: 'Profil et identité',
-      libellelong: "Profil et identité de l'étudiant",
-      code: 'T3',
-      typerepondant: 'personnel ATOS',
-    },
-  ])
-
   const newRow = {
     id: null,
     libellecourt: null,
@@ -80,19 +51,48 @@ const Dimension = () => {
     typerepondant: null,
   }
 
-  const thematiques = []
-  
+  const inputChecking = [{ from: 'typeRepondant', to: 'typeRepondant[]' }]
+
+  const FetchGetThematiques = async () => {
+    try {
+      const response = await axios.get(baseUrl + 'thematiques')
+      if (response.status !== 200) {
+        throw new Error()
+      }
+      setThematiques(response.data.data)
+    } catch (error) {
+      console.error('Error fetching items:', error)
+      return 'Error fetching items:', error
+    }
+  }
+
+  const FetchGetTyperepondants = async () => {
+    try {
+      const response = await axios.get(baseUrl + 'typerepondants')
+      if (response.status !== 200) {
+        throw new Error()
+      }
+      setTyperepondants(response.data.data)
+    } catch (error) {
+      console.error('Error fetching items:', error)
+      return 'Error fetching items:', error
+    }
+  }
+
+  useEffect(() => {
+    FetchGetThematiques()
+    FetchGetTyperepondants()
+  }, [])
+
   return (
     <div>
       <ItemList
-        tableAlias={tableAlias}
         apiResource={apiResource}
         columns={columns}
         credentials={credentials}
-        children={<DimensionCreate thematiques={thematiques} />}
-        data={data}
-        setData={setData}
+        children={<DimensionCreate thematiques={thematiques} typerepondants={typerepondants} />}
         newRow={newRow}
+        inputChecking={inputChecking}
       />
     </div>
   )

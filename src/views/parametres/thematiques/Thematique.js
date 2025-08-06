@@ -1,24 +1,22 @@
-import React, { useState } from 'react'
 import ItemList from '../../../components/crud/ItemList'
 import ThematiqueCreate from './ThematiqueCreate'
 
 const Thematique = () => {
-  const tableAlias = 'usr'
 
   const columns = [
     { title: null, data: 'select' },
-    // { title: null, data: "" },
     { title: 'Libellé court', data: 'libellecourt' },
     { title: 'Libellé long', data: 'libellelong' },
     { title: 'Code', data: 'code' },
+    { title: 'ID', data: 'id' },
   ]
 
   const apiResource = {
-    get: 'users',
-    create: 'users',
-    read: 'users/',
-    update: 'users/',
-    delete: 'users/',
+    get: 'thematiques',
+    create: 'thematiques',
+    read: 'thematiques/',
+    update: 'thematiques/',
+    delete: 'thematiques/',
   }
 
   const credentials = [
@@ -37,37 +35,6 @@ const Thematique = () => {
     delete: 1,
   }
 
-  // const [data, setData] = useState([])
-
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       const response = await FetchGet("roles");
-  //       setData(response);
-  //     } catch (err) {
-  //       // setError(err);
-  //     } finally {
-  //       // setLoading(false);
-  //     }
-  //   };
-  //   fetchData();
-  // }, []);
-
-  const [data, setData] = useState([
-    {
-      id: 1,
-      libellecourt: 'Suivi et insertion',
-      libellelong: 'Suivi postuniversitaire et insertion socioprofessionnelle',
-      code: 'T4',
-    },
-    {
-      id: 2,
-      libellecourt: 'Profil et identité',
-      libellelong: "Profil et identité de l'étudiant",
-      code: 'T3',
-    },
-  ])
-
   const newRow = {
     id: null,
     libellecourt: null,
@@ -78,13 +45,10 @@ const Thematique = () => {
   return (
     <div>
       <ItemList
-        tableAlias={tableAlias}
         apiResource={apiResource}
         columns={columns}
         credentials={credentials}
         children={<ThematiqueCreate />}
-        data={data}
-        setData={setData}
         newRow={newRow}
       />
     </div>

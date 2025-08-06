@@ -1,27 +1,30 @@
-import React, { useState } from 'react'
+import { useEffect, useState } from 'react'
+import axios from 'axios'
+import { baseUrl } from '../../../backend/serverParams'
 import ItemList from '../../../components/crud/ItemList'
 import VariableCreate from './VariableCreate'
 
 const Variable = () => {
-  const tableAlias = 'usr'
+  const [dimensions, setDimensions] = useState([])
 
   const columns = [
     { title: null, data: 'select' },
-    // { title: null, data: "" },
     { title: 'Libellé', data: 'libelle' },
+    { title: 'Dimension', data: 'dimension_id' },
   ]
 
   const apiResource = {
-    get: 'users',
-    create: 'users',
-    read: 'users/',
-    update: 'users/',
-    delete: 'users/',
+    get: 'variables',
+    create: 'variables',
+    read: 'variables/',
+    update: 'variables/',
+    delete: 'variables/',
   }
 
   const credentials = [
     ['id', 'id'],
     ['libelle', 'libelle'],
+    ['dimension', 'dimension_id'],
   ]
 
   const colvisNotVisibleColumns = ':second-child'
@@ -33,51 +36,40 @@ const Variable = () => {
     delete: 1,
   }
 
-  // const [data, setData] = useState([])
-
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       const response = await FetchGet("roles");
-  //       setData(response);
-  //     } catch (err) {
-  //       // setError(err);
-  //     } finally {
-  //       // setLoading(false);
-  //     }
-  //   };
-  //   fetchData();
-  // }, []);
-
-  const [data, setData] = useState([
-    {
-      id: 1,
-      libelle: 'Suivi et insertion',
-    },
-    {
-      id: 2,
-      libelle: 'Profil et identité',
-    },
-  ])
-
   const newRow = {
     id: null,
     libelle: null,
+    dimension_id: null,
   }
 
-  const dimensions = []
+  const inputChecking = []
+
+  const FetchGetDimensions = async () => {
+    try {
+      const response = await axios.get(baseUrl + 'dimensions')
+      if (response.status !== 200) {
+        throw new Error()
+      }
+      setDimensions(response.data.data)
+    } catch (error) {
+      console.error('Error fetching items:', error)
+      return 'Error fetching items:', error
+    }
+  }
+
+  useEffect(() => {
+    FetchGetDimensions()
+  }, [])
 
   return (
     <div>
       <ItemList
-        tableAlias={tableAlias}
         apiResource={apiResource}
         columns={columns}
         credentials={credentials}
         children={<VariableCreate dimensions={dimensions} />}
-        data={data}
-        setData={setData}
         newRow={newRow}
+        inputChecking={inputChecking}
       />
     </div>
   )

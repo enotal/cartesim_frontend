@@ -1,7 +1,19 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import $ from 'jquery'
 import { RequiredField } from '../../../components/crud/RequiredField'
 
-const DimensionCreate = ({ thematiques }) => {
+const DimensionCreate = ({ thematiques, typerepondants }) => {
+  
+  const handleCheckBox = (e) => {
+    var checkedValues = []
+    $('input[name="typeRepondant[]"]:checked').each(function () {
+      checkedValues.push($(this).val())
+    })
+    $('input[name="typeRepondant"]').val(checkedValues)
+  }
+
+  
+
   return (
     <div>
       <div className="mb-2 row">
@@ -29,7 +41,7 @@ const DimensionCreate = ({ thematiques }) => {
           </select>
         </div>
       </div>
-      
+
       <div className="mb-2 row">
         <label htmlFor="libelleCourt" className="col-form-label py-0">
           <RequiredField tagP={0} />
@@ -75,16 +87,31 @@ const DimensionCreate = ({ thematiques }) => {
       <div className="mb-2 row">
         <label htmlFor="typeRepondant" className="col-form-label py-0">
           <RequiredField tagP={0} />
-          Type répondant
+          Types de répondants
         </label>
         <div className="">
-          <input
-            type="text"
-            className="form-control"
-            id="typeRepondant"
-            name="typeRepondant"
-            required
-          />
+          <div className="">
+            {typerepondants.map((typerepondant, index) => {
+              return (
+                <div className="form-check" key={'typeRepondant' + index}>
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    id={'typeRepondant' + index}
+                    name="typeRepondant[]"
+                    value={typerepondant.libelle}
+                    onChange={handleCheckBox}
+                  />
+                  <label className="form-check-label" htmlFor={'typeRepondant' + index}>
+                    {typerepondant.code + ' => ' + typerepondant.libelle}
+                  </label>
+                </div>
+              )
+            })}
+          </div>
+          <div className="">
+            <input type="text" className="form-control" id="typeRepondant" name="typeRepondant" />
+          </div>
         </div>
       </div>
     </div>

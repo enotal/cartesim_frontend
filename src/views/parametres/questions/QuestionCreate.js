@@ -1,7 +1,7 @@
 import React from 'react'
 import { RequiredField } from '../../../components/crud/RequiredField'
 
-const QuestionCreate = ({ variables, modalites }) => {
+const QuestionCreate = ({ variables, questions, modalites  }) => {
   return (
     <div>
       <div className="mb-2 row">
@@ -22,7 +22,7 @@ const QuestionCreate = ({ variables, modalites }) => {
             {variables.map((variable, index) => {
               return (
                 <option key={'variable' + index} value={variable.id}>
-                  {variable.libellelong}
+                  {variable.libelle}
                 </option>
               )
             })}
@@ -31,18 +31,25 @@ const QuestionCreate = ({ variables, modalites }) => {
       </div>
 
       <div className="mb-2 row">
-        <label htmlFor="libelle" className="col-form-label py-0">
-          <RequiredField tagP={0} />
-          Libellé
+        <label htmlFor="question" className="col-form-label py-0">
+          Questions
         </label>
         <div className="">
-          <input
-            type="text"
-            className="form-control"
-            id="libelle"
-            name="libelle"
-            required
-          />
+          <select
+            className="form-select"
+            aria-label="Default select example"
+            id="question"
+            name="question"
+          >
+            <option value="">Sélectionner ici !</option>
+            {questions.map((question, index) => {
+              return (
+                <option key={'question' + index} value={question.id}>
+                  {question.libelle}
+                </option>
+              )
+            })}
+          </select>
         </div>
       </div>
 
@@ -68,6 +75,16 @@ const QuestionCreate = ({ variables, modalites }) => {
               )
             })}
           </select>
+        </div>
+      </div>
+
+      <div className="mb-2 row">
+        <label htmlFor="libelle" className="col-form-label py-0">
+          <RequiredField tagP={0} />
+          Libellé
+        </label>
+        <div className="">
+          <input type="text" className="form-control" id="libelle" name="libelle" required />
         </div>
       </div>
 
