@@ -7,7 +7,6 @@
   background-repeat: no-repeat;
 }
 
-<<<<<<< HEAD
 //=== AppGuestHeader
 .guest-header {
   background-color: #17376e;
@@ -41,41 +40,20 @@
     height: 128px;
     display: block;
   }
-=======
-.home-image-appHeader {
-  height: 80px;
-  display: block;
-}
-
-.home-main-container {
-  .home-image {
-    height: 128px;
-    display: block;
-  }
->>>>>>> ac3612064d474c848834f5ba3844b849ca83f5a7
 
   .home-title {
     font-weight: bolder;
     span {
       color: #17376e;
-<<<<<<< HEAD
       font-size: 26px;
       text-transform: uppercase;
     }
     p {
       font-size: 18px;
-=======
-      font-size: 30px;
-      text-transform: uppercase;
-    }
-    p {
-      font-size: 20px;
->>>>>>> ac3612064d474c848834f5ba3844b849ca83f5a7
       color: #cd2009;
       font-style: italic;
     }
   }
-<<<<<<< HEAD
 
   .app-home-description,
   .app-home-connexion {
@@ -87,12 +65,6 @@
     .card-title {
       color: #17376e;
       font-size: 16px;
-=======
-  .card-body {
-    p {
-      padding: 0;
-      font-size: 18px;
->>>>>>> ac3612064d474c848834f5ba3844b849ca83f5a7
       text-align: justify;
     }
   }
@@ -161,11 +133,7 @@
     font-weight: bolder;
     display: flex;
     flex-direction: row;
-<<<<<<< HEAD
     justify-content: center;
-=======
-    justify-content: center; 
->>>>>>> ac3612064d474c848834f5ba3844b849ca83f5a7
     align-items: center;
     .application-name {
       color: light;
@@ -180,73 +148,4 @@
     }
   }
 }
-<<<<<<< HEAD
 */
-=======
-
-@media (max-width: 768px) {
-  .home-main-container {
-    .home-image {
-      height: 64px;
-      display: none;
-    }
-
-    .home-title {
-      span {
-        font-size: 24px;
-      }
-      p {
-        font-size: 16px;
-      }
-    }
-
-    .card-body {
-      padding: 0;
-      p {
-        font-size: 14px;
-      }
-    }
-
-    .AppHeader {
-      .header-title {
-        display: flex;
-        flex-direction: column;
-        .application-name {
-          font-size: 24px;
-        }
-        .application-slogan {
-          font-size: 12px;
-        }
-      }
-    }
-  }
-  /*.homePage {
-    padding: 0;
-    margin-top: 0;
-
-    img {
-      height: 64px;
-    }
-
-    .cardtitle {
-      font-size: 18px;
-      margin-top: 0;
-      padding-top: 0;
-      p {
-        font-size: 12px;
-      }
-    }
-
-    .card {
-      width: 100%;
-      padding: 0;
-      .card-body {
-        p {
-          margin-bottom: 5px;
-          font-size: small;
-        }
-      }
-    }
-  }*/
-}
->>>>>>> ac3612064d474c848834f5ba3844b849ca83f5a7
