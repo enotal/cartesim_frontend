@@ -40,7 +40,6 @@ const AppHeaderDropdown = () => {
   }
   return (
     <CDropdown variant="nav-item">
-<<<<<<< HEAD
       <CDropdownToggle
         placement="bottom-end"
         className="py-0 pe-0 text-light"
@@ -59,32 +58,6 @@ const AppHeaderDropdown = () => {
           Déconnexion
         </CDropdownItem>
       </CDropdownMenu>
-=======
-      {isLoggedIn ? (
-        <>
-          <CDropdownToggle
-            placement="bottom-end"
-            className="py-0 pe-0 text-light"
-            caret={isAuthenticated ? true : false}
-          >
-            <CAvatar src={avatar8} size="md" />
-          </CDropdownToggle>
-          <CDropdownMenu className="pt-0" placement="bottom-end">
-            <CDropdownItem href="#">
-              <CIcon icon={cilUser} className="me-2" />
-              Profil
-            </CDropdownItem>
-            <CDropdownDivider />
-            <CDropdownItem href="#" onClick={handleLogout}>
-              <CIcon icon={cilLockLocked} className="me-2" />
-              Déconnexion
-            </CDropdownItem>
-          </CDropdownMenu>
-        </>
-      ) : (
-        <div className="text-light">Non connecté(e)</div>
-      )}
->>>>>>> ac3612064d474c848834f5ba3844b849ca83f5a7
     </CDropdown>
   )
 }
