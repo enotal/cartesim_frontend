@@ -1,10 +1,32 @@
 import { AppGuestHeader, AppGuestFooter } from './components/index'
 import AppHomeConnexion2 from './assets/images/app-home-connexion-2.png'
 import AppHomeConnexion3 from './assets/images/app-home-connexion-3.png'
-
+import { useEffect, useState } from 'react'
+import KeycloakService from './KeycloakService'
 const Home = () => {
   const leftCol = 8
   const rightCol = 4
+ const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [token, setToken] = useState(null)
+
+  useEffect(() => {
+    KeycloakService.init({ onLoad: 'check-sso', silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html' })
+      .then((authenticated) => {
+        console.log('User is authenticated:', authenticated)
+        setIsAuthenticated(authenticated)
+
+        if (authenticated) {
+          const token = KeycloakService.getToken()
+          setToken(token)
+          console.log('Access token:', token)
+        }
+      })
+      .catch((err) => {
+        console.error('Keycloak init error:', err)
+      })
+  }, [])
+
+
   return (
     <div className="home-main-container min-vh-100">
       <AppGuestHeader />
