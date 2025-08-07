@@ -1,17 +1,14 @@
 import Keycloak from 'keycloak-js'
-import { isAuthenticated } from './authService'
-
-const isLoggedIn = isAuthenticated()
 
 const keycloakConfig = {
-  url: 'https://login.campusfaso.bf/auth/realms/campusFaso',
+  url: 'https://login.campusfaso.bf/auth',
   realm: 'campusFaso',
   clientId: 'optiacademiqplus',
 }
 
 const keycloak = new Keycloak(keycloakConfig)
 
-let initPromise = null // Promesse d'initialisation partagée
+let initPromise = null
 
 export const KeycloakService = {
   instance: keycloak,
@@ -19,12 +16,18 @@ export const KeycloakService = {
   init: (options = {}) => {
     if (!initPromise) {
       initPromise = keycloak
-        .init(options)
-        .then((isLoggedIn) => {
-          return isLoggedIn
+        .init({
+          onLoad: 'check-sso', // Ne force pas la redirection
+          silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html',
+          pkceMethod: 'S256',
+          ...options
+        })
+        .then((authenticated) => {
+          console.log('Keycloak authentication status:', authenticated)
+          return authenticated
         })
         .catch((error) => {
-          // Réinitialisation si échec pour retenter proprement
+          console.error('Keycloak init error:', error)
           initPromise = null
           throw error
         })
@@ -38,7 +41,7 @@ export const KeycloakService = {
   getToken: () => keycloak.token,
   getTokenParsed: () => keycloak.tokenParsed,
   hasRole: (role) => keycloak.hasRealmRole(role),
-  updateToken: (minValidity) => keycloak.updateToken(minValidity),
+  updateToken: (minValidity = 30) => keycloak.updateToken(minValidity),
 }
 
 export default KeycloakService
