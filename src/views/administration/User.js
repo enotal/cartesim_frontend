@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import { FetchGet } from '../../backend/client'
 
 const User = () => {
   const [users, setUsers] = useState([])
