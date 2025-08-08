@@ -1,16 +1,22 @@
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { AppGuestHeader, AppGuestFooter } from './components/index'
 import AppHomeConnexion2 from './assets/images/app-home-connexion-2.png'
 import AppHomeConnexion3 from './assets/images/app-home-connexion-3.png'
-import { useEffect, useState } from 'react'
 import KeycloakService from './KeycloakService'
+
 const Home = () => {
   const leftCol = 8
   const rightCol = 4
- const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [token, setToken] = useState(null)
+  const navigate = useNavigate()
 
   useEffect(() => {
-    KeycloakService.init({ onLoad: 'check-sso', silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html' })
+    KeycloakService.init({
+      onLoad: 'check-sso',
+      silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html',
+    })
       .then((authenticated) => {
         console.log('User is authenticated:', authenticated)
         setIsAuthenticated(authenticated)
@@ -26,6 +32,13 @@ const Home = () => {
       })
   }, [])
 
+  if (isAuthenticated && token !== null) {
+    localStorage.setItem('optiacademiqplus_auth', {
+      isAuthenticated: isAuthenticated,
+      token: token,
+    })
+    navigate('/dashboard', { replace: true })
+  }
 
   return (
     <div className="home-main-container min-vh-100">
