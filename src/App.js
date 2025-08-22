@@ -24,7 +24,7 @@ const App = () => {
   const { isColorModeSet, setColorMode } = useColorModes('coreui-free-react-admin-template-theme')
   const storedTheme = useSelector((state) => state.theme)
 
-  const [isLoggedIn, setIsLoggedIn] = React.useState(isAuthenticated) // Replace with your actual authentication state
+  const [isLoggedIn, setIsLoggedIn] = React.useState(isAuthenticated()) // Replace with your actual authentication state
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.href.split('?')[1])

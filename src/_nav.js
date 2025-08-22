@@ -6,13 +6,9 @@ import {
   cilPuzzle,
   cilSpeedometer,
   cilGroup,
-  cilUserPlus,
-  cilGrain,
-  cilLockUnlocked,
   cilCommentBubble,
 } from '@coreui/icons'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
-import { thematiques } from './views/formulaires/data'
 
 const _nav = [
   {
@@ -21,43 +17,18 @@ const _nav = [
     to: '/dashboard',
     icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
   },
-  // {
-  //   component: CNavItem,
-  //   name: 'Formulaire 1',
-  //   to: '/formulaire1',
-  //   icon: <CIcon icon={cilDescription} customClassName="nav-icon" />,
-  // },
   {
-    component: CNavTitle,
-    name: 'FORMULAIRE',
+    component: CNavItem,
+    name: 'Questionnaires',
+    to: '/questionnaires',
+    icon: <CIcon icon={cilDescription} customClassName="nav-icon" />,
+    // className:"border-top border-bottom border-light"
   },
   {
     component: CNavItem,
-    name: 'Parcours & Performance',
-    to: '/formulaire/pipa',
+    name: 'Formulaire',
+    to: '/formulaire',
     icon: <CIcon icon={cilDescription} customClassName="nav-icon" />,
-  },
-  {
-    component: CNavItem,
-    name: 'Qualité & Pédagogie',
-    to: '/formulaire/qeap',
-    icon: <CIcon icon={cilDescription} customClassName="nav-icon" />,
-  },
-  {
-    component: CNavItem,
-    name: 'Suivi & Insertion',
-    to: '/formulaire/spis',
-    icon: <CIcon icon={cilDescription} customClassName="nav-icon" />,
-  },
-  {
-    component: CNavItem,
-    name: 'Gouvernance & Infrastructures',
-    to: '/formulaire/gici',
-    icon: <CIcon icon={cilDescription} customClassName="nav-icon" />,
-  },
-  {
-    component: CNavTitle,
-    name: '',
   },
   {
     component: CNavItem,
@@ -77,38 +48,20 @@ const _nav = [
   },
   {
     component: CNavItem,
-    name: 'Types de répondant',
-    to: '/parametres/typerepondants',
-    icon: <CIcon icon={cilPuzzle} customClassName="nav-icon" />,
-  },
-  {
-    component: CNavItem,
-    name: 'Modalités',
-    to: '/parametres/modalites',
-    icon: <CIcon icon={cilPuzzle} customClassName="nav-icon" />,
-  },
-  {
-    component: CNavItem,
     name: 'Thématiques',
-    to: '/parametres/thematiques',
+    to: '/thematiques',
     icon: <CIcon icon={cilPuzzle} customClassName="nav-icon" />,
   },
   {
     component: CNavItem,
     name: 'Dimensions',
-    to: '/parametres/dimensions',
+    to: '/dimensions',
     icon: <CIcon icon={cilCursor} customClassName="nav-icon" />,
   },
   {
     component: CNavItem,
-    name: 'Variables',
-    to: '/parametres/variables',
-    icon: <CIcon icon={cilGrain} customClassName="nav-icon" />,
-  },
-  {
-    component: CNavItem,
     name: 'Questions',
-    to: '/parametres/questions',
+    to: '/questions',
     icon: <CIcon icon={cilCommentBubble} customClassName="nav-icon" />,
   },
   {
@@ -117,21 +70,9 @@ const _nav = [
   },
   {
     component: CNavItem,
-    name: 'Rôles',
-    to: '/administration/roles',
+    name: 'Répondants',
+    to: '/repondants',
     icon: <CIcon icon={cilGroup} customClassName="nav-icon" />,
-  },
-  {
-    component: CNavItem,
-    name: 'Utilisateurs',
-    to: '/administration/utilisateurs',
-    icon: <CIcon icon={cilUserPlus} customClassName="nav-icon" />,
-  },
-  {
-    component: CNavItem,
-    name: 'Permissions',
-    to: '/administration/permissions',
-    icon: <CIcon icon={cilLockUnlocked} customClassName="nav-icon" />,
   },
 ]
 

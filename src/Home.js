@@ -19,9 +19,9 @@ const Home = () => {
     })
       .then((authenticated) => {
         console.log('User is authenticated:', authenticated)
-        setIsAuthenticated(authenticated)
+        setIsAuthenticated(!authenticated)
 
-        if (authenticated) {
+        if (!authenticated) {
           const token = KeycloakService.getToken()
           setToken(token)
           console.log('Access token:', token)
@@ -31,7 +31,7 @@ const Home = () => {
         console.error('Keycloak init error:', err)
       })
   }, [])
-
+  console.log(isAuthenticated)
   if (isAuthenticated && token !== null) {
     localStorage.setItem('optiacademiqplus_auth', {
       isAuthenticated: isAuthenticated,
@@ -39,6 +39,7 @@ const Home = () => {
     })
     navigate('/dashboard', { replace: true })
   }
+  // console.log(isAuthenticated)
 
   return (
     <div className="home-main-container min-vh-100">
@@ -120,9 +121,6 @@ const Home = () => {
               </div>
             </div>
             <div className="d-grid mt-2">
-              {/* <a className="btn app-btn-primary" href="#/dashboard">
-                <i className="fa fa-sign-in me-1" aria-hidden="true"></i>Se connecter
-              </a> */}
               <a className="btn app-btn-primary" href="https://services.campusfaso.bf/#/services">
                 <i className="fa fa-sign-in me-1" aria-hidden="true"></i>Se connecter
               </a>

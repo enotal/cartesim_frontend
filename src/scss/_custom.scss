@@ -75,13 +75,26 @@
   background-color: #17376e;
   border-color: #17376e;
   color: lightgray;
-  
 }
 .app-btn-primary:hover {
-    background-color: #1a3e7c;
-    border-color: #1a3e7c;
-    color: lightgray;
-  }
+  background-color: #1a3e7c;
+  border-color: #1a3e7c;
+  color: lightgray;
+}
+
+//=== DataTable buttons
+.dt-btn,
+.dt-actions-btn {
+  background-color: #6b7785;
+  color: lightgray;
+}
+
+.dt-btn:hover,
+.dt-actions-btn:hover {
+  background-color: #98a0a9;
+  color: #fff;
+}
+
 //===
 
 // Media

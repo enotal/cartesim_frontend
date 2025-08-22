@@ -43,8 +43,6 @@ const AppHeader = () => {
     })
   }, [])
 
-  const isLoggedIn = isAuthenticated()
-
   return (
     <CHeader
       position="sticky"
@@ -52,40 +50,34 @@ const AppHeader = () => {
       ref={headerRef}
       style={{ backgroundColor: '#17376e' }}
     >
-      {isLoggedIn && (
-        <div className="px-4 pt-1 pb-0 mb-0 header-title">
-          <div className="application-name">optiacademiq+</div>
-          <div className='application-slogan'>Un plus pour la qualité de notre Université !</div>
-        </div>
-      )}
+      {/* <div className="px-4 pt-1 pb-0 mb-0 header-title">
+        <div className="application-name">optiacademiq+</div>
+        <div className="application-slogan">Un plus pour la qualité de notre Université !</div>
+      </div> */}
+
       <CContainer className="border-bottom px-4 py-0" fluid>
-        {isLoggedIn ? (
-          <CHeaderToggler
-            onClick={() => dispatch({ type: 'set', sidebarShow: !sidebarShow })}
-            style={{ marginInlineStart: '-14px' }}
-          >
-            <CIcon icon={cilMenu} size="lg" className="text-light" />
-          </CHeaderToggler>
-        ) : (
-          <CImage className="home-image-appHeader py-1" src={logo} />
-        )}
+        <CHeaderToggler
+          onClick={() => dispatch({ type: 'set', sidebarShow: !sidebarShow })}
+          style={{ marginInlineStart: '-14px' }}
+        >
+          <CIcon icon={cilMenu} size="lg" className="text-light" />
+        </CHeaderToggler>
+
+        {/* <CImage className="home-image-appHeader py-1" src={logo} /> */}
+
         <CHeaderNav className="ms-auto me-3">
-          {isLoggedIn && (
-            <>
-              <CNavItem>
-                <CNavLink href="/#/dashboard" className="text-light">
-                  <CIcon icon={cilBell} size="lg" className="me-1" />
-                  Notifications
-                </CNavLink>
-              </CNavItem>
-              <CNavItem>
-                <CNavLink href="/#/dashboard" className="text-light">
-                  <CIcon icon={cilEnvelopeOpen} size="lg" className="me-1" />
-                  Messages
-                </CNavLink>
-              </CNavItem>
-            </>
-          )}
+          <CNavItem>
+            <CNavLink href="/#/dashboard" className="text-light">
+              <CIcon icon={cilBell} size="lg" className="me-1" />
+              Notifications
+            </CNavLink>
+          </CNavItem>
+          <CNavItem>
+            <CNavLink href="/#/dashboard" className="text-light">
+              <CIcon icon={cilEnvelopeOpen} size="lg" className="me-1" />
+              Messages
+            </CNavLink>
+          </CNavItem>
         </CHeaderNav>
         <CHeaderNav>
           {/* {isLoggedIn && (
