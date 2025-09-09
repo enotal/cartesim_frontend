@@ -24,8 +24,6 @@ const App = () => {
   const { isColorModeSet, setColorMode } = useColorModes('coreui-free-react-admin-template-theme')
   const storedTheme = useSelector((state) => state.theme)
 
-  const [isLoggedIn, setIsLoggedIn] = React.useState(isAuthenticated()) // Replace with your actual authentication state
-
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.href.split('?')[1])
     const theme = urlParams.get('theme') && urlParams.get('theme').match(/^[A-Za-z0-9\s]+/)[0]
@@ -40,7 +38,7 @@ const App = () => {
     setColorMode(storedTheme)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  
+  const auth = isAuthenticated()
 
   return (
     <HashRouter>
@@ -53,10 +51,10 @@ const App = () => {
       >
         <Routes>
           {/* Public Routes */}
-          <Route exact path="/" name="Accueil" element={<Home setIsLoggedIn={setIsLoggedIn} />} />
+          <Route exact path="/" name="Accueil" element={<Home />} />
           {/* Protected Routes */}
-          <Route element={<ProtectedRoute isAuthenticated={isAuthenticated} />}>
-            <Route path="*" name="Dashboard" element={<DefaultLayout />} />
+          <Route element={<ProtectedRoute auth={auth} />}>
+            <Route path="*" name="Dashboard" element={<DefaultLayout auth={auth} />} />
           </Route>
           {/*  */}
         </Routes>

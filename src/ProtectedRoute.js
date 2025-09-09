@@ -2,11 +2,11 @@
 import React from 'react'
 import { Navigate, Outlet } from 'react-router-dom'
 
-const ProtectedRoute = ({ isAuthenticated, redirectPath = '/' }) => {
-  if (!isAuthenticated) {
+const ProtectedRoute = ({ auth, redirectPath = '/' }) => {
+  if (!auth) {
     return <Navigate to={redirectPath} replace />
   }
-   return <Outlet />; // Renders the child routes/components
+  return <Outlet /> // Renders the child routes/components
 }
 
 export default ProtectedRoute

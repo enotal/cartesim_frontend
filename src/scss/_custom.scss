@@ -99,9 +99,9 @@
 
 .btnFormulaireReset,
 .btnFormulaireReset:hover {
-  background-color: #00407d;
+  background-color: #443027;
   color: #fff;
-  border-color: #00407d;
+  border-color: #443027;
 }
 
 .btnFormulaireSave,
@@ -116,6 +116,10 @@
   background-color: #056409;
   color: #fff;
   border-color: #056409;
+}
+
+.form-check-label {
+  cursor: pointer;
 }
 
 // ===
@@ -152,48 +156,9 @@
     .btnFormulaireSave,
     .btnFormulaireSubmit {
       span {
-        display: none;
+        // display: none;
+        
       }
     }
   }
 }
-
-/*
-
-.AppHeader {
-      .header-title {
-        display: flex;
-        flex-direction: column;
-        .application-name {
-          font-size: 24px;
-        }
-        .application-slogan {
-          font-size: 12px;
-        }
-      }
-    }
-
-.AppHeader {
-  color: lightgray;
-  margin: 0;
-  padding: 0;
-  .header-title {
-    font-weight: bolder;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    .application-name {
-      color: light;
-      font-size: 30px;
-      text-transform: uppercase;
-    }
-    .application-slogan {
-      font-size: 20px;
-      color: #cd2009;
-      font-style: italic;
-      padding-top: 10px;
-    }
-  }
-}
-*/

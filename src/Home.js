@@ -1,45 +1,17 @@
-import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AppGuestHeader, AppGuestFooter } from './components/index'
 import AppHomeConnexion2 from './assets/images/app-home-connexion-2.png'
 import AppHomeConnexion3 from './assets/images/app-home-connexion-3.png'
-import KeycloakService from './KeycloakService'
 
 const Home = () => {
+  const navigate = useNavigate()
   const leftCol = 8
   const rightCol = 4
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [token, setToken] = useState(null)
-  const navigate = useNavigate()
 
-  useEffect(() => {
-    KeycloakService.init({
-      onLoad: 'check-sso',
-      silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html',
-    })
-      .then((authenticated) => {
-        console.log('User is authenticated:', authenticated)
-        setIsAuthenticated(!authenticated)
-
-        if (!authenticated) {
-          const token = KeycloakService.getToken()
-          setToken(token)
-          console.log('Access token:', token)
-        }
-      })
-      .catch((err) => {
-        console.error('Keycloak init error:', err)
-      })
-  }, [])
-  console.log(isAuthenticated)
-  if (isAuthenticated && token !== null) {
-    localStorage.setItem('optiacademiqplus_auth', {
-      isAuthenticated: isAuthenticated,
-      token: token,
-    })
+  const handleLogin = () => {
+    // window.location.href = 'https://services.campusfaso.bf/#/services'
     navigate('/dashboard', { replace: true })
   }
-  // console.log(isAuthenticated)
 
   return (
     <div className="home-main-container min-vh-100">
@@ -121,9 +93,9 @@ const Home = () => {
               </div>
             </div>
             <div className="d-grid mt-2">
-              <a className="btn app-btn-primary" href="https://services.campusfaso.bf/#/services">
+              <button className="btn app-btn-primary" onClick={handleLogin}>
                 <i className="fa fa-sign-in me-1" aria-hidden="true"></i>Se connecter
-              </a>
+              </button>
             </div>
           </div>
         </div>
