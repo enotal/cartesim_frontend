@@ -2,7 +2,6 @@ import React, { Suspense, useEffect, useState } from 'react'
 import { HashRouter, Route, Routes } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import ProtectedRoute from './ProtectedRoute'
-import { isAuthenticated } from './authService'
 
 // Bootstrap
 import 'bootstrap/dist/css/bootstrap.min.css'
@@ -38,8 +37,6 @@ const App = () => {
     setColorMode(storedTheme)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const auth = isAuthenticated()
-
   return (
     <HashRouter>
       <Suspense
@@ -53,9 +50,9 @@ const App = () => {
           {/* Public Routes */}
           <Route exact path="/" name="Accueil" element={<Home />} />
           {/* Protected Routes */}
-          <Route element={<ProtectedRoute auth={auth} />}>
-            <Route path="*" name="Dashboard" element={<DefaultLayout auth={auth} />} />
-          </Route>
+          {/* <Route element={<ProtectedRoute />}> */}
+            <Route path="*" name="Dashboard" element={<DefaultLayout />} />
+          {/* </Route> */}
           {/*  */}
         </Routes>
       </Suspense>

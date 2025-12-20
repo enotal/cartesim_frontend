@@ -12,34 +12,45 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { AppSidebarNav } from './AppSidebarNav'
-import { logo } from 'src/assets/brand/logo'
-// import { sygnet } from 'src/assets/brand/sygnet'
-// import uvbfLogo from '../assets/brand/logo-uvbf.png'
+import { LogoUvbfAccueil } from '../assets/brand/logo'
 
 // sidebar nav config
 import navigation from '../_nav'
 
 const AppSidebar = () => {
   const dispatch = useDispatch()
-  const unfoldable = useSelector((state) => state.sidebarUnfoldable)
   const sidebarShow = useSelector((state) => state.sidebarShow)
+  const unfoldable = useSelector((state) => state.sidebarUnfoldable)
+
+  const handleOnHide = () => {
+    // 
+  }
+
+  const handleOnShow = () => {
+    // 
+  }
 
   return (
     <CSidebar
       className=""
       colorScheme="dark"
-      position="fixed"
-      size="lg"
-      unfoldable={unfoldable}
-      visible={sidebarShow}
+      narrow={false}
+      onHide={handleOnHide}
+      onShow={handleOnShow}
       onVisibleChange={(visible) => {
         dispatch({ type: 'set', sidebarShow: visible })
       }}
+      overlaid={false}
+      placement='start'
+      position="fixed"
+      size="sm" 
+      unfoldable={unfoldable}
+      visible={sidebarShow} 
       style={{ backgroundColor: '#17376e' }}
     >
       <CSidebarHeader className="pt-1">
         <CSidebarBrand>
-          <CImage className="" src={logo} height={48} />
+          <CImage className="" src={LogoUvbfAccueil} height={48} />
         </CSidebarBrand>
         <CCloseButton
           className="d-lg-none"

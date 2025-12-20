@@ -1,12 +1,9 @@
 import { useNavigate } from 'react-router-dom'
 import { AppGuestHeader, AppGuestFooter } from './components/index'
-import AppHomeConnexion2 from './assets/images/app-home-connexion-2.png'
-import AppHomeConnexion3 from './assets/images/app-home-connexion-3.png'
+import { CampusFasoLoginLink, CampusFasoOptiacademiqplusLink } from './assets/images/images'
 
 const Home = () => {
   const navigate = useNavigate()
-  const leftCol = 8
-  const rightCol = 4
 
   const handleLogin = () => {
     // window.location.href = 'https://services.campusfaso.bf/#/services'
@@ -18,85 +15,75 @@ const Home = () => {
       <AppGuestHeader />
       <div className="container pb-5 overflow-y-auto">
         {/*  */}
-        <div className="row">
-          <div className={`col-md-${leftCol}`}>
-            <h5 className="home-title mt-4">
-              <span>optiacademiq+</span>
-              <p>Un plus pour la qualité de notre Université !</p>
-            </h5>
-          </div>
-          <div className={`col-md-${rightCol}`}>{/*  */}</div>
+
+        {/* Title */}
+        <div className="">
+          <h5 className="home-title mt-4">
+            <span>optiacademiq+</span>
+            <p>Un plus pour la qualité de notre Université !</p>
+          </h5>
         </div>
         {/*  */}
-        <div className="row mb-2">
-          {/* Nom, Slogan, Description */}
-          <div className={`col-md-${leftCol} mb-2`}>
-            <div className="card">
-              <div className="card-body app-home-description">
-                <p className="pt-1 pb-0">
-                  <b>OptiAcadémiQ+</b> est une plateforme innovante développée par l’Université
-                  Virtuelle du Burkina Faso (UV-BF), visant à optimiser les parcours académiques et
-                  professionnels des étudiants. Elle permet d’identifier et d’analyser les
-                  déterminants de la réussite et du décrochage universitaire, tout en offrant un
-                  modèle prédictif d’accompagnement personnalisé adapté au contexte du Burkina Faso.
-                </p>
-                Le nom <b>OptiAcadémiQ+</b> découle d’une combinaison stratégique des notions
-                suivantes :
-                <ul className="pt-1 pb-0">
-                  <li>
-                    <b>Optimisation</b>
-                  </li>
-                  <li>
-                    <b>Académique</b>
-                  </li>
-                  <li>
-                    <b>IQ</b> (quotient intellectuel), rehaussée par le symbole <b>« + »</b>, qui
-                    incarne la valeur ajoutée, l’excellence continue et un encadrement renforcé des
-                    étudiants.
-                  </li>
-                </ul>
-                <p className="pb-0">
-                  Bien au-delà d’un simple outil technologique, cette plateforme porte une vision
-                  audacieuse de la réussite étudiante. Elle s’appuie sur des technologies
-                  intelligentes, des ressources pédagogiques ciblées et des approches
-                  d’apprentissage adaptatives, afin de booster les performances, encourager
-                  l’autonomie et accompagner durablement l’épanouissement académique et
-                  professionnel des apprenants.
-                </p>
+
+        {/* Main frame */}
+        <div className="card border-0">
+          <div className="card-body row">
+            {/* Description */}
+            <div className="col-md-8 pe-5" style={{ fontSize: '1.1em' }}>
+              <p className="pt-1 pb-0">
+                <b>OptiAcadémiQ+</b> est une plateforme innovante développée par l’Université
+                Virtuelle du Burkina Faso (UV-BF), visant à optimiser les parcours académiques et
+                professionnels des étudiants. Elle permet d’identifier et d’analyser les
+                déterminants de la réussite et du décrochage universitaire, tout en offrant un
+                modèle prédictif d’accompagnement personnalisé adapté au contexte du Burkina Faso.
+              </p>
+              <p>
+                Le nom <b>OptiAcadémiQ+</b> découle d’une combinaison stratégique des notions{' '}
+                <b>Optimisation</b>, <b>Académique</b> <b>IQ</b> (quotient intellectuel), rehaussée par le symbole <b>« + »</b>, qui incarne la valeur ajoutée, l’excellence continue et un encadrement renforcé des étudiants.
+              </p>
+              <p className="pb-0">
+                Bien au-delà d’un simple outil technologique, cette plateforme porte une vision
+                audacieuse de la réussite étudiante. Elle s’appuie sur des technologies
+                intelligentes, des ressources pédagogiques ciblées et des approches d’apprentissage
+                adaptatives, afin de booster les performances, encourager l’autonomie et accompagner
+                durablement l’épanouissement académique et professionnel des apprenants.
+              </p>
+            </div>
+            {/*  */}
+            {/* Authentication */}
+            <div className="col-md-4">
+              <p className="card-title fw-bolder text-center fs-5" style={{ color: '#17376e' }}>
+                <i className="fa fa-step-backward me-1" aria-hidden="true"></i>Procédure de
+                connexion<i className="fa fa-step-forward ms-1" aria-hidden="true"></i>
+              </p>
+              <ol>
+                <li className="mt-3">Cliquez sur le lien de connexion situé en bas du cadre</li>
+                <li className="mt-3">
+                  Cliquez sur le lien de connexion situé en haut à droite dans la plateforme des
+                  services de Campus Faso
+                  <div className="text-center">
+                    <img className="rounded my-1" src={CampusFasoLoginLink} height={64} alt="" />
+                  </div>
+                </li>
+                <li className="mt-3">
+                  Cliquez sur le service OptiAcadémiQ+
+                  <div className="text-center">
+                    <img
+                      className="rounded my-1"
+                      src={CampusFasoOptiacademiqplusLink}
+                      height={64}
+                      alt=""
+                    />
+                  </div>
+                </li>
+              </ol>
+              <div className="d-grid mt-3">
+                <button className="btn app-btn-primary" onClick={handleLogin}>
+                  <i className="fa fa-sign-in me-1" aria-hidden="true"></i>Se connecter
+                </button>
               </div>
             </div>
-          </div>
-          {/* Connexion */}
-          <div className={`col-md-${rightCol} mb-2`}>
-            <div className="card">
-              <div className="card-body app-home-connexion">
-                <p className="card-title fw-bolder text-center">
-                  <i className="fa fa-step-backward me-1" aria-hidden="true"></i>Procédure de
-                  connexion<i className="fa fa-step-forward ms-1" aria-hidden="true"></i>
-                </p>
-                <div className="card-text">
-                  <b className="me-1">1.</b>Cliquez sur le lien de connexion situé en bas du cadre
-                </div>
-                <div className="card-text mt-3">
-                  <b className="me-1">2.</b>Cliquez sur le lien de connexion situé en haut à droite
-                  dans la plateforme des services de Campus Faso
-                  <div className="d-flex justify-content-center py-1">
-                    <img className="rounded" src={AppHomeConnexion2} height={64} alt="" />
-                  </div>
-                </div>
-                <div className="card-text mt-3">
-                  <b className="me-1">3.</b>Cliquez sur le service OptiAcadémiQ+
-                  <div className="d-flex justify-content-center py-1">
-                    <img className="rounded" src={AppHomeConnexion3} height={64} alt="" />
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="d-grid mt-2">
-              <button className="btn app-btn-primary" onClick={handleLogin}>
-                <i className="fa fa-sign-in me-1" aria-hidden="true"></i>Se connecter
-              </button>
-            </div>
+            {/*  */}
           </div>
         </div>
         {/*  */}
