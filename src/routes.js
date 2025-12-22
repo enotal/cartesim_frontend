@@ -7,6 +7,7 @@ const Resultat = React.lazy(() => import('./views/resultats/Resultat'))
 const Analyse = React.lazy(() => import('./views/analyses/Analyse'))
 const Thematique = React.lazy(() => import('./views/thematiques/Thematique'))
 const Dimension = React.lazy(() => import('./views/dimensions/Dimension'))
+const Variable = React.lazy(() => import('./views/variables/Variable'))
 const Question = React.lazy(() => import('./views/questions/Question'))
 const Repondant = React.lazy(() => import('./views/repondants/Repondant'))
 
@@ -18,6 +19,7 @@ const routes = [
   // { path: '/analyses', name: 'Analyse', element: Analyse },
   { path: '/thematiques', name: 'Thematiques', element: Thematique },
   { path: '/dimensions', name: 'Dimensions', element: Dimension },
+  { path: '/variables', name: 'Variables', element: Variable },
   { path: '/questions', name: 'Questions', element: Question },
   { path: '/repondants', name: 'Répondants', element: Repondant },
 ]

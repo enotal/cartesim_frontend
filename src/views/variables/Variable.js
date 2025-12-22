@@ -25,7 +25,7 @@ import { CustomCreateAlert } from '../../components/CustomCreateAlert'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus, faEdit } from '@fortawesome/free-solid-svg-icons'
 
-const Question = () => {
+const Variable = () => {
   const tableRef = useRef()
   const createFormRef = useRef()
   const deleteFormRef = useRef()
@@ -44,39 +44,22 @@ const Question = () => {
   const [createAlert, setCreateAlert] = useState(null)
   const [createFormAction, setCreateFormAction] = useState(null)
 
-  const [variables, setVariables] = useState([])
-  const [typeModalites, setTypeModalites] = useState(['text', 'unique', 'multiple'])
-  const [questions, setQuestions] = useState([])
-  const [elementDeclencheurs, setElementDeclencheurs] = useState([])
-
+  const [dimensions, setDimensions] = useState([])
   const [itemToShow, setItemToShow] = useState([])
 
   const apiResource = {
-    get: 'questions',
-    show: 'questions/:id',
-    create: 'questions',
-    update: 'questions/:id',
-    delete: 'questions/:id',
+    get: 'variables',
+    show: 'variables/:id',
+    create: 'variables',
+    update: 'variables/:id',
+    delete: 'variables/:id',
   }
 
   const columns = [
     { title: 'ID', data: 'id' },
     { title: 'LIBELLE', data: 'libelle' },
-    { title: 'MODALITE', data: 'libellemodalite' },
-    { title: 'TYPE', data: 'typemodalite' },
-    // { title: 'VALEURS', data: 'valeurmodalite' },
-    { title: 'VARIABLE', data: 'variable.libelle' },
-    { title: 'PARENT', data: 'parent_id' },
-    // {
-    //   title: 'DECLENCHEUR',
-    //   data: null,
-    //   render: (data, type, row) => {
-    //     if (row.parent_id) {
-    //       return row.parent.declencheur
-    //     }
-    //     return ''
-    //   },
-    // },
+    { title: 'DIMENSION', data: 'dimension.libelle' },
+    // { title: 'CODE', data: 'code' },
     {
       title: 'ACTIONS',
       data: null,
@@ -113,7 +96,6 @@ const Question = () => {
     try {
       const data = await getData(apiResource.get)
       setData(data)
-      setQuestions(data)
     } catch (err) {
       setError(err)
     } finally {
@@ -121,18 +103,17 @@ const Question = () => {
     }
   }
 
-  const fetchGetVariable = async () => {
-    await getData('variables')
+  const fetchGetDimension = async () => {
+    await getData('dimensions')
       .then((response) => {
-        setVariables(response)
+        setDimensions(response)
       })
       .catch((err) => console.log(err))
   }
 
   useEffect(() => {
     fetchGet()
-    fetchGetVariable()
-    // setQuestions(data)
+    fetchGetDimension()
   }, [])
 
   useEffect(() => {
@@ -162,7 +143,6 @@ const Question = () => {
                 action: () => {
                   if (createFormRef.current && createFormBtnLaunchRef.current) {
                     setCreateFormAction('create')
-                    setQuestions(data)
                     createFormRef.current.setAttribute('create-data-action', 'create')
                     createFormRef.current.setAttribute('create-data-id', '')
                     createFormBtnLaunchRef.current.click()
@@ -241,12 +221,6 @@ const Question = () => {
 
   // Actions
 
-  //=== functions
-  const handleDeclencheur = (e) => {
-    const d = data.filter((item) => item.id == parseInt(e.target.value))
-    setElementDeclencheurs(d[0] && d[0].valeurmodalite.split(';'))
-  }
-
   //=== Launch modals
 
   // === Edit item
@@ -257,15 +231,10 @@ const Question = () => {
     if (createFormRef.current && createFormBtnLaunchRef.current) {
       if (response) {
         setCreateFormAction('edit')
-        setQuestions(data.filter((item) => item.id !== parseInt(id)))
         createFormRef.current.setAttribute('create-data-action', 'edit')
         createFormRef.current.setAttribute('create-data-id', id)
-        $('input[name="variable"][value="' + response.variable_id + '"]').prop('checked', true)
+        $('input[name="dimension"][value="' + response.dimension_id + '"]').prop('checked', true)
         $('#libelle').val(response.libelle)
-        $('#libellemodalite').val(response.libellemodalite)
-        $('input[name="typemodalite"][value="' + response.typemodalite + '"]').prop('checked', true)
-        $('#valeurmodalite').val(response.valeurmodalite)
-        $('#parent').val(response.parent_id)
         createFormBtnLaunchRef.current.click()
       }
     }
@@ -451,23 +420,23 @@ const Question = () => {
                       <div className="card-body">
                         {/* Thematique */}
                         <div className="mb-2">
-                          <label htmlFor="variable" className="form-label mb-0">
-                            Variable
+                          <label htmlFor="dimension" className="form-label mb-0">
+                            Dimension
                             <CustomRequired />
                           </label>
-                          <div className="" style={{ height: '10em', overflowY: 'auto' }}>
-                            {variables.map((variable, index) => {
+                          <div className="" style={{ height: '12em', overflowY: 'auto' }}>
+                            {dimensions.map((dimension, index) => {
                               return (
-                                <div className="form-check" key={'variable-item-' + index}>
+                                <div className="form-check" key={'dimension-item-' + index}>
                                   <input
                                     className="form-check-input"
                                     type="radio"
-                                    name="variable"
-                                    id={'variable' + index}
-                                    value={variable.id}
+                                    name="dimension"
+                                    id={'dimension' + index}
+                                    value={dimension.id}
                                   />
                                   <label className="form-check-label" htmlFor={'dimension' + index}>
-                                    {variable.libelle}
+                                    {dimension.libelle}
                                   </label>
                                 </div>
                               )
@@ -488,119 +457,6 @@ const Question = () => {
                               name="libelle"
                               required
                             />
-                          </div>
-                        </div>
-                        {/* Libelle modalité */}
-                        <div className="">
-                          <label htmlFor="libellemodalite" className="form-label mb-0">
-                            Libellé modalité
-                            <CustomRequired />
-                          </label>
-                          <div className="">
-                            <input
-                              type="text"
-                              className="form-control"
-                              id="libellemodalite"
-                              name="libellemodalite"
-                              required
-                            />
-                          </div>
-                        </div>
-                        {/* Type modalité */}
-                        <div className="">
-                          <label htmlFor="typemodalite" className="form-label mb-0">
-                            Type modalité
-                            <CustomRequired />
-                          </label>
-                          <div className="">
-                            {typeModalites.map((typeModalite, index) => {
-                              return (
-                                <div
-                                  className="form-check form-check-inline"
-                                  key={'variable-item-' + index}
-                                >
-                                  <input
-                                    className="form-check-input"
-                                    type="radio"
-                                    name="typemodalite"
-                                    id={'typemodalite' + index}
-                                    value={typeModalite}
-                                  />
-                                  <label
-                                    className="form-check-label"
-                                    htmlFor={'typemodalite' + index}
-                                  >
-                                    {typeModalite}
-                                  </label>
-                                </div>
-                              )
-                            })}
-                          </div>
-                        </div>
-                        {/* Valeur modalité */}
-                        <div className="">
-                          <label htmlFor="valeurmodalite" className="form-label mb-0">
-                            Valeurs de la modalité
-                            <CustomRequired />
-                          </label>
-                          <div className="">
-                            <input
-                              type="text"
-                              className="form-control"
-                              id="valeurmodalite"
-                              name="valeurmodalite"
-                              required
-                            />
-                          </div>
-                        </div>
-                        {/* Question parent */}
-                        <div className="">
-                          <label htmlFor="parent" className="form-label mb-0">
-                            Question parent
-                          </label>
-                          <div className="">
-                            <select
-                              className="form-select"
-                              aria-label="Default select example"
-                              id="parent"
-                              name="parent"
-                              onChange={handleDeclencheur}
-                            >
-                              <option value="">Sélectionner ici !</option>
-                              {questions.map((question, index) => {
-                                return (
-                                  <option value={question.id} key={'question' + index}>
-                                    {question.libelle}
-                                  </option>
-                                )
-                              })}
-                            </select>
-                          </div>
-                        </div>
-                        {/* Déclencheur */}
-                        <div className="">
-                          <label htmlFor="declencheur" className="form-label mb-0">
-                            Déclencheur
-                          </label>
-                          <div className="">
-                            <select
-                              className="form-select"
-                              aria-label="Default select example"
-                              id="declencheur"
-                              name="declencheur"
-                            >
-                              <option value="">Sélectionner ici !</option>
-                              {elementDeclencheurs.map((elementDeclencheur, index) => {
-                                return (
-                                  <option
-                                    value={elementDeclencheur}
-                                    key={'elementDeclencheur' + index}
-                                  >
-                                    {elementDeclencheur}
-                                  </option>
-                                )
-                              })}
-                            </select>
                           </div>
                         </div>
                         {/*  */}
@@ -709,4 +565,4 @@ const Question = () => {
   )
 }
 
-export default Question
+export default Variable

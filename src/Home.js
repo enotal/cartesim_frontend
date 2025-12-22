@@ -6,8 +6,8 @@ const Home = () => {
   const navigate = useNavigate()
 
   const handleLogin = () => {
-    // window.location.href = 'https://services.campusfaso.bf/#/services'
-    navigate('/dashboard', { replace: true })
+    window.location.href = 'https://services.campusfaso.bf/#/services'
+    // navigate('/dashboard', { replace: true })
   }
 
   return (

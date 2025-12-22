@@ -13,7 +13,7 @@ import { CSpinner, useColorModes } from '@coreui/react'
 import './scss/style.scss'
 // We use those styles to show code examples, you should remove them in your application.
 import './scss/examples.scss'
-import './scss/_custom.scss'
+// import './scss/_custom.scss'
 
 // Containers
 const Home = React.lazy(() => import('./Home'))

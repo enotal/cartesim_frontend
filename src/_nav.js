@@ -43,6 +43,12 @@ const _nav = [
   },
   {
     component: CNavItem,
+    name: 'Variables',
+    to: '/variables',
+    icon: <CIcon icon={cilCommentBubble} customClassName="nav-icon" />,
+  },
+  {
+    component: CNavItem,
     name: 'Questions',
     to: '/questions',
     icon: <CIcon icon={cilCommentBubble} customClassName="nav-icon" />,
