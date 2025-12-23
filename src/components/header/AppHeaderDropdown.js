@@ -24,26 +24,30 @@ import {
 import CIcon from '@coreui/icons-react'
 
 import avatar8 from './../../assets/images/avatars/8.jpg'
+
+// v23122025
+import KeycloakService from '../../KeycloakService'
+// 
 import { isAuthenticated } from '../../authService'
 
 const AppHeaderDropdown = () => {
   const navigate = useNavigate()
 
-  const isLoggedIn = isAuthenticated()
-
   const handleLogout = () => {
-    // Clear User session before authentication
-    localStorage.removeItem('optiacademiqplus_auth') // Remove a specific item
-    localStorage.clear() // Clear all items from localStorage
-    document.location.href = '/'
-    // navigate(0)
+    // v23122025 Supprimer le token local
+    localStorage.removeItem('optiacademiqplus_auth') 
+
+    // v23122025 Déconnexion Keycloak (CampusFaso)
+    KeycloakService.logout({
+      redirectUri: window.location.origin, // renvoie sur la page d'accueil après logout
+    })
   }
   return (
     <CDropdown variant="nav-item">
       <CDropdownToggle
         placement="bottom-end"
         className="py-0 pe-0 text-light"
-        caret={isAuthenticated ? true : false}
+        // caret={isAuthenticated ? true : false}
       >
         <CAvatar src={avatar8} size="md" />
       </CDropdownToggle>

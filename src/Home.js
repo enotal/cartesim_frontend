@@ -1,10 +1,65 @@
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AppGuestHeader, AppGuestFooter } from './components/index'
 import { CampusFasoLoginLink, CampusFasoOptiacademiqplusLink } from './assets/images/images'
 
+// v23122025
+import KeycloakService from './KeycloakService'
+import { useState } from 'react'
+//
+
 const Home = () => {
   const navigate = useNavigate()
+  // v23122025
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [token, setToken] = useState(null)
 
+  // Vérification SSO Keycloak
+  useEffect(() => {
+    KeycloakService.init({
+      onLoad: 'check-sso',
+      silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html',
+    })
+      .then((authenticated) => {
+        console.log('User authenticated:', authenticated)
+        setIsAuthenticated(authenticated)
+
+        if (authenticated) {
+          const accessToken = KeycloakService.getToken()
+          setToken(accessToken)
+          //
+          console.log('Access token:', accessToken)
+        }
+      })
+      .catch((err) => {
+        console.error('Keycloak init error', err)
+      })
+  }, [])
+
+  // Nouveau useEffect pour suivre l'état du token
+  useEffect(() => {
+    if (token) {
+      console.log('Token actuel stocké dans state:', token)
+    }
+  }, [token])
+
+  // Stockage + redirection
+  useEffect(() => {
+    if (isAuthenticated && token) {
+      localStorage.setItem(
+        'optiacademiqplus_auth',
+        JSON.stringify({
+          isAuthenticated: true,
+          token: token,
+        }),
+      )
+      navigate('/dashboard', { replace: true })
+    }
+  }, [isAuthenticated, token, navigate])
+
+  //
+
+  // Redirection vers Campus Faso
   const handleLogin = () => {
     window.location.href = 'https://services.campusfaso.bf/#/services'
     // navigate('/dashboard', { replace: true })
@@ -39,7 +94,9 @@ const Home = () => {
               </p>
               <p>
                 Le nom <b>OptiAcadémiQ+</b> découle d’une combinaison stratégique des notions{' '}
-                <b>Optimisation</b>, <b>Académique</b> <b>IQ</b> (quotient intellectuel), rehaussée par le symbole <b>« + »</b>, qui incarne la valeur ajoutée, l’excellence continue et un encadrement renforcé des étudiants.
+                <b>Optimisation</b>, <b>Académique</b> <b>IQ</b> (quotient intellectuel), rehaussée
+                par le symbole <b>« + »</b>, qui incarne la valeur ajoutée, l’excellence continue et
+                un encadrement renforcé des étudiants.
               </p>
               <p className="pb-0">
                 Bien au-delà d’un simple outil technologique, cette plateforme porte une vision

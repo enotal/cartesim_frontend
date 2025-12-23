@@ -43,6 +43,7 @@ const Variable = () => {
   const [indexAlert, setIndexAlert] = useState(null)
   const [createAlert, setCreateAlert] = useState(null)
   const [createFormAction, setCreateFormAction] = useState(null)
+  const [estActives, setEstActives] = useState(['non', 'oui'])
 
   const [dimensions, setDimensions] = useState([])
   const [itemToShow, setItemToShow] = useState([])
@@ -58,6 +59,7 @@ const Variable = () => {
   const columns = [
     { title: 'ID', data: 'id' },
     { title: 'LIBELLE', data: 'libelle' },
+    { title: 'ACTIVE', data: 'estactive' },
     { title: 'DIMENSION', data: 'dimension.libelle' },
     // { title: 'CODE', data: 'code' },
     {
@@ -262,7 +264,8 @@ const Variable = () => {
         // Succès
         if (response.status === 200) {
           setCreateAlert(response)
-          createFormBtnResetRef.current.click()
+          $('#libelle').val('')
+          // createFormBtnResetRef.current.click()
         }
         // Echec
         if (response.status === 201) {
@@ -418,33 +421,32 @@ const Variable = () => {
 
                     <div className="card">
                       <div className="card-body">
-                        {/* Thematique */}
+                        {/* Dimension */}
                         <div className="mb-2">
                           <label htmlFor="dimension" className="form-label mb-0">
                             Dimension
                             <CustomRequired />
                           </label>
-                          <div className="" style={{ height: '12em', overflowY: 'auto' }}>
-                            {dimensions.map((dimension, index) => {
-                              return (
-                                <div className="form-check" key={'dimension-item-' + index}>
-                                  <input
-                                    className="form-check-input"
-                                    type="radio"
-                                    name="dimension"
-                                    id={'dimension' + index}
-                                    value={dimension.id}
-                                  />
-                                  <label className="form-check-label" htmlFor={'dimension' + index}>
+                          <div className="">
+                            <select
+                              className="form-select"
+                              aria-label="Default select example"
+                              id="dimension"
+                              name="dimension"
+                            >
+                              <option value="">Sélectionner ici !</option>
+                              {dimensions.map((dimension, index) => {
+                                return (
+                                  <option value={dimension.id} key={'dimension-item-' + index}>
                                     {dimension.libelle}
-                                  </label>
-                                </div>
-                              )
-                            })}
+                                  </option>
+                                )
+                              })}
+                            </select>
                           </div>
                         </div>
                         {/* Libelle */}
-                        <div className="">
+                        <div className="mb-2">
                           <label htmlFor="libelle" className="form-label mb-0">
                             Libellé
                             <CustomRequired />
@@ -457,6 +459,33 @@ const Variable = () => {
                               name="libelle"
                               required
                             />
+                          </div>
+                        </div>
+                        {/* Est activé */}
+                        <div className="">
+                          <label htmlFor="active" className="form-label mb-0">
+                            Activé
+                          </label>
+                          <div className="">
+                            {estActives.map((estActive, index) => {
+                              return (
+                                <div
+                                  className="form-check form-check-inline"
+                                  key={'active-item-' + index}
+                                >
+                                  <input
+                                    className="form-check-input"
+                                    type="radio"
+                                    name="active"
+                                    id={'active' + index}
+                                    value={estActive}
+                                  />
+                                  <label className="form-check-label" htmlFor={'active' + index}>
+                                    {estActive}
+                                  </label>
+                                </div>
+                              )
+                            })}
                           </div>
                         </div>
                         {/*  */}

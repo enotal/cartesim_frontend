@@ -43,6 +43,7 @@ const Thematique = () => {
   const [indexAlert, setIndexAlert] = useState(null)
   const [createAlert, setCreateAlert] = useState(null)
   const [createFormAction, setCreateFormAction] = useState(null)
+  const [estActives, setEstActives] = useState(['non', 'oui'])
 
   const [itemToShow, setItemToShow] = useState([])
 
@@ -59,6 +60,7 @@ const Thematique = () => {
     { title: 'LIBELLE COURT', data: 'libellecourt' },
     { title: 'LIBELLE LONG', data: 'libellelong' },
     { title: 'CODE', data: 'code' },
+    { title: 'ACTIVE', data: 'estactive' },
     {
       title: 'ACTIONS',
       data: null,
@@ -410,7 +412,7 @@ const Thematique = () => {
                     <div className="card">
                       <div className="card-body">
                         {/* Libelle court */}
-                        <div className="">
+                        <div className="mb-2">
                           <label htmlFor="libellecourt" className="form-label mb-0">
                             Libellé court
                             <CustomRequired />
@@ -427,7 +429,7 @@ const Thematique = () => {
                           </div>
                         </div>
                         {/* Libelle */}
-                        <div className="">
+                        <div className="mb-2">
                           <label htmlFor="libellelong" className="form-label mb-0">
                             Libellé long
                             <CustomRequired />
@@ -458,6 +460,34 @@ const Thematique = () => {
                             />
                           </div>
                         </div>
+                        {/* Est activé */}
+                        <div className="">
+                          <label htmlFor="active" className="form-label mb-0">
+                            Activé
+                          </label>
+                          <div className="">
+                            {estActives.map((estActive, index) => {
+                              return (
+                                <div
+                                  className="form-check form-check-inline"
+                                  key={'active-item-' + index}
+                                >
+                                  <input
+                                    className="form-check-input"
+                                    type="radio"
+                                    name="active"
+                                    id={'active' + index}
+                                    value={estActive}
+                                  />
+                                  <label className="form-check-label" htmlFor={'active' + index}>
+                                    {estActive}
+                                  </label>
+                                </div>
+                              )
+                            })}
+                          </div>
+                        </div>
+                        {/*  */}
                       </div>
                     </div>
                   </div>

@@ -43,6 +43,7 @@ const Dimension = () => {
   const [indexAlert, setIndexAlert] = useState(null)
   const [createAlert, setCreateAlert] = useState(null)
   const [createFormAction, setCreateFormAction] = useState(null)
+  const [estActives, setEstActives] = useState(['non', 'oui'])
 
   const [thematiques, setThematiques] = useState([])
   const [itemToShow, setItemToShow] = useState([])
@@ -58,6 +59,7 @@ const Dimension = () => {
   const columns = [
     { title: 'ID', data: 'id' },
     { title: 'LIBELLE', data: 'libelle' },
+    { title: 'ACTIVE', data: 'estactive' },
     { title: 'THEMATIQUE', data: 'thematique.libellecourt' },
     // { title: 'CODE', data: 'code' },
     {
@@ -262,7 +264,8 @@ const Dimension = () => {
         // Succès
         if (response.status === 200) {
           setCreateAlert(response)
-          createFormBtnResetRef.current.click()
+          $('#libelle').val('')
+          // createFormBtnResetRef.current.click()
         }
         // Echec
         if (response.status === 201) {
@@ -447,7 +450,7 @@ const Dimension = () => {
                           </div>
                         </div>
                         {/* Libelle */}
-                        <div className="">
+                        <div className="mb-2">
                           <label htmlFor="libelle" className="form-label mb-0">
                             Libellé
                             <CustomRequired />
@@ -460,6 +463,33 @@ const Dimension = () => {
                               name="libelle"
                               required
                             />
+                          </div>
+                        </div>
+                        {/* Est activé */}
+                        <div className="">
+                          <label htmlFor="active" className="form-label mb-0">
+                            Activé
+                          </label>
+                          <div className="">
+                            {estActives.map((estActive, index) => {
+                              return (
+                                <div
+                                  className="form-check form-check-inline"
+                                  key={'active-item-' + index}
+                                >
+                                  <input
+                                    className="form-check-input"
+                                    type="radio"
+                                    name="active"
+                                    id={'active' + index}
+                                    value={estActive}
+                                  />
+                                  <label className="form-check-label" htmlFor={'active' + index}>
+                                    {estActive}
+                                  </label>
+                                </div>
+                              )
+                            })}
                           </div>
                         </div>
                         {/*  */}

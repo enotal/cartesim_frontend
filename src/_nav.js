@@ -1,84 +1,78 @@
-import CIcon from '@coreui/icons-react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
-  cilCursor,
-  cilDescription,
-  cilNotes,
-  cilPuzzle,
-  cilSpeedometer,
-  cilGroup,
-  cilCommentBubble,
-} from '@coreui/icons'
+  faPieChart,
+  faUsers,
+  faObjectGroup,
+  faPaperPlane,
+  faCogs,
+  faHashtag,
+  faTasks,
+  faFile,
+  faCubes,
+  faNewspaper,
+} from '@fortawesome/free-solid-svg-icons'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 
 const _nav = [
-  // Dashboard
   {
     component: CNavItem,
     name: 'Tableau de bord',
     to: '/dashboard',
-    icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
+    icon: <FontAwesomeIcon icon={faPieChart} className="me-1" />,
   },
-  // Parameters
-  // {
-  //   component: CNavTitle,
-  //   name: 'Paramètres',
-  // },
   {
     component: CNavItem,
     name: 'Répondants',
     to: '/repondants',
-    icon: <CIcon icon={cilGroup} customClassName="nav-icon" />,
+    icon: <FontAwesomeIcon icon={faUsers} className="me-1" />,
   },
   {
     component: CNavItem,
     name: 'Thématiques',
     to: '/thematiques',
-    icon: <CIcon icon={cilPuzzle} customClassName="nav-icon" />,
+    icon: <FontAwesomeIcon icon={faObjectGroup} className="me-1" />,
   },
   {
     component: CNavItem,
     name: 'Dimensions',
     to: '/dimensions',
-    icon: <CIcon icon={cilCursor} customClassName="nav-icon" />,
+    icon: <FontAwesomeIcon icon={faPaperPlane} className="me-1" />,
   },
   {
     component: CNavItem,
     name: 'Variables',
     to: '/variables',
-    icon: <CIcon icon={cilCommentBubble} customClassName="nav-icon" />,
+    icon: <FontAwesomeIcon icon={faCogs} className="me-1" />,
   },
   {
     component: CNavItem,
     name: 'Questions',
     to: '/questions',
-    icon: <CIcon icon={cilCommentBubble} customClassName="nav-icon" />,
+    icon: <FontAwesomeIcon icon={faHashtag} className="me-1" />,
   },
-
   {
     component: CNavItem,
     name: 'Questionnaires',
     to: '/questionnaires',
-    icon: <CIcon icon={cilDescription} customClassName="nav-icon" />,
-    // className:"border-top border-bottom border-light"
+    icon: <FontAwesomeIcon icon={faTasks} className="me-1" />,
   },
-  // Formulaire
   {
     component: CNavItem,
     name: 'Formulaire',
     to: '/formulaire',
-    icon: <CIcon icon={cilDescription} customClassName="nav-icon" />,
+    icon: <FontAwesomeIcon icon={faFile} className="me-1" />,
   },
   {
     component: CNavItem,
     name: 'Résultats',
     to: '/resultats',
-    icon: <CIcon icon={cilPuzzle} customClassName="nav-icon" />,
+    icon: <FontAwesomeIcon icon={faCubes} className="me-1" />,
   },
   {
     component: CNavItem,
     name: 'Analyses',
     to: '/analyses',
-    icon: <CIcon icon={cilNotes} customClassName="nav-icon" />,
+    icon: <FontAwesomeIcon icon={faNewspaper} className="me-1" />,
   },
 ]
 

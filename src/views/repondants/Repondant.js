@@ -43,6 +43,7 @@ const Repondant = () => {
   const [indexAlert, setIndexAlert] = useState(null)
   const [createAlert, setCreateAlert] = useState(null)
   const [createFormAction, setCreateFormAction] = useState(null)
+  const [estActives, setEstActives] = useState(['non', 'oui'])
 
   const [itemToShow, setItemToShow] = useState([])
 
@@ -58,6 +59,7 @@ const Repondant = () => {
     { title: 'ID', data: 'id' },
     { title: 'CODE', data: 'code' },
     { title: 'LIBELLE', data: 'libelle' },
+    { title: 'ACTIVE', data: 'estactive' },
     {
       title: 'ACTIONS',
       data: null,
@@ -225,6 +227,7 @@ const Repondant = () => {
         createFormRef.current.setAttribute('create-data-id', id)
         $('#code').val(response.code)
         $('#libelle').val(response.libelle)
+        $('#active').val(response.estactive)
         createFormBtnLaunchRef.current.click()
       }
     }
@@ -426,7 +429,7 @@ const Repondant = () => {
                           </div>
                         </div>
                         {/* Libelle */}
-                        <div className="">
+                        <div className="mb-2">
                           <label htmlFor="libelle" className="form-label mb-0">
                             Libellé
                             <CustomRequired />
@@ -441,6 +444,34 @@ const Repondant = () => {
                             />
                           </div>
                         </div>
+                        {/* Est activé */}
+                        <div className="">
+                          <label htmlFor="active" className="form-label mb-0">
+                            Activé
+                          </label>
+                          <div className="">
+                            {estActives.map((estActive, index) => {
+                              return (
+                                <div
+                                  className="form-check form-check-inline"
+                                  key={'active-item-' + index}
+                                >
+                                  <input
+                                    className="form-check-input"
+                                    type="radio"
+                                    name="active"
+                                    id={'active' + index}
+                                    value={estActive}
+                                  />
+                                  <label className="form-check-label" htmlFor={'active' + index}>
+                                    {estActive}
+                                  </label>
+                                </div>
+                              )
+                            })}
+                          </div>
+                        </div>
+                        {/*  */}
                       </div>
                     </div>
                   </div>
