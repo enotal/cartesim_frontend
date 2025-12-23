@@ -1,161 +1,108 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { getData } from '../../components/crud/apiService'
-import { CustomRequired } from '../../components/crud/CustomRequired'
-import { isDate } from 'validator'
+import { getData, getItem } from '../../apiService'
+
+// import { isDate } from 'validator'
 
 const Formulaire = () => {
-  const formRef = useRef()
-  const [questionnaires, setQuestionnaires] = useState([])
-  const [dimensions, setDimensions] = useState([])
-  const [submitter, setSubmitter] = useState('')
+  const [data, setData] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+  const [questionnaire, setQuestionnaire] = useState([])
 
-  useEffect(() => {
-    getData('questionnaires')
-      .then((response) => setQuestionnaires(response))
-      .catch((error) => console.error(error))
+  const apiResource = {
+    get: 'questionnaires',
+    show: 'questionnaires/:id',
+    create: 'questionnaires',
+    update: 'questionnaires/:id',
+    delete: 'questionnaires/:id',
+  }
 
-    getData('dimensions')
-      .then((response) => setDimensions(response))
-      .catch((error) => console.error(error))
-  }, [])
-
-  // Save or Send form values
-  const handleSubmit = (event) => {
-    event.preventDefault()
-    if (formRef.current) {
-      // récupération des données du formulaire
-      const formData = new FormData(formRef.current)
-      const formValues = Object.fromEntries(formData)
-      console.log(formValues)
+  const fetchGet = async () => {
+    try {
+      const response = await getData(apiResource.get)
+      setData(response)
+    } catch (err) {
+      setError(err)
+    } finally {
+      setLoading(false)
     }
   }
 
-  const questionnaire = questionnaires.filter((item) => item.isclosed === 'non')[0]
-  console.log(questionnaire && questionnaire)
-  // var startDate = null
-  // if (questionnaire) {
-  //   startDate = questionnaire.datedebut ? new Date() : null
-  // }
+  useEffect(() => {
+    fetchGet()
+  }, [])
 
-  const renderPredefiniContent = (question) => {
-    let reponses = question.reponsepredefinie.split(';')
-    // Type modalité :  ? unique : multiple
-    return reponses.map((reponse, idx) => (
-      <div className="form-check form-check-inline" key={question.id + '-' + idx}>
-        <input
-          className="form-check-input"
-          type={question.typemodalite === 'unique' ? 'radio' : 'checkbox'}
-          name={
-            question.typemodalite === 'unique'
-              ? 'question' + question.id
-              : 'question' + question.id + '[]'
-          }
-          id={question.id + '-' + idx}
-          // data-question={question.id}
-          value={reponse}
-        />
-        <label className="form-check-label" htmlFor={question.id + '-' + idx}>
-          {reponse}
-        </label>
-      </div>
-    ))
+  // Save or Send form values
+  const handleChange = async (e) => {
+    console.log(e.target.value)
+    await getItem(apiResource.show.replace(':id', e.target.value)).then((response) => {
+      setQuestionnaire(response)
+    })
   }
 
+  // Datatable loading...
+  if (loading) {
+    return (
+      <div className="text-center">
+        <div
+          className="spinner-border me-2"
+          style={{ width: '3rem', height: '3rem' }}
+          role="status"
+        >
+          <span className="visually-hidden">Loading...</span>
+        </div>
+        <div
+          className="spinner-grow"
+          style={{ width: '3rem', height: '3rem', color: '#2e9ed5' }}
+          role="status"
+        >
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) return <div>Error: {error.message}</div>
+
   return (
-    <form ref={formRef} key={''} action="" method="post" encType="" onSubmit={handleSubmit}>
-      {/* Titre */}
-      <div className="card" style={{ backgroundColor: '#17376e', color: '#fff' }}>
-        <div className="card-body py-1">
-          {questionnaire && (
-            <div>
-              <div className="">
-                <span className="fw-bolder me-1">Questionnaire n°</span>
-                {questionnaire.numero}
-              </div>
-              <div className="d-flex">
-                <div>
-                  <span className="fw-bolder me-1">Date début :</span>
-                  {/* {startDate} */}
-                </div>
-                <div className="ms-auto">
-                  <span className="fw-bolder me-1">Date fin :</span>
-                  {questionnaire.datefin}
-                </div>
-              </div>
-              <div>
-                <span className="fw-bolder me-1">Consigne :</span>
-                {questionnaire.consigne}
-              </div>
+    <div className="container">
+      <div className="card">
+        <div className="card-body">
+          {/* QUestionnaire */}
+          <div className="">
+            <label htmlFor="questionnaire" className="form-label mb-0">
+              Questionnaire
+              {/* <CustomRequired /> */}
+            </label>
+            <div className="">
+              <select
+                className="form-select"
+                aria-label="Default select example"
+                id="questionnaire"
+                name="questionnaire"
+                onChange={handleChange}
+              >
+                <option value="">Sélectionner ici !</option>
+                {data.map((dat, index) => {
+                  return (
+                    <option value={dat.id} key={'data-item-' + index}>
+                      {index +
+                        1 +
+                        '. ' +
+                        dat.numero +
+                        ' du ' +
+                        dat.datedebut +
+                        ' au ' +
+                        dat.datefin}
+                    </option>
+                  )
+                })}
+              </select>
             </div>
-          )}
+          </div>
         </div>
       </div>
-
-      {/* Contenus */}
-      <div className="card mt-2" style={{ maxHeight: '32em', overflowY: 'auto' }}>
-        <div className="card-body ps-0">
-          <ol className=''>
-            {dimensions.map((dimension, index) => {
-              return dimension?.questions.map((question) => (
-                <li className="mb-3" key={'question' + question.id}>
-                  <label htmlFor="" className="col-form-label py-0 fw-bolder">
-                    <CustomRequired tagP={0} />
-                    {question.libelle}
-                  </label>
-                  <div className="">
-                    {question.modalite !== 'prédéfini' ? (
-                      <input
-                        type="text"
-                        className="form-control"
-                        id={'question' + question.id}
-                        name={'question' + question.id}
-                        required
-                      />
-                    ) : (
-                      renderPredefiniContent(question)
-                    )}
-                  </div>
-                </li>
-              ))
-            })}
-          </ol>
-        </div>
-      </div>
-
-      {/* Boutons : */}
-      <div className="formulaireButtons mt-2 d-flex justify-content-center sticky-bottom p-2">
-        <button
-          type="reset"
-          className="btn btnFormulaireReset me-2"
-          title="Effacer toutes les données saisies"
-          onClick={(e) => {
-            handleReset(e)
-          }}
-        >
-          <i className="fa fa-refresh me-1" aria-hidden="true"></i>
-          <span>Réinitialiser</span>
-        </button>
-        <button
-          type="submit"
-          className="btn btnFormulaireSave me-2"
-          title="Sauvegarder temporairement les données"
-          onClick={() => setSubmitter('save')}
-        >
-          <i className="fa fa-save me-1" aria-hidden="true"></i>
-          <span>Sauvegarder</span>
-        </button>
-        <button
-          type="submit"
-          className="btn btnFormulaireSubmit"
-          title="Envoyer les données"
-          onClick={() => setSubmitter('send')}
-        >
-          <i className="fa fa-paper-plane me-1" aria-hidden="true"></i>
-          <span> Soumettre</span>
-        </button>
-      </div>
-      {/*  */}
-    </form>
+    </div>
   )
 }
 

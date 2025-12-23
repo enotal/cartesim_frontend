@@ -294,6 +294,7 @@ const Question = () => {
     if (createFormRef.current && createFormBtnCloseRef.current) {
       const formData = new FormData(createFormRef.current)
       const formValues = Object.fromEntries(formData)
+      // Create
       if (action === 'create') {
         console.log(formValues)
         const response = await createItem(apiResource.create, formValues)
@@ -307,6 +308,7 @@ const Question = () => {
           setCreateAlert(response)
         }
       }
+      // Edit
       if (action === 'edit') {
         const response = await updateItem(apiResource.update.replace(':id', id), formValues)
         // Succès
@@ -385,6 +387,8 @@ const Question = () => {
   }
 
   if (error) return <div>Error: {error.message}</div>
+
+  console.log(data[0])
 
   return (
     <div className="container">
