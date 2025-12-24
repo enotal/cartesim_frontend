@@ -22,6 +22,12 @@ const _nav = [
   },
   {
     component: CNavItem,
+    name: 'Types Répondants',
+    to: '/typerepondants',
+    icon: <FontAwesomeIcon icon={faUsers} className="me-1" />,
+  },
+  {
+    component: CNavItem,
     name: 'Répondants',
     to: '/repondants',
     icon: <FontAwesomeIcon icon={faUsers} className="me-1" />,

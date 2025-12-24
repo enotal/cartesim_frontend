@@ -61,7 +61,13 @@ const Variable = () => {
     { title: 'LIBELLE', data: 'libelle' },
     { title: 'ACTIVE', data: 'estactive' },
     { title: 'DIMENSION', data: 'dimension.libelle' },
-    // { title: 'CODE', data: 'code' },
+    {
+      title: 'QUESTIONS',
+      data: null,
+      render: (data, type, row) => {
+        return row.questions && row.questions.length
+      },
+    },
     {
       title: 'ACTIONS',
       data: null,
@@ -435,13 +441,14 @@ const Variable = () => {
                               name="dimension"
                             >
                               <option value="">Sélectionner ici !</option>
-                              {dimensions.map((dimension, index) => {
-                                return (
-                                  <option value={dimension.id} key={'dimension-item-' + index}>
-                                    {dimension.libelle}
-                                  </option>
-                                )
-                              })}
+                              {dimensions &&
+                                dimensions.map((dimension, index) => {
+                                  return (
+                                    <option value={dimension.id} key={'dimension-item-' + index}>
+                                      {dimension.libelle}
+                                    </option>
+                                  )
+                                })}
                             </select>
                           </div>
                         </div>

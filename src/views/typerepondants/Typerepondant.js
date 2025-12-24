@@ -25,7 +25,7 @@ import { CustomCreateAlert } from '../../components/CustomCreateAlert'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus, faEdit } from '@fortawesome/free-solid-svg-icons'
 
-const Thematique = () => {
+const Typerepondant = () => {
   const tableRef = useRef()
   const createFormRef = useRef()
   const deleteFormRef = useRef()
@@ -48,38 +48,23 @@ const Thematique = () => {
   const [itemToShow, setItemToShow] = useState([])
 
   const apiResource = {
-    get: 'thematiques',
-    show: 'thematiques/:id',
-    create: 'thematiques',
-    update: 'thematiques/:id',
-    delete: 'thematiques/:id',
+    get: 'typerepondants',
+    show: 'typerepondants/:id',
+    create: 'typerepondants',
+    update: 'typerepondants/:id',
+    delete: 'typerepondants/:id',
   }
 
   const columns = [
     { title: 'ID', data: 'id' },
-    { title: 'LIBELLE COURT', data: 'libellecourt' },
-    { title: 'LIBELLE LONG', data: 'libellelong' },
     { title: 'CODE', data: 'code' },
+    { title: 'LIBELLE', data: 'libelle' },
     { title: 'ACTIVE', data: 'estactive' },
     {
-      title: 'DIMENSIONS',
+      title: 'THEMATIQUES',
       data: null,
       render: (data, type, row) => {
-        return row.dimensions && row.dimensions.length
-      },
-    },
-    {
-      title: 'TYPES REPONDANTS',
-      data: null,
-      render: (data, type, row) => {
-        return row.typerepondants && row.typerepondants.length
-      },
-    },
-    {
-      title: 'QUESTIONNAIRES',
-      data: null,
-      render: (data, type, row) => {
-        return row.questionnaires && row.questionnaires.length
+        return row.thematiques && row.thematiques.length
       },
     },
     {
@@ -151,6 +136,7 @@ const Thematique = () => {
             buttons: [
               {
                 text: '<i class="fa fa-plus me-1" aria-hidden="true"></i>Ajouter',
+                // titleAttr: "Ajouter",
                 className: 'dt-btn datatable-button rounded dt-btnCreate btnCreate',
                 enabled: true,
                 action: () => {
@@ -246,9 +232,9 @@ const Thematique = () => {
         setCreateFormAction('edit')
         createFormRef.current.setAttribute('create-data-action', 'edit')
         createFormRef.current.setAttribute('create-data-id', id)
-        $('#libellecourt').val(response.libellecourt)
-        $('#libellelong').val(response.libellelong)
         $('#code').val(response.code)
+        $('#libelle').val(response.libelle)
+        $('#active').val(response.estactive)
         createFormBtnLaunchRef.current.click()
       }
     }
@@ -280,7 +266,7 @@ const Thematique = () => {
         }
         // Echec
         if (response.status === 201) {
-          setCreateAlert(response)
+          setCreateAlert(response.data)
         }
       }
       if (action === 'edit') {
@@ -293,7 +279,7 @@ const Thematique = () => {
         }
         // Echec
         if (response.status === 201) {
-          setCreateAlert(response.data)
+          setCreateAlert(response)
         }
       }
     }
@@ -361,6 +347,7 @@ const Thematique = () => {
   }
 
   if (error) return <div>Error: {error.message}</div>
+  console.log(data[0] && data[0].thematiques)
 
   return (
     <div className="container">
@@ -432,39 +419,6 @@ const Thematique = () => {
 
                     <div className="card">
                       <div className="card-body">
-                        {/* Libelle court */}
-                        <div className="mb-2">
-                          <label htmlFor="libellecourt" className="form-label mb-0">
-                            Libellé court
-                            <CustomRequired />
-                          </label>
-                          <div className="">
-                            <input
-                              type="text"
-                              className="form-control"
-                              id="libellecourt"
-                              name="libellecourt"
-                              required
-                              autoFocus
-                            />
-                          </div>
-                        </div>
-                        {/* Libelle */}
-                        <div className="mb-2">
-                          <label htmlFor="libellelong" className="form-label mb-0">
-                            Libellé long
-                            <CustomRequired />
-                          </label>
-                          <div className="">
-                            <input
-                              type="text"
-                              className="form-control"
-                              id="libellelong"
-                              name="libellelong"
-                              required
-                            />
-                          </div>
-                        </div>
                         {/* Code */}
                         <div className="mb-2">
                           <label htmlFor="code" className="form-label mb-0">
@@ -477,6 +431,23 @@ const Thematique = () => {
                               className="form-control"
                               id="code"
                               name="code"
+                              required
+                              autoFocus
+                            />
+                          </div>
+                        </div>
+                        {/* Libelle */}
+                        <div className="mb-2">
+                          <label htmlFor="libelle" className="form-label mb-0">
+                            Libellé
+                            <CustomRequired />
+                          </label>
+                          <div className="">
+                            <input
+                              type="text"
+                              className="form-control"
+                              id="libelle"
+                              name="libelle"
                               required
                             />
                           </div>
@@ -614,4 +585,4 @@ const Thematique = () => {
   )
 }
 
-export default Thematique
+export default Typerepondant

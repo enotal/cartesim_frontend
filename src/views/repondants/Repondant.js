@@ -57,8 +57,7 @@ const Repondant = () => {
 
   const columns = [
     { title: 'ID', data: 'id' },
-    { title: 'CODE', data: 'code' },
-    { title: 'LIBELLE', data: 'libelle' },
+    { title: 'IDENTIFIANT', data: 'identifiant' },
     { title: 'ACTIVE', data: 'estactive' },
     {
       title: 'ACTIONS',
@@ -411,36 +410,20 @@ const Repondant = () => {
 
                     <div className="card">
                       <div className="card-body">
-                        {/* Code */}
+                        {/* Identifiant */}
                         <div className="mb-2">
-                          <label htmlFor="code" className="form-label mb-0">
-                            Code
+                          <label htmlFor="identifiant" className="form-label mb-0">
+                            Identifiant
                             <CustomRequired />
                           </label>
                           <div className="">
                             <input
                               type="text"
                               className="form-control"
-                              id="code"
-                              name="code"
+                              id="identifiant"
+                              name="identifiant"
                               required
                               autoFocus
-                            />
-                          </div>
-                        </div>
-                        {/* Libelle */}
-                        <div className="mb-2">
-                          <label htmlFor="libelle" className="form-label mb-0">
-                            Libellé
-                            <CustomRequired />
-                          </label>
-                          <div className="">
-                            <input
-                              type="text"
-                              className="form-control"
-                              id="libelle"
-                              name="libelle"
-                              required
                             />
                           </div>
                         </div>

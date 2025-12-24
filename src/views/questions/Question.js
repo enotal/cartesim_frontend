@@ -66,9 +66,9 @@ const Question = () => {
     { title: 'MODALITE', data: 'libellemodalite' },
     { title: 'TYPE', data: 'typemodalite' },
     // { title: 'VALEURS', data: 'valeurmodalite' },
-    { title: 'VARIABLE', data: 'variable.libelle' },
     { title: 'PARENT', data: 'parent_id' },
     { title: 'ACTIVE', data: 'estactive' },
+    { title: 'VARIABLE', data: 'variable.libelle' },
     // {
     //   title: 'DECLENCHEUR',
     //   data: null,

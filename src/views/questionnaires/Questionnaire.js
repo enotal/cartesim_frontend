@@ -86,7 +86,7 @@ const Question = () => {
       title: 'THEMATIQUES',
       data: null,
       render: (data, type, row) => {
-        return ''
+        return row.thematiques.length
       },
     },
     {
@@ -387,8 +387,6 @@ const Question = () => {
   }
 
   if (error) return <div>Error: {error.message}</div>
-
-  console.log(data[0])
 
   return (
     <div className="container">

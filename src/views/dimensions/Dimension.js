@@ -61,7 +61,13 @@ const Dimension = () => {
     { title: 'LIBELLE', data: 'libelle' },
     { title: 'ACTIVE', data: 'estactive' },
     { title: 'THEMATIQUE', data: 'thematique.libellecourt' },
-    // { title: 'CODE', data: 'code' },
+    {
+      title: 'VARIABLES',
+      data: null,
+      render: (data, type, row) => {
+        return row.variables && row.variables.length
+      },
+    },
     {
       title: 'ACTIONS',
       data: null,

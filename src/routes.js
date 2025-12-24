@@ -10,6 +10,7 @@ const Dimension = React.lazy(() => import('./views/dimensions/Dimension'))
 const Variable = React.lazy(() => import('./views/variables/Variable'))
 const Question = React.lazy(() => import('./views/questions/Question'))
 const Repondant = React.lazy(() => import('./views/repondants/Repondant'))
+const Typerepondant = React.lazy(() => import('./views/typerepondants/Typerepondant'))
 
 const routes = [
   { path: '/dashboard', name: 'Dashboard', element: Dashboard },
@@ -22,6 +23,7 @@ const routes = [
   { path: '/variables', name: 'Variables', element: Variable },
   { path: '/questions', name: 'Questions', element: Question },
   { path: '/repondants', name: 'Répondants', element: Repondant },
+  { path: '/typerepondants', name: 'Type Répondants', element: Typerepondant },
 ]
 
 export default routes
