@@ -61,8 +61,8 @@ const Home = () => {
 
   // Redirection vers Campus Faso
   const handleLogin = () => {
-    // window.location.href = 'https://services.campusfaso.bf/#/services'
-    navigate('/dashboard', { replace: true })
+    window.location.href = 'https://services.campusfaso.bf/#/services'
+    // navigate('/dashboard', { replace: true })
   }
 
   return (

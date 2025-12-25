@@ -44,6 +44,8 @@ const Thematique = () => {
   const [createAlert, setCreateAlert] = useState(null)
   const [createFormAction, setCreateFormAction] = useState(null)
   const [estActives, setEstActives] = useState(['non', 'oui'])
+  const [typerepondants, setTyperepondants] = useState([])
+  const [selectedTyperepondants, setSelectedTyperepondants] = useState([])
 
   const [itemToShow, setItemToShow] = useState([])
 
@@ -72,7 +74,7 @@ const Thematique = () => {
       title: 'TYPES REPONDANTS',
       data: null,
       render: (data, type, row) => {
-        return row.typerepondants && row.typerepondants.length
+        return row.typerepondants.map((typerepondant) => typerepondant.libelle)
       },
     },
     {
@@ -125,8 +127,17 @@ const Thematique = () => {
     }
   }
 
+  const fetchGetTyperepondant = async () => {
+    await getData('typerepondants')
+      .then((response) => {
+        setTyperepondants(response)
+      })
+      .catch((err) => console.log(err))
+  }
+
   useEffect(() => {
     fetchGet()
+    fetchGetTyperepondant()
   }, [])
 
   useEffect(() => {
@@ -241,18 +252,48 @@ const Thematique = () => {
     e.preventDefault()
     const id = $(this).data('id')
     const response = await getItem(apiResource.show.replace(':id', id))
+    const tyrptIds = response.typerepondants.map((typerepondant) => typerepondant.id)
     if (createFormRef.current && createFormBtnLaunchRef.current) {
       if (response) {
         setCreateFormAction('edit')
         createFormRef.current.setAttribute('create-data-action', 'edit')
         createFormRef.current.setAttribute('create-data-id', id)
+        // Iterate over all checkboxes with the name 'choices[]'
+        $('input[name="typerepondants"]').each(function () {
+          var checkboxValue = $(this).val()
+          // Check if the current checkbox value is in the 'selectedValues' array
+          if (tyrptIds.toString().includes(checkboxValue)) {
+            // If it is, set the 'checked' property to true
+            $(this).prop('checked', true)
+          } else {
+            // Optional: uncheck the box if it's not in the array
+            $(this).prop('checked', false)
+          }
+        })
         $('#libellecourt').val(response.libellecourt)
         $('#libellelong').val(response.libellelong)
         $('#code').val(response.code)
+        $('input[name="active"][value="' + response.estactive + '"]').prop('checked', true)
         createFormBtnLaunchRef.current.click()
       }
     }
   })
+  //
+
+  const handleTyperepondantChange = (event) => {
+    const { value, checked } = event.target
+    // Use a functional state update to ensure the latest state is used
+    setSelectedTyperepondants((prevSelectedItems) => {
+      if (checked) {
+        // If checked, add the value to the array
+        return [...prevSelectedItems, value]
+      } else {
+        // If unchecked, remove the value from the array using filter
+        return prevSelectedItems.filter((item) => item !== value)
+      }
+    })
+  }
+
   //
   const handleCancelCreateForm = () => {
     if (createFormRef.current && createFormBtnCloseRef.current) {
@@ -271,6 +312,7 @@ const Thematique = () => {
     if (createFormRef.current && createFormBtnCloseRef.current) {
       const formData = new FormData(createFormRef.current)
       const formValues = Object.fromEntries(formData)
+      formValues.typerepondants = selectedTyperepondants
       if (action === 'create') {
         const response = await createItem(apiResource.create, formValues)
         // Succès
@@ -297,6 +339,7 @@ const Thematique = () => {
         }
       }
     }
+    // setSelectedTyperepondants([])
     fetchGet()
   }
   // ===
@@ -432,6 +475,35 @@ const Thematique = () => {
 
                     <div className="card">
                       <div className="card-body">
+                        {/* Typerepondant */}
+                        <div className="mb-2">
+                          <label htmlFor="typerepondant" className="form-label mb-0">
+                            Types de répondants
+                            <CustomRequired />
+                          </label>
+                          <div className="">
+                            {typerepondants.map((typerepondant, index) => {
+                              return (
+                                <div className="form-check" key={'typerepondant-item-' + index}>
+                                  <input
+                                    className="form-check-input"
+                                    type="checkbox"
+                                    name="typerepondants"
+                                    id={'typerepondant' + index}
+                                    value={typerepondant.id}
+                                    onChange={handleTyperepondantChange}
+                                  />
+                                  <label
+                                    className="form-check-label"
+                                    htmlFor={'typerepondant' + index}
+                                  >
+                                    {typerepondant.libelle}
+                                  </label>
+                                </div>
+                              )
+                            })}
+                          </div>
+                        </div>
                         {/* Libelle court */}
                         <div className="mb-2">
                           <label htmlFor="libellecourt" className="form-label mb-0">
@@ -445,7 +517,6 @@ const Thematique = () => {
                               id="libellecourt"
                               name="libellecourt"
                               required
-                              autoFocus
                             />
                           </div>
                         </div>

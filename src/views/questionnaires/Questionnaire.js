@@ -25,7 +25,7 @@ import { CustomCreateAlert } from '../../components/CustomCreateAlert'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus, faEdit } from '@fortawesome/free-solid-svg-icons'
 
-const Question = () => {
+const Questionnaire = () => {
   const tableRef = useRef()
   const createFormRef = useRef()
   const deleteFormRef = useRef()
@@ -44,8 +44,9 @@ const Question = () => {
   const [createAlert, setCreateAlert] = useState(null)
   const [createFormAction, setCreateFormAction] = useState(null)
   const [estActives, setEstActives] = useState(['non', 'oui'])
-
   const [thematiques, setThematiques] = useState([])
+  const [selectedThematiques, setSelectedThematiques] = useState([])
+
   const [itemToShow, setItemToShow] = useState([])
 
   const apiResource = {
@@ -86,7 +87,7 @@ const Question = () => {
       title: 'THEMATIQUES',
       data: null,
       render: (data, type, row) => {
-        return row.thematiques.length
+        return row.thematiques.map((thematique) => thematique.libellecourt)
       },
     },
     {
@@ -260,12 +261,24 @@ const Question = () => {
     e.preventDefault()
     const id = $(this).data('id')
     const response = await getItem(apiResource.show.replace(':id', id))
+    const thmIds = response.thematiques.map((thematique) => thematique.id)
     if (createFormRef.current && createFormBtnLaunchRef.current) {
       if (response) {
         setCreateFormAction('edit')
         createFormRef.current.setAttribute('create-data-action', 'edit')
         createFormRef.current.setAttribute('create-data-id', id)
-        // $('input[name="thematique"][value="' + response.estactive + '"]').prop('checked', true)
+        // Iterate over all checkboxes with the name 'choices[]'
+        $('input[name="thematiques"]').each(function () {
+          var checkboxValue = $(this).val()
+          // Check if the current checkbox value is in the 'selectedValues' array
+          if (thmIds.toString().includes(checkboxValue)) {
+            // If it is, set the 'checked' property to true
+            $(this).prop('checked', true)
+          } else {
+            // Optional: uncheck the box if it's not in the array
+            $(this).prop('checked', false)
+          }
+        })
         $('#numero').val(response.numero)
         $('#datedebut').val(response.datedebut)
         $('#datefin').val(response.datefin)
@@ -276,6 +289,21 @@ const Question = () => {
       }
     }
   })
+  //
+  const handleThematiqueChange = (event) => {
+    const { value, checked } = event.target
+    // Use a functional state update to ensure the latest state is used
+    setSelectedThematiques((prevSelectedItems) => {
+      if (checked) {
+        // If checked, add the value to the array
+        return [...prevSelectedItems, value]
+      } else {
+        // If unchecked, remove the value from the array using filter
+        return prevSelectedItems.filter((item) => item !== value)
+      }
+    })
+  }
+
   //
   const handleCancelCreateForm = () => {
     if (createFormRef.current && createFormBtnCloseRef.current) {
@@ -294,9 +322,10 @@ const Question = () => {
     if (createFormRef.current && createFormBtnCloseRef.current) {
       const formData = new FormData(createFormRef.current)
       const formValues = Object.fromEntries(formData)
+      formValues.thematiques = selectedThematiques
+      console.log(formValues.thematiques)
       // Create
       if (action === 'create') {
-        console.log(formValues)
         const response = await createItem(apiResource.create, formValues)
         // Succès
         if (response.status === 200) {
@@ -471,9 +500,10 @@ const Question = () => {
                                   <input
                                     className="form-check-input"
                                     type="checkbox"
-                                    name="thematique[]"
+                                    name="thematiques"
                                     id={'thematique' + index}
                                     value={thematique.id}
+                                    onChange={handleThematiqueChange}
                                   />
                                   <label
                                     className="form-check-label"
@@ -694,4 +724,4 @@ const Question = () => {
   )
 }
 
-export default Question
+export default Questionnaire

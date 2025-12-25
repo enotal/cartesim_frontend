@@ -68,7 +68,13 @@ const Question = () => {
     // { title: 'VALEURS', data: 'valeurmodalite' },
     { title: 'PARENT', data: 'parent_id' },
     { title: 'ACTIVE', data: 'estactive' },
-    { title: 'VARIABLE', data: 'variable.libelle' },
+    {
+      title: 'VARIABLE',
+      data: null,
+      render: (data, type, row) => {
+        return row.variable && row.variable.libelle
+      },
+    },
     // {
     //   title: 'DECLENCHEUR',
     //   data: null,
@@ -467,10 +473,7 @@ const Question = () => {
                               <option value="">Sélectionner ici !</option>
                               {variables.map((variable, index) => {
                                 return (
-                                  <option
-                                    value={variable.id}
-                                    key={'variable-item-' + index}
-                                  >
+                                  <option value={variable.id} key={'variable-item-' + index}>
                                     {variable.libelle}
                                   </option>
                                 )
