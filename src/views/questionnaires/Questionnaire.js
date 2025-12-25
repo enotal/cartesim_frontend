@@ -323,7 +323,6 @@ const Questionnaire = () => {
       const formData = new FormData(createFormRef.current)
       const formValues = Object.fromEntries(formData)
       formValues.thematiques = selectedThematiques
-      console.log(formValues.thematiques)
       // Create
       if (action === 'create') {
         const response = await createItem(apiResource.create, formValues)
