@@ -1,0 +1,17 @@
+/*  */
+
+.custom-btn {
+  border: 1px solid #00407d;
+}
+
+.formulaire-btn-save,
+.formulaire-btn-submit {
+  color: #00407d;
+}
+
+.formulaire-btn-save:hover,
+.formulaire-btn-submit:hover {
+  border: 1px solid #00407d;
+  background-color: #00407d;
+  color: #fff;
+}

@@ -14,6 +14,7 @@ import './scss/style.scss'
 // We use those styles to show code examples, you should remove them in your application.
 import './scss/examples.scss'
 // import './scss/_custom.scss'
+import './styles.css'
 
 // Containers
 const Home = React.lazy(() => import('./Home'))
@@ -51,7 +52,7 @@ const App = () => {
           <Route exact path="/" name="Accueil" element={<Home />} />
           {/* Protected Routes */}
           {/* <Route element={<ProtectedRoute />}> */}
-            <Route path="*" name="Dashboard" element={<DefaultLayout />} />
+          <Route path="*" name="Dashboard" element={<DefaultLayout />} />
           {/* </Route> */}
           {/*  */}
         </Routes>
