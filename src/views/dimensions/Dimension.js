@@ -243,6 +243,7 @@ const Dimension = () => {
         createFormRef.current.setAttribute('create-data-id', id)
         $('input[name="thematique"][value="' + response.thematique_id + '"]').prop('checked', true)
         $('#libelle').val(response.libelle)
+        $('input[name="active"][value="' + response.estactive + '"]').prop('checked', true)
         createFormBtnLaunchRef.current.click()
       }
     }
@@ -489,6 +490,7 @@ const Dimension = () => {
                                     name="active"
                                     id={'active' + index}
                                     value={estActive}
+                                    // defaultChecked={estActive === 'non' ? true : false}
                                   />
                                   <label className="form-check-label" htmlFor={'active' + index}>
                                     {estActive}

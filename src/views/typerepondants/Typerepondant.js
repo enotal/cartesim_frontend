@@ -234,7 +234,7 @@ const Typerepondant = () => {
         createFormRef.current.setAttribute('create-data-id', id)
         $('#code').val(response.code)
         $('#libelle').val(response.libelle)
-        $('#active').val(response.estactive)
+        $('input[name="active"][value="' + response.estactive + '"]').prop('checked', true)
         createFormBtnLaunchRef.current.click()
       }
     }
@@ -470,6 +470,7 @@ const Typerepondant = () => {
                                     name="active"
                                     id={'active' + index}
                                     value={estActive}
+                                    // defaultChecked={estActive === 'non' ? true : false}
                                   />
                                   <label className="form-check-label" htmlFor={'active' + index}>
                                     {estActive}

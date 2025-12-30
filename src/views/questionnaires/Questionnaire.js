@@ -608,6 +608,7 @@ const Questionnaire = () => {
                                     name="active"
                                     id={'active' + index}
                                     value={estActive}
+                                    // defaultChecked={estActive === 'non' ? true : false}
                                   />
                                   <label className="form-check-label" htmlFor={'active' + index}>
                                     {estActive}

@@ -268,12 +268,14 @@ const Question = () => {
         setQuestions(data.filter((item) => item.id !== parseInt(id)))
         createFormRef.current.setAttribute('create-data-action', 'edit')
         createFormRef.current.setAttribute('create-data-id', id)
-        $('input[name="variable"][value="' + response.variable_id + '"]').prop('checked', true)
+        // $('input[name="variable"][value="' + response.variable_id + '"]').prop('checked', true)
+        $('#variable').val(response.variable_id)
         $('#libelle').val(response.libelle)
         $('#libellemodalite').val(response.libellemodalite)
         $('input[name="typemodalite"][value="' + response.typemodalite + '"]').prop('checked', true)
         $('#valeurmodalite').val(response.valeurmodalite)
         $('#parent').val(response.parent_id)
+        $('input[name="active"][value="' + response.estactive + '"]').prop('checked', true)
         createFormBtnLaunchRef.current.click()
       }
     }
@@ -548,7 +550,6 @@ const Question = () => {
                         <div className="mb-2">
                           <label htmlFor="valeurmodalite" className="form-label mb-0">
                             Valeurs de la modalité
-                            <CustomRequired />
                           </label>
                           <div className="">
                             <input
@@ -556,7 +557,6 @@ const Question = () => {
                               className="form-control"
                               id="valeurmodalite"
                               name="valeurmodalite"
-                              required
                             />
                           </div>
                         </div>
@@ -628,6 +628,7 @@ const Question = () => {
                                     name="active"
                                     id={'active' + index}
                                     value={estActive}
+                                    // defaultChecked={estActive === 'non' ? true : false}
                                   />
                                   <label className="form-check-label" htmlFor={'active' + index}>
                                     {estActive}

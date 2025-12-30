@@ -224,9 +224,9 @@ const Repondant = () => {
         setCreateFormAction('edit')
         createFormRef.current.setAttribute('create-data-action', 'edit')
         createFormRef.current.setAttribute('create-data-id', id)
-        $('#code').val(response.code)
-        $('#libelle').val(response.libelle)
-        $('#active').val(response.estactive)
+        $('#identifiant').val(response.identifiant)
+        $('#identifiant').prop('disabled', true)
+        $('input[name="active"][value="' + response.estactive + '"]').prop('checked', true)
         createFormBtnLaunchRef.current.click()
       }
     }
