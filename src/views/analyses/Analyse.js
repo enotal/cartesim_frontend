@@ -1,9 +1,7 @@
 import React from 'react'
 
 const Analyse = () => {
-  return (
-    <div>Analyse</div>
-  )
+  return <div className="container-fluid">Analyse</div>
 }
 
 export default Analyse

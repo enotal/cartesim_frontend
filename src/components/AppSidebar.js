@@ -46,7 +46,7 @@ const AppSidebar = () => {
       size="sm" 
       unfoldable={unfoldable}
       visible={sidebarShow} 
-      style={{ backgroundColor: '#17376e' }}
+      style={{ backgroundColor: '#00407D' }}
     >
       <CSidebarHeader className="pt-1">
         <CSidebarBrand>

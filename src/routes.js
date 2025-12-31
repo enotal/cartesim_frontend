@@ -16,14 +16,14 @@ const routes = [
   { path: '/dashboard', name: 'Dashboard', element: Dashboard },
   { path: '/questionnaires', name: 'Questionnaire', element: Questionnaire },
   { path: '/formulaire', name: 'Formulaire', element: Formulaire },
-  // { path: '/resultats', name: 'Resultat', element: Resultat },
-  // { path: '/analyses', name: 'Analyse', element: Analyse },
   { path: '/thematiques', name: 'Thematiques', element: Thematique },
   { path: '/dimensions', name: 'Dimensions', element: Dimension },
   { path: '/variables', name: 'Variables', element: Variable },
   { path: '/questions', name: 'Questions', element: Question },
   { path: '/repondants', name: 'Répondants', element: Repondant },
   { path: '/typerepondants', name: 'Type Répondants', element: Typerepondant },
+  { path: '/resultats', name: 'Resultat', element: Resultat },
+  { path: '/analyses', name: 'Analyse', element: Analyse },
 ]
 
 export default routes

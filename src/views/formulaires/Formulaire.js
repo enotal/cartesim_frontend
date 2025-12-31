@@ -142,7 +142,7 @@ const Formulaire = () => {
       >
         {/* Questionnaire */}
         <div className="">
-          <div className=" card">
+          <div className="card">
             <div className="card-body d-grid gap-1">
               {/* Buttons  & Alerts */}
               <div className="d-flex mb-2">
@@ -173,16 +173,13 @@ const Formulaire = () => {
                         </div>
                       ) : (
                         <div className="px-2 py-1 bg-danger text-light">
-                          <i
-                            className="fa fa-exclamation-triangle me-1"
-                            aria-hidden="true"
-                          ></i>
+                          <i className="fa fa-exclamation-triangle me-1" aria-hidden="true"></i>
                           {alert.message}
                         </div>
                       )}
                     </div>
                   ) : (
-                    <div className=''></div>
+                    <div className=""></div>
                   )}
                 </div>
               </div>
@@ -223,102 +220,104 @@ const Formulaire = () => {
         </div>
 
         {/* Contents */}
-        <ol type="1" className="list-group list-group-numbered mt-2">
-          {thematiques &&
-            thematiques.map((thematique, index) => (
-              <li className="list-group-item" key={'thematique-item-' + index}>
-                <strong>{thematique.libellelong}</strong>
-                <ol type="a" className="list-group list-group-numbered">
-                  {thematique.dimensions.map((dimension, index2) => (
-                    <li className="list-group-item" key={'dimension-item-' + index2}>
-                      {dimension.libelle}
-                      <ul className="">
-                        {dimension.variables.map((variable, index3) => (
-                          <ul type="none" className="list-group" key={'variable-item-' + index3}>
-                            {/* <strong>{variable.libelle}</strong> */}
-                            {variable.questions.map((question, index4) => (
-                              <li key={'question-item-' + index4}>
-                                <div className="">
-                                  <label htmlFor="" className="form-label fw-bolder ">
-                                    {question.libelle}
-                                  </label>
+        <div className="" style={{ top: '' }}>
+          <ol type="1" className="list-group list-group-numbered mt-2">
+            {thematiques &&
+              thematiques.map((thematique, index) => (
+                <li className="list-group-item" key={'thematique-item-' + index}>
+                  <strong>{thematique.libellelong}</strong>
+                  <ol type="a" className="list-group list-group-numbered">
+                    {thematique.dimensions.map((dimension, index2) => (
+                      <li className="list-group-item" key={'dimension-item-' + index2}>
+                        {dimension.libelle}
+                        <ul className="">
+                          {dimension.variables.map((variable, index3) => (
+                            <ul type="none" className="list-group" key={'variable-item-' + index3}>
+                              {/* <strong>{variable.libelle}</strong> */}
+                              {variable.questions.map((question, index4) => (
+                                <li key={'question-item-' + index4}>
+                                  <div className="">
+                                    <label htmlFor="" className="form-label fw-bolder ">
+                                      {question.libelle}
+                                    </label>
 
-                                  {/* Text */}
-                                  {question.typemodalite === 'text' && (
-                                    <div className="" key={'modalite-text-item' + index4}>
-                                      <input
-                                        className="form-control"
-                                        type="text"
-                                        id={'modalite-item-text-' + index4}
-                                        name={question.id}
-                                      />
-                                    </div>
-                                  )}
-                                  {/* Radio */}
-                                  {question.typemodalite === 'unique' && (
-                                    <div className="">
-                                      {question.valeurmodalite !== null &&
-                                        question.valeurmodalite.split(';').map((v, index5) => (
-                                          <div
-                                            className="form-check form-check-inline"
-                                            key={'modalite-unique-item-' + index5}
-                                          >
-                                            <input
-                                              className="form-check-input"
-                                              type="radio"
-                                              id={'modalite-item-unique-' + index5}
-                                              name={question.id}
-                                              value={question.id}
-                                            />
-                                            <label
-                                              className="form-check-label"
-                                              htmlFor={'modalite-item-unique-' + index5}
+                                    {/* Text */}
+                                    {question.typemodalite === 'text' && (
+                                      <div className="" key={'modalite-text-item' + index4}>
+                                        <input
+                                          className="form-control"
+                                          type="text"
+                                          id={'modalite-item-text-' + index4}
+                                          name={question.id}
+                                        />
+                                      </div>
+                                    )}
+                                    {/* Radio */}
+                                    {question.typemodalite === 'unique' && (
+                                      <div className="">
+                                        {question.valeurmodalite !== null &&
+                                          question.valeurmodalite.split(';').map((v, index5) => (
+                                            <div
+                                              className="form-check form-check-inline"
+                                              key={'modalite-unique-item-' + index5}
                                             >
-                                              {v}
-                                            </label>
-                                          </div>
-                                        ))}
-                                    </div>
-                                  )}
-                                  {/* Checkbox */}
-                                  {question.typemodalite === 'multiple' && (
-                                    <div className="">
-                                      {question.valeurmodalite !== null &&
-                                        question.valeurmodalite.split(';').map((v, index6) => (
-                                          <div
-                                            className="form-check"
-                                            key={'modalite-multiple-item-' + index6}
-                                          >
-                                            <input
-                                              className="form-check-input"
-                                              type="checkbox"
-                                              id={'modalite-item-multiple-' + index6}
-                                              name={question.id}
-                                              value={question.id}
-                                            />
-                                            <label
-                                              className="form-check-label"
-                                              htmlFor={'modalite-item-multiple-' + index6}
+                                              <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                id={'modalite-item-unique-' + index5}
+                                                name={question.id}
+                                                value={question.id}
+                                              />
+                                              <label
+                                                className="form-check-label"
+                                                htmlFor={'modalite-item-unique-' + index5}
+                                              >
+                                                {v}
+                                              </label>
+                                            </div>
+                                          ))}
+                                      </div>
+                                    )}
+                                    {/* Checkbox */}
+                                    {question.typemodalite === 'multiple' && (
+                                      <div className="">
+                                        {question.valeurmodalite !== null &&
+                                          question.valeurmodalite.split(';').map((v, index6) => (
+                                            <div
+                                              className="form-check"
+                                              key={'modalite-multiple-item-' + index6}
                                             >
-                                              {v}
-                                            </label>
-                                          </div>
-                                        ))}
-                                    </div>
-                                  )}
-                                  {/*  */}
-                                </div>
-                              </li>
-                            ))}
-                          </ul>
-                        ))}
-                      </ul>
-                    </li>
-                  ))}
-                </ol>
-              </li>
-            ))}
-        </ol>
+                                              <input
+                                                className="form-check-input"
+                                                type="checkbox"
+                                                id={'modalite-item-multiple-' + index6}
+                                                name={question.id}
+                                                value={question.id}
+                                              />
+                                              <label
+                                                className="form-check-label"
+                                                htmlFor={'modalite-item-multiple-' + index6}
+                                              >
+                                                {v}
+                                              </label>
+                                            </div>
+                                          ))}
+                                      </div>
+                                    )}
+                                    {/*  */}
+                                  </div>
+                                </li>
+                              ))}
+                            </ul>
+                          ))}
+                        </ul>
+                      </li>
+                    ))}
+                  </ol>
+                </li>
+              ))}
+          </ol>
+        </div>
         {/*  */}
       </form>
     </div>
