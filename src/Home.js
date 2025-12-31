@@ -61,8 +61,8 @@ const Home = () => {
 
   // Redirection vers Campus Faso
   const handleLogin = () => {
-    window.location.href = 'https://services.campusfaso.bf/#/services'
-    // navigate('/dashboard', { replace: true })
+    // window.location.href = 'https://services.campusfaso.bf/#/services'
+    navigate('/dashboard', { replace: true })
   }
 
   return (
@@ -75,7 +75,8 @@ const Home = () => {
         <div className="">
           <h5 className="home-title mt-4">
             <span>optiacademiq+</span>
-            <p>Un plus pour la qualité de notre Université !</p>
+            {/* <p>Un plus pour la qualité de notre Université !</p> */}
+            <p>Une plateforme innovante pour la réussite !</p>
           </h5>
         </div>
         {/*  */}
@@ -84,26 +85,34 @@ const Home = () => {
         <div className="card border-0">
           <div className="card-body row">
             {/* Description */}
-            <div className="col-md-8 pe-5" style={{ fontSize: '1.1em' }}>
+            <div className="col-md-8 pe-5" style={{ fontSize: '1em' }}>
               <p className="pt-1 pb-0">
-                <b>OptiAcadémiQ+</b> est une plateforme innovante développée par l’Université
-                Virtuelle du Burkina Faso (UV-BF), visant à optimiser les parcours académiques et
-                professionnels des étudiants. Elle permet d’identifier et d’analyser les
-                déterminants de la réussite et du décrochage universitaire, tout en offrant un
-                modèle prédictif d’accompagnement personnalisé adapté au contexte du Burkina Faso.
+                <b>OptiAcadémiQ+</b> est une plateforme numérique innovante conçue et développée par
+                l’Université Virtuelle du Burkina Faso (UV-BF). Déjà déployée sur la plateforme
+                intégrée Campus Faso, elle s’inscrit dans une dynamique de transformation digitale
+                et de pilotage intelligent de la réussite universitaire. Elle a pour vocation
+                d'analyser en profondeur les déterminants de la réussite et du décrochage
+                universitaire au sein de l'UV-BF, en vue de bâtir un modèle prédictif
+                d'accompagnement personnalisé des étudiants.
               </p>
               <p>
-                Le nom <b>OptiAcadémiQ+</b> découle d’une combinaison stratégique des notions{' '}
-                <b>Optimisation</b>, <b>Académique</b> <b>IQ</b> (quotient intellectuel), rehaussée
-                par le symbole <b>« + »</b>, qui incarne la valeur ajoutée, l’excellence continue et
-                un encadrement renforcé des étudiants.
+                Elle génère également des recommandations fondées sur des données probantes afin
+                d’appuyer la prise de décision stratégique et de renforcer la gouvernance
+                universitaire. L’objectif global est d’optimiser les parcours académiques et
+                professionnels des apprenants, de favoriser la réussite, de prévenir le décrochage
+                et d’améliorer la performance institutionnelle.
+              </p>
+              <p>
+                Bien plus qu'un simple outil technologique, OptiAcadémiQ+ incarne une vision
+                audacieuse de la réussite étudiante. Elle mobilise des technologies intelligentes,
+                des ressources pédagogiques ciblées et des approches d'apprentissage adaptatives
+                pour stimuler les performances académiques, encourager l'autonomie et la motivation,
+                et accompagner durablement l'épanouissement intellectuel et professionnel des
+                apprenants.
               </p>
               <p className="pb-0">
-                Bien au-delà d’un simple outil technologique, cette plateforme porte une vision
-                audacieuse de la réussite étudiante. Elle s’appuie sur des technologies
-                intelligentes, des ressources pédagogiques ciblées et des approches d’apprentissage
-                adaptatives, afin de booster les performances, encourager l’autonomie et accompagner
-                durablement l’épanouissement académique et professionnel des apprenants.
+                Le nom <b>OptiAcadémiQ+</b> résulte d’une combinaison stratégique des trois concepts clés{' '}
+                <b>Opti</b> pour <i>Optimisation</i>, <b>AcadémiQ</b> pour <i>Académique</i> et <i>Intellectuel</i> <i>(IQ)</i> le signe <b>« + »</b>, symbole de la <i>valeur ajoutée, de l'exercice continu et d'un encadrement pédagogique renforcé.</i>
               </p>
             </div>
             {/*  */}
