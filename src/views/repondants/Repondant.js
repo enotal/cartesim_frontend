@@ -343,7 +343,7 @@ const Repondant = () => {
   return (
     <div className="container">
       <div className="row">
-        <div className="col-md-8 offset-md-2">
+        <div className="col-md-12 offset-md-0">
           {/* List */}
           <div className="table-responsive p-2">
             <CustomIndexAlert alert={indexAlert} />

@@ -150,6 +150,7 @@ const Variable = () => {
                 enabled: true,
                 action: () => {
                   if (createFormRef.current && createFormBtnLaunchRef.current) {
+                    setCreateAlert(null)
                     setCreateFormAction('create')
                     createFormRef.current.setAttribute('create-data-action', 'create')
                     createFormRef.current.setAttribute('create-data-id', '')
@@ -238,10 +239,11 @@ const Variable = () => {
     const response = await getItem(apiResource.show.replace(':id', id))
     if (createFormRef.current && createFormBtnLaunchRef.current) {
       if (response) {
+        setCreateAlert(null)
         setCreateFormAction('edit')
         createFormRef.current.setAttribute('create-data-action', 'edit')
         createFormRef.current.setAttribute('create-data-id', id)
-        $('#dimension').val(response.dimension_id)  
+        $('#dimension').val(response.dimension_id)
         $('#libelle').val(response.libelle)
         $('input[name="active"][value="' + response.estactive + '"]').prop('checked', true)
         createFormBtnLaunchRef.current.click()
@@ -440,13 +442,14 @@ const Variable = () => {
                               aria-label="Default select example"
                               id="dimension"
                               name="dimension"
+                              required
                             >
                               <option value="">Sélectionner ici !</option>
                               {dimensions &&
                                 dimensions.map((dimension, index) => {
                                   return (
                                     <option value={dimension.id} key={'dimension-item-' + index}>
-                                      {dimension.libelle}
+                                      {index + 1 + '. ' + dimension.libelle}
                                     </option>
                                   )
                                 })}

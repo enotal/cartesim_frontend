@@ -495,7 +495,10 @@ const Questionnaire = () => {
                           <div className="">
                             {thematiques.map((thematique, index) => {
                               return (
-                                <div className="form-check" key={'thematique-item-' + index}>
+                                <div
+                                  className="form-check form-check-inline"
+                                  key={'thematique-item-' + index}
+                                >
                                   <input
                                     className="form-check-input"
                                     type="checkbox"

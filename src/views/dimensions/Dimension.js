@@ -150,6 +150,7 @@ const Dimension = () => {
                 enabled: true,
                 action: () => {
                   if (createFormRef.current && createFormBtnLaunchRef.current) {
+                    setCreateAlert(null)
                     setCreateFormAction('create')
                     createFormRef.current.setAttribute('create-data-action', 'create')
                     createFormRef.current.setAttribute('create-data-id', '')
@@ -238,10 +239,11 @@ const Dimension = () => {
     const response = await getItem(apiResource.show.replace(':id', id))
     if (createFormRef.current && createFormBtnLaunchRef.current) {
       if (response) {
+        setCreateAlert(null)
         setCreateFormAction('edit')
         createFormRef.current.setAttribute('create-data-action', 'edit')
         createFormRef.current.setAttribute('create-data-id', id)
-        $('input[name="thematique"][value="' + response.thematique_id + '"]').prop('checked', true)
+        $('#thematique').val(response.thematique_id)
         $('#libelle').val(response.libelle)
         $('input[name="active"][value="' + response.estactive + '"]').prop('checked', true)
         createFormBtnLaunchRef.current.click()
@@ -435,25 +437,22 @@ const Dimension = () => {
                             <CustomRequired />
                           </label>
                           <div className="">
-                            {thematiques.map((thematique, index) => {
-                              return (
-                                <div className="form-check" key={'thematique-item-' + index}>
-                                  <input
-                                    className="form-check-input"
-                                    type="radio"
-                                    name="thematique"
-                                    id={'thematique' + index}
-                                    value={thematique.id}
-                                  />
-                                  <label
-                                    className="form-check-label"
-                                    htmlFor={'thematique' + index}
-                                  >
-                                    {thematique.libellecourt}
-                                  </label>
-                                </div>
-                              )
-                            })}
+                            <select
+                              className="form-select"
+                              aria-label="Default select example"
+                              id="thematique"
+                              name="thematique"
+                              required
+                            >
+                              <option value="">Sélectionner ici !</option>
+                              {thematiques.map((thematique, index) => {
+                                return (
+                                  <option value={thematique.id} key={'thematique-item-' + index}>
+                                    {index + 1 + '. ' + thematique.libellelong}
+                                  </option>
+                                )
+                              })}
+                            </select>
                           </div>
                         </div>
                         {/* Libelle */}

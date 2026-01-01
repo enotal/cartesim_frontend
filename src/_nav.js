@@ -30,13 +30,6 @@ const _nav = [
   },
   {
     component: CNavItem,
-    name: 'Répondants',
-    to: '/repondants',
-    user: '*',
-    icon: <FontAwesomeIcon icon={faUsers} className="me-1" />,
-  },
-  {
-    component: CNavItem,
     name: 'Thématiques',
     to: '/thematiques',
     user: '*',
@@ -90,6 +83,13 @@ const _nav = [
     to: '/analyses',
     user: '*',
     icon: <FontAwesomeIcon icon={faNewspaper} className="me-1" />,
+  },
+  {
+    component: CNavItem,
+    name: 'Répondants',
+    to: '/repondants',
+    user: '*',
+    icon: <FontAwesomeIcon icon={faUsers} className="me-1" />,
   },
 ]
 

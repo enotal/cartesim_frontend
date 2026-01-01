@@ -141,6 +141,7 @@ const Typerepondant = () => {
                 enabled: true,
                 action: () => {
                   if (createFormRef.current && createFormBtnLaunchRef.current) {
+                    setCreateAlert(null)
                     setCreateFormAction('create')
                     createFormRef.current.setAttribute('create-data-action', 'create')
                     createFormRef.current.setAttribute('create-data-id', '')
@@ -229,6 +230,7 @@ const Typerepondant = () => {
     const response = await getItem(apiResource.show.replace(':id', id))
     if (createFormRef.current && createFormBtnLaunchRef.current) {
       if (response) {
+        setCreateAlert(null)
         setCreateFormAction('edit')
         createFormRef.current.setAttribute('create-data-action', 'edit')
         createFormRef.current.setAttribute('create-data-id', id)
@@ -266,11 +268,13 @@ const Typerepondant = () => {
         }
         // Echec
         if (response.status === 201) {
-          setCreateAlert(response.data)
+          setCreateAlert(response)
         }
       }
       if (action === 'edit') {
         const response = await updateItem(apiResource.update.replace(':id', id), formValues)
+        console.log(response)
+
         // Succès
         if (response.status === 200) {
           setIndexAlert(response.data)
@@ -347,7 +351,6 @@ const Typerepondant = () => {
   }
 
   if (error) return <div>Error: {error.message}</div>
-  console.log(data[0] && data[0].thematiques)
 
   return (
     <div className="container">

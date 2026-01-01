@@ -32,7 +32,7 @@ const Question = () => {
   const createFormBtnLaunchRef = useRef()
   const createFormBtnCloseRef = useRef()
   const createFormBtnResetRef = useRef()
-  const showModalBtnLaunchRef = useRef()
+  // const showModalBtnLaunchRef = useRef()
   const deleteFormBtnLaunchRef = useRef()
   const deleteFormBtnCloseRef = useRef()
 
@@ -50,7 +50,9 @@ const Question = () => {
   const [questions, setQuestions] = useState([])
   const [elementDeclencheurs, setElementDeclencheurs] = useState([])
 
-  const [itemToShow, setItemToShow] = useState([])
+  const [showvaleurmodalite, setShowvaleurmodalite] = useState(true)
+
+  // const [itemToShow, setItemToShow] = useState([])
 
   const apiResource = {
     get: 'questions',
@@ -169,6 +171,7 @@ const Question = () => {
                 enabled: true,
                 action: () => {
                   if (createFormRef.current && createFormBtnLaunchRef.current) {
+                    setCreateAlert(null)
                     setCreateFormAction('create')
                     setQuestions(data)
                     createFormRef.current.setAttribute('create-data-action', 'create')
@@ -250,9 +253,26 @@ const Question = () => {
   // Actions
 
   //=== functions
+  const handleTypemodalite = (e) => {
+    const t = e.target.value
+    if (t === 'text') {
+      setShowvaleurmodalite(true)
+    }
+    if (t === 'unique' || t === 'multiple') {
+      setShowvaleurmodalite(false)
+    }
+  }
+
   const handleDeclencheur = (e) => {
     const d = data.filter((item) => item.id == parseInt(e.target.value))
-    setElementDeclencheurs(d[0] && d[0].valeurmodalite.split(';'))
+    if (d.length === 1) {
+      const qd = d[0]
+      if (qd.valeurmodalite === null) {
+        setElementDeclencheurs([qd.libelle])
+      } else {
+        setElementDeclencheurs(qd.valeurmodalite.split(';'))
+      }
+    }
   }
 
   //=== Launch modals
@@ -264,6 +284,7 @@ const Question = () => {
     const response = await getItem(apiResource.show.replace(':id', id))
     if (createFormRef.current && createFormBtnLaunchRef.current) {
       if (response) {
+        setCreateAlert(null)
         setCreateFormAction('edit')
         setQuestions(data.filter((item) => item.id !== parseInt(id)))
         createFormRef.current.setAttribute('create-data-action', 'edit')
@@ -431,7 +452,7 @@ const Question = () => {
               aria-labelledby="createModal"
               aria-hidden="true"
             >
-              <div className="modal-dialog modal-dialog-scrollable">
+              <div className="modal-dialog modal-lg modal-dialog-scrollable">
                 <div className="modal-content">
                   <div className="modal-header py-1 bg-primary">
                     <h5 className="modal-title  fw-bold text-light" id="createModalLabel">
@@ -471,12 +492,13 @@ const Question = () => {
                               aria-label="Default select example"
                               id="variable"
                               name="variable"
+                              required
                             >
                               <option value="">Sélectionner ici !</option>
                               {variables.map((variable, index) => {
                                 return (
                                   <option value={variable.id} key={'variable-item-' + index}>
-                                    {variable.libelle}
+                                    {index + 1 + '. ' + variable.libelle}
                                   </option>
                                 )
                               })}
@@ -486,7 +508,7 @@ const Question = () => {
                         {/* Libelle */}
                         <div className="mb-2">
                           <label htmlFor="libelle" className="form-label mb-0">
-                            Libellé
+                            Libellé de la question
                             <CustomRequired />
                           </label>
                           <div className="">
@@ -502,7 +524,7 @@ const Question = () => {
                         {/* Libelle modalité */}
                         <div className="mb-2">
                           <label htmlFor="libellemodalite" className="form-label mb-0">
-                            Libellé modalité
+                            Libellé de la modalité
                             <CustomRequired />
                           </label>
                           <div className="">
@@ -515,99 +537,112 @@ const Question = () => {
                             />
                           </div>
                         </div>
-                        {/* Type modalité */}
-                        <div className="mb-2">
-                          <label htmlFor="typemodalite" className="form-label mb-0">
-                            Type modalité
-                            <CustomRequired />
-                          </label>
-                          <div className="">
-                            {typeModalites.map((typeModalite, index) => {
-                              return (
-                                <div
-                                  className="form-check form-check-inline"
-                                  key={'variable-item-' + index}
-                                >
-                                  <input
-                                    className="form-check-input"
-                                    type="radio"
-                                    name="typemodalite"
-                                    id={'typemodalite' + index}
-                                    value={typeModalite}
-                                  />
-                                  <label
-                                    className="form-check-label"
-                                    htmlFor={'typemodalite' + index}
-                                  >
-                                    {typeModalite}
-                                  </label>
-                                </div>
-                              )
-                            })}
-                          </div>
-                        </div>
-                        {/* Valeur modalité */}
-                        <div className="mb-2">
-                          <label htmlFor="valeurmodalite" className="form-label mb-0">
-                            Valeurs de la modalité
-                          </label>
-                          <div className="">
-                            <input
-                              type="text"
-                              className="form-control"
-                              id="valeurmodalite"
-                              name="valeurmodalite"
-                            />
-                          </div>
-                        </div>
-                        {/* Question parent */}
-                        <div className="mb-2">
-                          <label htmlFor="parent" className="form-label mb-0">
-                            Question parent
-                          </label>
-                          <div className="">
-                            <select
-                              className="form-select"
-                              aria-label="Default select example"
-                              id="parent"
-                              name="parent"
-                              onChange={handleDeclencheur}
-                            >
-                              <option value="">Sélectionner ici !</option>
-                              {questions.map((question, index) => {
+                        {/* Type modalité, Valeur modalité */}
+                        <div className="row mb-2">
+                          {/* Type modalité */}
+                          <div className="col-md-6 mb-2">
+                            <label htmlFor="typemodalite" className="form-label mb-0">
+                              Type modalité
+                              <CustomRequired />
+                            </label>
+                            <div className="">
+                              {typeModalites.map((typeModalite, index) => {
                                 return (
-                                  <option value={question.id} key={'question' + index}>
-                                    {question.libelle}
-                                  </option>
+                                  <div
+                                    className="form-check form-check-inline"
+                                    key={'variable-item-' + index}
+                                  >
+                                    <input
+                                      className="form-check-input"
+                                      type="radio"
+                                      name="typemodalite"
+                                      id={'typemodalite' + index}
+                                      value={typeModalite}
+                                      onChange={handleTypemodalite}
+                                    />
+                                    <label
+                                      className="form-check-label"
+                                      htmlFor={'typemodalite' + index}
+                                    >
+                                      {typeModalite}
+                                    </label>
+                                  </div>
                                 )
                               })}
-                            </select>
+                            </div>
+                          </div>
+                          {/* Valeur modalité */}
+                          <div className="col-md-6 mb-2">
+                            <label htmlFor="valeurmodalite" className="form-label mb-0">
+                              Valeurs de la modalité <i>(séparées par ; )</i>
+                              {!showvaleurmodalite && <CustomRequired />}
+                            </label>
+                            <div className="">
+                              <textarea
+                                className="form-control"
+                                id="valeurmodalite"
+                                name="valeurmodalite"
+                                rows={2}
+                                placeholder="Exemple : val1;val2;...;val3"
+                                disabled={showvaleurmodalite}
+                                required={!showvaleurmodalite}
+                              ></textarea>
+                            </div>
                           </div>
                         </div>
-                        {/* Déclencheur */}
-                        <div className="mb-2">
-                          <label htmlFor="declencheur" className="form-label mb-0">
-                            Déclencheur
-                          </label>
-                          <div className="">
-                            <select
-                              className="form-select"
-                              aria-label="Default select example"
-                              id="declencheur"
-                              name="declencheur"
-                            >
-                              <option value="">Sélectionner ici !</option>
-                              {elementDeclencheurs.map((elementDeclencheur, index) => {
-                                return (
-                                  <option
-                                    value={elementDeclencheur}
-                                    key={'elementDeclencheur' + index}
-                                  >
-                                    {elementDeclencheur}
-                                  </option>
-                                )
-                              })}
-                            </select>
+                        {/* Question parent, Déclencheur */}
+                        <div className="row mb-2">
+                          {/* Question parent */}
+                          <div className="col-md-6 mb-2">
+                            <label htmlFor="parent" className="form-label mb-0">
+                              Question parent
+                            </label>
+                            <div className="">
+                              <select
+                                className="form-select"
+                                aria-label="Default select example"
+                                id="parent"
+                                name="parent"
+                                onChange={handleDeclencheur}
+                                disabled={questions.length > 0 ? false : true}
+                              >
+                                <option value="">Sélectionner ici !</option>
+                                {questions.map((question, index) => {
+                                  return (
+                                    <option value={question.id} key={'question' + index}>
+                                      {question.libelle}
+                                    </option>
+                                  )
+                                })}
+                              </select>
+                            </div>
+                          </div>
+                          {/* Déclencheur */}
+                          <div className="col-md-6 mb-2">
+                            <label htmlFor="declencheur" className="form-label mb-0">
+                              Elément déclencheur
+                            </label>
+                            <div className="">
+                              <select
+                                className="form-select"
+                                aria-label="Default select example"
+                                id="declencheur"
+                                name="declencheur"
+                                disabled={elementDeclencheurs.length > 0 ? false : true}
+                              >
+                                <option value="">Sélectionner ici !</option>
+                                {elementDeclencheurs.map((elementDeclencheur, index) => {
+                                  return (
+                                    <option
+                                      value={elementDeclencheur}
+                                      key={'elementDeclencheur' + index}
+                                    >
+                                      {elementDeclencheur}
+                                    </option>
+                                  )
+                                })}
+                              </select>
+                            </div>
                           </div>
                         </div>
                         {/* Est activé */}

@@ -75,6 +75,18 @@ const Formulaire = () => {
     })
   }
 
+  // Fonctions
+  const handleRadio = async (e) => {
+    const { name, value } = e.target
+    await getItem('questions/' + name).then(response => {
+      if (response.length === 1){
+        console.log(response[0])
+      }
+    })
+    console.log(name + ' : ' + value)
+    // console.log(response)
+  }
+
   //
   const handleSubmitForm = async (e) => {
     e.preventDefault()
@@ -240,37 +252,42 @@ const Formulaire = () => {
                                     <label htmlFor="" className="form-label fw-bolder ">
                                       {question.libelle}
                                     </label>
-
                                     {/* Text */}
                                     {question.typemodalite === 'text' && (
-                                      <div className="" key={'modalite-text-item' + index4}>
+                                      <div
+                                        className="mb-2"
+                                        key={'question-typemodalite-text-item-' + index4}
+                                      >
                                         <input
                                           className="form-control"
                                           type="text"
-                                          id={'modalite-item-text-' + index4}
+                                          id={'question-typemodalite-text-item-' + index4}
                                           name={question.id}
                                         />
                                       </div>
                                     )}
                                     {/* Radio */}
                                     {question.typemodalite === 'unique' && (
-                                      <div className="">
+                                      <div className="mb-2">
                                         {question.valeurmodalite !== null &&
                                           question.valeurmodalite.split(';').map((v, index5) => (
                                             <div
                                               className="form-check form-check-inline"
-                                              key={'modalite-unique-item-' + index5}
+                                              key={'question-typemodalite-radio-item-' + index5}
                                             >
                                               <input
                                                 className="form-check-input"
                                                 type="radio"
-                                                id={'modalite-item-unique-' + index5}
+                                                id={'question-typemodalite-radio-item-' + index5}
                                                 name={question.id}
-                                                value={question.id}
+                                                value={v}
+                                                onChange={handleRadio}
                                               />
                                               <label
                                                 className="form-check-label"
-                                                htmlFor={'modalite-item-unique-' + index5}
+                                                htmlFor={
+                                                  'question-typemodalite-radio-item-' + index5
+                                                }
                                               >
                                                 {v}
                                               </label>
@@ -280,23 +297,25 @@ const Formulaire = () => {
                                     )}
                                     {/* Checkbox */}
                                     {question.typemodalite === 'multiple' && (
-                                      <div className="">
+                                      <div className="mb-2">
                                         {question.valeurmodalite !== null &&
                                           question.valeurmodalite.split(';').map((v, index6) => (
                                             <div
                                               className="form-check"
-                                              key={'modalite-multiple-item-' + index6}
+                                              key={'question-typemodalite-checkbox-item-' + index6}
                                             >
                                               <input
                                                 className="form-check-input"
                                                 type="checkbox"
-                                                id={'modalite-item-multiple-' + index6}
+                                                id={'question-typemodalite-checkbox-item-' + index6}
                                                 name={question.id}
-                                                value={question.id}
+                                                value={v}
                                               />
                                               <label
                                                 className="form-check-label"
-                                                htmlFor={'modalite-item-multiple-' + index6}
+                                                htmlFor={
+                                                  'question-typemodalite-checkbox-item-' + index6
+                                                }
                                               >
                                                 {v}
                                               </label>

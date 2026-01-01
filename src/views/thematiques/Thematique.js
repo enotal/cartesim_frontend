@@ -166,6 +166,7 @@ const Thematique = () => {
                 enabled: true,
                 action: () => {
                   if (createFormRef.current && createFormBtnLaunchRef.current) {
+                    setCreateAlert(null)
                     setCreateFormAction('create')
                     createFormRef.current.setAttribute('create-data-action', 'create')
                     createFormRef.current.setAttribute('create-data-id', '')
@@ -255,6 +256,7 @@ const Thematique = () => {
     const tyrptIds = response.typerepondants.map((typerepondant) => typerepondant.id)
     if (createFormRef.current && createFormBtnLaunchRef.current) {
       if (response) {
+        setCreateAlert(null)
         setCreateFormAction('edit')
         createFormRef.current.setAttribute('create-data-action', 'edit')
         createFormRef.current.setAttribute('create-data-id', id)
@@ -484,7 +486,10 @@ const Thematique = () => {
                           <div className="">
                             {typerepondants.map((typerepondant, index) => {
                               return (
-                                <div className="form-check" key={'typerepondant-item-' + index}>
+                                <div
+                                  className="form-check form-check-inline"
+                                  key={'typerepondant-item-' + index}
+                                >
                                   <input
                                     className="form-check-input"
                                     type="checkbox"
