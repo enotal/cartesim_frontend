@@ -25,14 +25,14 @@ import { CustomCreateAlert } from '../../components/CustomCreateAlert'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus, faEdit } from '@fortawesome/free-solid-svg-icons'
 
-const Dimension = () => {
+const Indicateur = () => {
   const tableRef = useRef()
   const createFormRef = useRef()
   const deleteFormRef = useRef()
   const createFormBtnLaunchRef = useRef()
   const createFormBtnCloseRef = useRef()
   const createFormBtnResetRef = useRef()
-  const showModalBtnLaunchRef = useRef()
+  // const showModalBtnLaunchRef = useRef()
   const deleteFormBtnLaunchRef = useRef()
   const deleteFormBtnCloseRef = useRef()
 
@@ -45,29 +45,38 @@ const Dimension = () => {
   const [createFormAction, setCreateFormAction] = useState(null)
   const [estActives, setEstActives] = useState(['non', 'oui'])
 
-  const [thematiques, setThematiques] = useState([])
-  const [itemToShow, setItemToShow] = useState([])
+  const [questions, setQuestions] = useState([])
+  const [typeModalites, setTypeModalites] = useState(['text', 'unique', 'multiple'])
+  const [elementDeclencheurs, setElementDeclencheurs] = useState([])
+
+  const [showvaleurmodalite, setShowvaleurmodalite] = useState(true)
+
+  // const [itemToShow, setItemToShow] = useState([])
 
   const apiResource = {
-    get: 'dimensions',
-    show: 'dimensions/:id',
-    create: 'dimensions',
-    update: 'dimensions/:id',
-    delete: 'dimensions/:id',
+    get: 'indicateurs',
+    show: 'indicateurs/:id',
+    create: 'indicateurs',
+    update: 'indicateurs/:id',
+    delete: 'indicateurs/:id',
   }
 
   const columns = [
     { title: 'ID', data: 'id' },
     { title: 'LIBELLE', data: 'libelle' },
+    { title: 'FORMULE', data: 'formule' },
+    // { title: 'MODALITE', data: 'libellemodalite' },
+    // { title: 'TYPE', data: 'typemodalite' },
+    // // { title: 'VALEURS', data: 'valeurmodalite' },
+    // { title: 'PARENT', data: 'parent_id' },
     { title: 'ACTIVE', data: 'estactive' },
-    { title: 'THEMATIQUE', data: 'thematique.libellecourt' },
-    {
-      title: 'VARIABLES',
-      data: null,
-      render: (data, type, row) => {
-        return row.variables && row.variables.length
-      },
-    },
+    // {
+    //   title: 'VARIABLE',
+    //   data: null,
+    //   render: (data, type, row) => {
+    //     return row.variable && row.variable.libelle
+    //   },
+    // },
     {
       title: 'ACTIONS',
       data: null,
@@ -94,17 +103,17 @@ const Dimension = () => {
     }
   }
 
-  const fetchGetThematique = async () => {
-    await getData('thematiques')
+  const fetchGetQuestion = async () => {
+    await getData('questions')
       .then((response) => {
-        setThematiques(response)
+        setQuestions(response)
       })
       .catch((err) => console.log(err))
   }
 
   useEffect(() => {
     fetchGet()
-    fetchGetThematique()
+    fetchGetQuestion()
   }, [])
 
   useEffect(() => {
@@ -213,6 +222,8 @@ const Dimension = () => {
 
   // Actions
 
+  //=== functions
+
   //=== Launch modals
 
   // === Show item
@@ -234,8 +245,9 @@ const Dimension = () => {
         setCreateFormAction('edit')
         createFormRef.current.setAttribute('create-data-action', 'edit')
         createFormRef.current.setAttribute('create-data-id', id)
-        $('#thematique').val(response.thematique_id)
+        $('#question').val(response.question_id)
         $('#libelle').val(response.libelle)
+        $('#formule').val(response.formule)
         $('input[name="active"][value="' + response.estactive + '"]').prop('checked', true)
         createFormBtnLaunchRef.current.click()
       }
@@ -264,8 +276,7 @@ const Dimension = () => {
         // Succès
         if (response.status === 200) {
           setCreateAlert(response)
-          $('#libelle').val('')
-          // createFormBtnResetRef.current.click()
+          createFormBtnResetRef.current.click()
         }
         // Echec
         if (response.status === 201) {
@@ -393,7 +404,7 @@ const Dimension = () => {
               aria-labelledby="createModal"
               aria-hidden="true"
             >
-              <div className="modal-dialog modal-dialog-scrollable">
+              <div className="modal-dialog modal-md modal-dialog-scrollable">
                 <div className="modal-content">
                   <div className="modal-header py-1 bg-primary">
                     <h5 className="modal-title  fw-bold text-light" id="createModalLabel">
@@ -421,25 +432,25 @@ const Dimension = () => {
 
                     <div className="card">
                       <div className="card-body">
-                        {/* Thematique */}
+                        {/* Question */}
                         <div className="mb-2">
-                          <label htmlFor="thematique" className="form-label mb-0">
-                            Thématique
+                          <label htmlFor="question" className="form-label mb-0">
+                            Question
                             <CustomRequired />
                           </label>
                           <div className="">
                             <select
                               className="form-select"
                               aria-label="Default select example"
-                              id="thematique"
-                              name="thematique"
+                              id="question"
+                              name="question"
                               required
                             >
                               <option value="">Sélectionner ici !</option>
-                              {thematiques.map((thematique, index) => {
+                              {questions.map((question, index) => {
                                 return (
-                                  <option value={thematique.id} key={'thematique-item-' + index}>
-                                    {index + 1 + '. ' + thematique.libellelong}
+                                  <option value={question.id} key={'question-item-' + index}>
+                                    {index + 1 + '. ' + question.libelle}
                                   </option>
                                 )
                               })}
@@ -453,13 +464,29 @@ const Dimension = () => {
                             <CustomRequired />
                           </label>
                           <div className="">
-                            <input
-                              type="text"
+                            <textarea
                               className="form-control"
                               id="libelle"
                               name="libelle"
+                              rows={2}
                               required
-                            />
+                            ></textarea>
+                          </div>
+                        </div>
+                        {/* Formule */}
+                        <div className="mb-2">
+                          <label htmlFor="formule" className="form-label mb-0">
+                            Formule
+                            <CustomRequired />
+                          </label>
+                          <div className="">
+                            <textarea
+                              className="form-control"
+                              id="formule"
+                              name="formule"
+                              rows={2}
+                              required
+                            ></textarea>
                           </div>
                         </div>
                         {/* Est activé */}
@@ -596,4 +623,4 @@ const Dimension = () => {
   )
 }
 
-export default Dimension
+export default Indicateur

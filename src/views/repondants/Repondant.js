@@ -45,6 +45,8 @@ const Repondant = () => {
   const [createFormAction, setCreateFormAction] = useState(null)
   const [estActives, setEstActives] = useState(['non', 'oui'])
 
+  const [typerepondants, setTyperepondants] = useState([])
+
   const [itemToShow, setItemToShow] = useState([])
 
   const apiResource = {
@@ -60,31 +62,21 @@ const Repondant = () => {
     { title: 'IDENTIFIANT', data: 'identifiant' },
     { title: 'ACTIVE', data: 'estactive' },
     {
+      title: 'TYPE',
+      data: null,
+      render: (data, type, row) => {
+        return row.typerepondant.libelle
+      },
+    },
+    {
       title: 'ACTIONS',
       data: null,
       render: (data, type, row) => {
-        return (
-          '<div class="flex">' +
-          // Détails
-          '<button class="btn btn-sm py-0 me-3 tableActionBtn tableActionBtnShowItem" data-id="' +
-          row.id +
-          '">' +
-          '<i class="fa fa-eye text-warning" aria-hidden="true"></i>' +
-          '</button>' +
-          // Edit
-          '<button class="btn btn-sm py-0 me-3 tableActionBtn tableActionBtnEditItem" data-id="' +
-          row.id +
-          '">' +
-          '<i class="fa fa-edit text-info" aria-hidden="true"></i>' +
-          '</button>' +
-          // Delete
-          '<button class="btn btn-sm py-0 tableActionBtn tableActionBtnDeleteItem" data-id="' +
-          row.id +
-          '">' +
-          '<i class="fa fa-trash text-danger" aria-hidden="true"></i>' +
-          '</button>' +
-          '</div>'
-        )
+        // Détails, Edit, Delete
+        const btnShow = `<a class="btn btn-outline-warning me-1 tableActionBtn tableActionBtnShowItem" href="#" data-id="${row.id}"><i class="fa fa-eye" aria-hidden="true"></i></a>`
+        const btnEdit = `<a class="btn btn-outline-info me-1 tableActionBtn tableActionBtnEditItem" href="#" data-id="${row.id}"><i class="fa fa-edit" aria-hidden="true"></i></a>`
+        const btnDelete = `<a class="btn btn-outline-danger tableActionBtn tableActionBtnDeleteItem" href="#" data-id="${row.id}"><i class="fa fa-trash" aria-hidden="true"></i></a>`
+        return `<div class="d-flex">${btnShow + btnEdit + btnDelete}</div>`
       },
     },
   ]
@@ -102,8 +94,17 @@ const Repondant = () => {
     }
   }
 
+  const fetchGetTyperepondant = async () => {
+    await getData('typerepondants')
+      .then((response) => {
+        setTyperepondants(response)
+      })
+      .catch((err) => console.log(err))
+  }
+
   useEffect(() => {
     fetchGet()
+    fetchGetTyperepondant()
   }, [])
 
   useEffect(() => {
@@ -224,6 +225,7 @@ const Repondant = () => {
         setCreateFormAction('edit')
         createFormRef.current.setAttribute('create-data-action', 'edit')
         createFormRef.current.setAttribute('create-data-id', id)
+        $('#typerepondant').val(response.typerepondant_id)
         $('#identifiant').val(response.identifiant)
         $('#identifiant').prop('disabled', true)
         $('input[name="active"][value="' + response.estactive + '"]').prop('checked', true)
@@ -278,6 +280,14 @@ const Repondant = () => {
     fetchGet()
   }
   // ===
+
+  // === Show item
+  $('#myTable tbody').on('click', '.tableActionBtnShowItem', async function (e) {
+    e.preventDefault()
+    // const id = $(this).data('id')
+    // const response = await getItem(apiResource.show.replace(':id', id))
+  })
+  //
 
   // === Delete item
   $('#myTable tbody').on('click', '.tableActionBtnDeleteItem', async function (e) {
@@ -410,6 +420,34 @@ const Repondant = () => {
 
                     <div className="card">
                       <div className="card-body">
+                        {/* Type repondant */}
+                        <div className="mb-2">
+                          <label htmlFor="typerepondant" className="form-label mb-0">
+                            Type de répondant
+                            <CustomRequired />
+                          </label>
+                          <div className="">
+                            <select
+                              className="form-select"
+                              aria-label="Default select example"
+                              id="typerepondant"
+                              name="typerepondant"
+                              required
+                            >
+                              <option value="">Sélectionner ici !</option>
+                              {typerepondants.map((typerepondant, index) => {
+                                return (
+                                  <option
+                                    value={typerepondant.id}
+                                    key={'typerepondant-item-' + index}
+                                  >
+                                    {index + 1 + '. ' + typerepondant.libelle}
+                                  </option>
+                                )
+                              })}
+                            </select>
+                          </div>
+                        </div>
                         {/* Identifiant */}
                         <div className="mb-2">
                           <label htmlFor="identifiant" className="form-label mb-0">

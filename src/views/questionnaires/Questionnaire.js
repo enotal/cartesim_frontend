@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import 'jquery'
 import $ from 'jquery'
@@ -26,6 +27,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus, faEdit } from '@fortawesome/free-solid-svg-icons'
 
 const Questionnaire = () => {
+  const navigate = useNavigate()
   const tableRef = useRef()
   const createFormRef = useRef()
   const deleteFormRef = useRef()
@@ -87,35 +89,23 @@ const Questionnaire = () => {
       title: 'THEMATIQUES',
       data: null,
       render: (data, type, row) => {
-        return row.thematiques.map((thematique) => thematique.libellecourt)
+        const ids = row.thematiques.map((thematique) => thematique.id)
+        const titles = row.thematiques.map(
+          (thematique) => thematique.id + '. ' + thematique.libellelong,
+        )
+        return `<div class=""><a class="btn btn-primary tableBtnShowThematiques" href="#" title="${titles.join('\n')}" data-id="">${ids}</a></div>`
       },
     },
     {
       title: 'ACTIONS',
       data: null,
       render: (data, type, row) => {
-        return (
-          '<div class="flex">' +
-          // Détails
-          '<button class="btn btn-sm py-0 me-3 tableActionBtn tableActionBtnShowItem" data-id="' +
-          row.id +
-          '">' +
-          '<i class="fa fa-eye text-warning" aria-hidden="true"></i>' +
-          '</button>' +
-          // Edit
-          '<button class="btn btn-sm py-0 me-3 tableActionBtn tableActionBtnEditItem" data-id="' +
-          row.id +
-          '">' +
-          '<i class="fa fa-edit text-info" aria-hidden="true"></i>' +
-          '</button>' +
-          // Delete
-          '<button class="btn btn-sm py-0 tableActionBtn tableActionBtnDeleteItem" data-id="' +
-          row.id +
-          '">' +
-          '<i class="fa fa-trash text-danger" aria-hidden="true"></i>' +
-          '</button>' +
-          '</div>'
-        )
+        // Détails, Edit, Delete
+        const btnShow = `<a class="btn btn-outline-warning me-1 tableActionBtn tableActionBtnShowItem" href="#" title="Voir les détails" data-id="${row.id}"><i class="fa fa-eye" aria-hidden="true"></i></a>`
+        const btnEdit = `<a class="btn btn-outline-info me-1 tableActionBtn tableActionBtnEditItem" href="#" title="Editer" data-id="${row.id}"><i class="fa fa-edit" aria-hidden="true"></i></a>`
+        const btnDelete = `<a class="btn btn-outline-danger me-1 tableActionBtn tableActionBtnDeleteItem" href="#" title="Supprimer" data-id="${row.id}"><i class="fa fa-trash" aria-hidden="true"></i></a>`
+        const btnGenerate = `<a class="btn btn-outline-secondary tableActionBtn tableActionBtnGenerateItem" href="#" title="Générer le formulaire" data-id="${row.id}"><i class="fa fa-cogs" aria-hidden="true"></i></a>`
+        return `<div class="d-flex">${btnShow + btnEdit + btnDelete + btnGenerate}</div>`
       },
     },
   ]
@@ -256,6 +246,14 @@ const Questionnaire = () => {
 
   //=== Launch modals
 
+  // === Show item
+  $('#myTable tbody').on('click', '.tableActionBtnShowItem', async function (e) {
+    e.preventDefault()
+    // const id = $(this).data('id')
+    // const response = await getItem(apiResource.show.replace(':id', id))
+  })
+  //
+
   // === Edit item
   $('#myTable tbody').on('click', '.tableActionBtnEditItem', async function (e) {
     e.preventDefault()
@@ -390,6 +388,14 @@ const Questionnaire = () => {
     }
     fetchGet()
   }
+  // ===
+
+  // === Generate associated form
+  $('#myTable tbody').on('click', '.tableActionBtnGenerateItem', async function (e) {
+    e.preventDefault()
+    const id = $(this).data('id')
+    navigate('/questionnaires/' + id + '/formulaire', { replace: true })
+  })
   // ===
 
   // Datatable loading...

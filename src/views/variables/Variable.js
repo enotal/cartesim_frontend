@@ -60,7 +60,13 @@ const Variable = () => {
     { title: 'ID', data: 'id' },
     { title: 'LIBELLE', data: 'libelle' },
     { title: 'ACTIVE', data: 'estactive' },
-    { title: 'DIMENSION', data: 'dimension.libelle' },
+    {
+      title: 'DIMENSION',
+      data: null,
+      render: (data, type, row) => {
+        return `<div class=""><a class="btn btn-primary tableBtnShowDimension" href="#" title="${row.dimension.libelle}" data-id="${row.dimension_id}">${row.dimension_id}</a></div>`
+      },
+    },
     {
       title: 'QUESTIONS',
       data: null,
@@ -72,28 +78,11 @@ const Variable = () => {
       title: 'ACTIONS',
       data: null,
       render: (data, type, row) => {
-        return (
-          '<div class="flex">' +
-          // Détails
-          '<button class="btn btn-sm py-0 me-3 tableActionBtn tableActionBtnShowItem" data-id="' +
-          row.id +
-          '">' +
-          '<i class="fa fa-eye text-warning" aria-hidden="true"></i>' +
-          '</button>' +
-          // Edit
-          '<button class="btn btn-sm py-0 me-3 tableActionBtn tableActionBtnEditItem" data-id="' +
-          row.id +
-          '">' +
-          '<i class="fa fa-edit text-info" aria-hidden="true"></i>' +
-          '</button>' +
-          // Delete
-          '<button class="btn btn-sm py-0 tableActionBtn tableActionBtnDeleteItem" data-id="' +
-          row.id +
-          '">' +
-          '<i class="fa fa-trash text-danger" aria-hidden="true"></i>' +
-          '</button>' +
-          '</div>'
-        )
+        // Détails, Edit, Delete
+        const btnShow = `<a class="btn btn-outline-warning me-1 tableActionBtn tableActionBtnShowItem" href="#" data-id="${row.id}"><i class="fa fa-eye" aria-hidden="true"></i></a>`
+        const btnEdit = `<a class="btn btn-outline-info me-1 tableActionBtn tableActionBtnEditItem" href="#" data-id="${row.id}"><i class="fa fa-edit" aria-hidden="true"></i></a>`
+        const btnDelete = `<a class="btn btn-outline-danger tableActionBtn tableActionBtnDeleteItem" href="#" data-id="${row.id}"><i class="fa fa-trash" aria-hidden="true"></i></a>`
+        return `<div class="d-flex">${btnShow + btnEdit + btnDelete}</div>`
       },
     },
   ]
@@ -231,6 +220,35 @@ const Variable = () => {
   // Actions
 
   //=== Launch modals
+
+  // === Show dimension
+  $('#myTable tbody').on('click', '.tableBtnShowDimension', async function (e) {
+    e.preventDefault()
+    const id = $(this).data('id')
+    console.log(id)
+    // const response = await getItem(apiResource.show.replace(':id', id))
+    // if (createFormRef.current && createFormBtnLaunchRef.current) {
+    //   if (response) {
+    //     setCreateAlert(null)
+    //     setCreateFormAction('edit')
+    //     createFormRef.current.setAttribute('create-data-action', 'edit')
+    //     createFormRef.current.setAttribute('create-data-id', id)
+    //     $('#dimension').val(response.dimension_id)
+    //     $('#libelle').val(response.libelle)
+    //     $('input[name="active"][value="' + response.estactive + '"]').prop('checked', true)
+    //     createFormBtnLaunchRef.current.click()
+    //   }
+    // }
+  })
+  // 
+
+  // === Show item
+  $('#myTable tbody').on('click', '.tableActionBtnShowItem', async function (e) {
+    e.preventDefault()
+    // const id = $(this).data('id')
+    // const response = await getItem(apiResource.show.replace(':id', id))
+  })
+  //
 
   // === Edit item
   $('#myTable tbody').on('click', '.tableActionBtnEditItem', async function (e) {

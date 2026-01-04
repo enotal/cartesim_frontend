@@ -71,28 +71,11 @@ const Typerepondant = () => {
       title: 'ACTIONS',
       data: null,
       render: (data, type, row) => {
-        return (
-          '<div class="flex">' +
-          // Détails
-          '<button class="btn btn-sm py-0 me-3 tableActionBtn tableActionBtnShowItem" data-id="' +
-          row.id +
-          '">' +
-          '<i class="fa fa-eye text-warning" aria-hidden="true"></i>' +
-          '</button>' +
-          // Edit
-          '<button class="btn btn-sm py-0 me-3 tableActionBtn tableActionBtnEditItem" data-id="' +
-          row.id +
-          '">' +
-          '<i class="fa fa-edit text-info" aria-hidden="true"></i>' +
-          '</button>' +
-          // Delete
-          '<button class="btn btn-sm py-0 tableActionBtn tableActionBtnDeleteItem" data-id="' +
-          row.id +
-          '">' +
-          '<i class="fa fa-trash text-danger" aria-hidden="true"></i>' +
-          '</button>' +
-          '</div>'
-        )
+        // Détails, Edit, Delete
+        const btnShow = `<a class="btn btn-outline-warning me-1 tableActionBtn tableActionBtnShowItem" href="#" data-id="${row.id}"><i class="fa fa-eye" aria-hidden="true"></i></a>`
+        const btnEdit = `<a class="btn btn-outline-info me-1 tableActionBtn tableActionBtnEditItem" href="#" data-id="${row.id}"><i class="fa fa-edit" aria-hidden="true"></i></a>`
+        const btnDelete = `<a class="btn btn-outline-danger tableActionBtn tableActionBtnDeleteItem" href="#" data-id="${row.id}"><i class="fa fa-trash" aria-hidden="true"></i></a>`
+        return `<div class="d-flex">${btnShow + btnEdit + btnDelete}</div>`
       },
     },
   ]
@@ -222,6 +205,14 @@ const Typerepondant = () => {
   // Actions
 
   //=== Launch modals
+
+  // === Show item
+  $('#myTable tbody').on('click', '.tableActionBtnShowItem', async function (e) {
+    e.preventDefault()
+    // const id = $(this).data('id')
+    // const response = await getItem(apiResource.show.replace(':id', id))
+  })
+  //
 
   // === Edit item
   $('#myTable tbody').on('click', '.tableActionBtnEditItem', async function (e) {

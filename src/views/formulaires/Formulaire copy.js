@@ -1,161 +1,405 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { getData } from '../../components/crud/apiService'
-import { CustomRequired } from '../../components/crud/CustomRequired'
-import { isDate } from 'validator'
+import { useParams } from 'react-router-dom'
+import { getData, getItem } from '../../apiService'
+import Typerepondant from '../typerepondants/Typerepondant'
+import { createItem } from '../../apiService'
+
+import $ from 'jquery'
+
+// import { isDate } from 'validator'
 
 const Formulaire = () => {
   const formRef = useRef()
-  const [questionnaires, setQuestionnaires] = useState([])
+
+  const [data, setData] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState(null)
+
+  const [questionnaire, setQuestionnaire] = useState([])
+  const [thematiques, setThematiques] = useState([])
+  const [typerepondants, setTyperepondants] = useState([])
   const [dimensions, setDimensions] = useState([])
-  const [submitter, setSubmitter] = useState('')
+  const [show, setShow] = useState(false)
+  const separator = ', '
+  const [dates, setDates] = useState({ datedebut: null, datefin: null })
+  const [alert, setAlert] = useState(null)
+
+  const { questionnaireId } = useParams()
+
+  const apiResource = {
+    get: 'questionnaires',
+    show: 'questionnaires/:id',
+    create: 'questionnaires',
+    update: 'questionnaires/:id',
+    delete: 'questionnaires/:id',
+  }
 
   useEffect(() => {
-    getData('questionnaires')
-      .then((response) => setQuestionnaires(response))
-      .catch((error) => console.error(error))
-
-    getData('dimensions')
-      .then((response) => setDimensions(response))
-      .catch((error) => console.error(error))
+    const fetchData = async () => {
+      try {
+        setIsLoading(true)
+        const response = await getItem(apiResource.show.replace(':id', questionnaireId))
+        if (response.success) {
+          setShow(true)
+          setData(response.data)
+          // Dates de début et de fin
+          const dd = response.data.datedebut !== null ? new Date(response.data.datedebut) : null
+          const df = response.data.datefin !== null ? new Date(response.data.datefin) : null
+          setDates({
+            datedebut: dd !== null ? dd.toLocaleDateString() : dd,
+            datefin: df !== null ? df.toLocaleDateString() : df,
+          })
+          // Thématiques
+          // const thms = response.data.thematiques
+          // setThematiques(thms)
+          // // Types repondants
+          // const trps = thms.map((thm) => thm.typerepondants)
+          // setTyperepondants(trps)
+          // // Dimensions
+          // const dms = thms.map((thm) => thm.dimensions)
+          // setDimensions(dms)
+          // Questions
+        }
+      } catch (err) {
+        setError(err)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchData()
   }, [])
 
   // Save or Send form values
-  const handleSubmit = (event) => {
-    event.preventDefault()
-    if (formRef.current) {
-      // récupération des données du formulaire
-      const formData = new FormData(formRef.current)
-      const formValues = Object.fromEntries(formData)
-      console.log(formValues)
+  const handleQuestionnaireChange = async (e) => {
+    await getItem(apiResource.show.replace(':id', e.target.value)).then((response) => {
+      if (response.id) {
+        setShow(true)
+        setQuestionnaire(response)
+        const dd = response.datedebut !== null ? new Date(response.datedebut) : null
+        const df = response.datefin !== null ? new Date(response.datefin) : null
+        setDates({
+          datedebut: dd !== null ? dd.toLocaleDateString() : dd,
+          datefin: df !== null ? df.toLocaleDateString() : df,
+        })
+        // Thématiques
+        const thms = response.thematiques
+        setThematiques(thms)
+        // Types repondants
+        const trps = thms.map((thm) => thm.typerepondants)
+        setTyperepondants(trps)
+        // Dimensions
+        const dms = thms.map((thm) => thm.dimensions)
+        setDimensions(dms)
+        // Questions
+      } else {
+        setQuestionnaire([])
+        setDates({ datedebut: null, datefin: null })
+        setThematiques([])
+        setTyperepondants([])
+        setDimensions([])
+        setShow(false)
+      }
+    })
+  }
+
+  // Fonctions
+  const handleRadio = async (e) => {
+    const { name, value } = e.target
+    await getItem('questions/' + name).then((response) => {
+      if (response.length === 1) {
+        const ch = response[0].child
+        const qs = $('input[name="' + ch.id + '"]')
+        if (ch !== null) {
+          // Déclencheur = valeur choisie ?
+          if (value === response[0].declencheur) {
+            qs.prop('disabled', false)
+            qs.focus()
+          } else {
+            qs.prop('disabled', true)
+          }
+        }
+      }
+    })
+  }
+
+  //
+  const handleSubmitForm = async (e) => {
+    e.preventDefault()
+    // récupération des données du formulaire
+    const formData = new FormData(formRef.current)
+    const formValues = Object.fromEntries(formData)
+    // User ID
+    formValues.repondant = 1
+    //
+    const id = e.target.getAttribute('questionnaire-id')
+    // console.log(formValues)
+    // Use event.nativeEvent.submitter to identify which button was clicked
+    const submitterName = e.nativeEvent.submitter.name
+    if (submitterName === 'sauvegarder') {
+      //
+    } else if (submitterName === 'soumettre') {
+      const response = await createItem('questionquestionnairerepondants', formValues)
+      // console.log(response)
+      setAlert(response)
+      // // Succès
+      // if (response.status === 200) {
+      //   setCreateAlert(response)
+      //   createFormBtnResetRef.current.click()
+      // }
+      // // Echec
+      // if (response.status === 201) {
+      //   setCreateAlert(response.data)
+      // }
     }
   }
+  // ===
 
-  const questionnaire = questionnaires.filter((item) => item.isclosed === 'non')[0]
-  console.log(questionnaire && questionnaire)
-  // var startDate = null
-  // if (questionnaire) {
-  //   startDate = questionnaire.datedebut ? new Date() : null
-  // }
-
-  const renderPredefiniContent = (question) => {
-    let reponses = question.reponsepredefinie.split(';')
-    // Type modalité :  ? unique : multiple
-    return reponses.map((reponse, idx) => (
-      <div className="form-check form-check-inline" key={question.id + '-' + idx}>
-        <input
-          className="form-check-input"
-          type={question.typemodalite === 'unique' ? 'radio' : 'checkbox'}
-          name={
-            question.typemodalite === 'unique'
-              ? 'question' + question.id
-              : 'question' + question.id + '[]'
-          }
-          id={question.id + '-' + idx}
-          // data-question={question.id}
-          value={reponse}
-        />
-        <label className="form-check-label" htmlFor={question.id + '-' + idx}>
-          {reponse}
-        </label>
+  // Datatable loading...
+  if (isLoading) {
+    return (
+      <div className="text-center">
+        <div
+          className="spinner-border me-2"
+          style={{ width: '3rem', height: '3rem' }}
+          role="status"
+        >
+          <span className="visually-hidden">Loading...</span>
+        </div>
+        <div
+          className="spinner-grow"
+          style={{ width: '3rem', height: '3rem', color: '#2e9ed5' }}
+          role="status"
+        >
+          <span className="visually-hidden">Loading...</span>
+        </div>
       </div>
-    ))
+    )
   }
 
-  return (
-    <form ref={formRef} key={''} action="" method="post" encType="" onSubmit={handleSubmit}>
-      {/* Titre */}
-      <div className="card" style={{ backgroundColor: '#17376e', color: '#fff' }}>
-        <div className="card-body py-1">
-          {questionnaire && (
-            <div>
-              <div className="">
-                <span className="fw-bolder me-1">Questionnaire n°</span>
-                {questionnaire.numero}
+  if (error) return <div>Error: {error.message}</div>
+
+  if (data.length === 0)
+    return (
+      <div className="container">
+        <div className="row mt-5">
+          <div className="col-md-6 offset-md-3">
+            <div className="card">
+              <div className="card-header fw-bolder" style={{ color: '#00407D' }}>
+                Génération automatique de formulaire
               </div>
-              <div className="d-flex">
-                <div>
-                  <span className="fw-bolder me-1">Date début :</span>
-                  {/* {startDate} */}
-                </div>
-                <div className="ms-auto">
-                  <span className="fw-bolder me-1">Date fin :</span>
-                  {questionnaire.datefin}
-                </div>
+              <div className="card-body text-center text-danger fw-bolder">
+                <i className="fa fa-exclamation-triangle me-2" aria-hidden="true"></i>Aucun
+                questionnaire disponible !
               </div>
-              <div>
-                <span className="fw-bolder me-1">Consigne :</span>
-                {questionnaire.consigne}
+              <div className="card-footer d-grid">
+                <a className="btn btn-primary" href="#/questionnaires">
+                  <i className="fa fa-plus me-1" aria-hidden="true"></i>Ajouter un questionnaire
+                </a>
               </div>
             </div>
-          )}
+          </div>
         </div>
       </div>
+    )
 
-      {/* Contenus */}
-      <div className="card mt-2" style={{ maxHeight: '32em', overflowY: 'auto' }}>
-        <div className="card-body ps-0">
-          <ol className=''>
-            {dimensions.map((dimension, index) => {
-              return dimension?.questions.map((question) => (
-                <li className="mb-3" key={'question' + question.id}>
-                  <label htmlFor="" className="col-form-label py-0 fw-bolder">
-                    <CustomRequired tagP={0} />
-                    {question.libelle}
-                  </label>
-                  <div className="">
-                    {question.modalite !== 'prédéfini' ? (
-                      <input
-                        type="text"
-                        className="form-control"
-                        id={'question' + question.id}
-                        name={'question' + question.id}
-                        required
-                      />
-                    ) : (
-                      renderPredefiniContent(question)
-                    )}
-                  </div>
+  return (
+    <div className="container-fluid">
+      <form
+        ref={formRef}
+        onSubmit={handleSubmitForm}
+        method="POST"
+        encType=""
+        questionnaire-id={questionnaire.id}
+      >
+        {/* Questionnaire */}
+        <div className="">
+          <div className="card">
+            <div className="card-body d-grid gap-1">
+              {/* Buttons  & Alerts */}
+              <div className="d-flex mb-2">
+                <button
+                  type="submit"
+                  className="btn custom-btn formulaire-btn-save me-3"
+                  name="sauvegarder"
+                  disabled={!show}
+                >
+                  <i className="fa fa-save me-1" aria-hidden="true"></i>Sauvegarder
+                </button>
+                <button
+                  type="submit"
+                  className="btn custom-btn formulaire-btn-submit"
+                  name="soumettre"
+                  disabled={!show}
+                >
+                  <i className="fa fa-paper-plane me-1" aria-hidden="true"></i>Soumettre
+                </button>
+                {/* Alerts */}
+                <div className="ms-auto">
+                  {alert !== null ? (
+                    <div className="">
+                      {alert.success ? (
+                        <div className="px-2 py-1 bg-success text-light">
+                          <i className="fa fa-check me-1" aria-hidden="true"></i>
+                          {alert.message}
+                        </div>
+                      ) : (
+                        <div className="px-2 py-1 bg-danger text-light">
+                          <i className="fa fa-exclamation-triangle me-1" aria-hidden="true"></i>
+                          {alert.message}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className=""></div>
+                  )}
+                </div>
+              </div>
+              {/* Select */}
+              <div className="">
+                <label htmlFor="questionnaire" className="form-label mb-0 fw-bolder">
+                  Questionnaires disponibles
+                  {/* <CustomRequired /> */}
+                </label>
+                <div className="">
+                  <select
+                    className="form-select"
+                    aria-label="Default select example"
+                    id="questionnaire"
+                    name="questionnaire"
+                    // value={questionnaire.id ? questionnaire.id : ''}
+                    // onChange={handleQuestionnaireChange}
+                  >
+                    <option value="">Sélectionner ici !</option>
+                    {data.map((dat, index) => {
+                      return (
+                        <option value={dat.id} key={'data-item-' + index}>
+                          {index + 1 + '. ' + dat.numero}
+                        </option>
+                      )
+                    })}
+                  </select>
+                </div>
+              </div>
+              {/* Notifications */}
+              <div className="ms-auto text-success mt-2 fw-bolder">
+                {dates.datedebut !== null && dates.datefin !== null
+                  ? 'Ouvert du ' + dates.datedebut + ' au ' + dates.datefin
+                  : ''}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Contents */}
+        <div className="" style={{ top: '' }}>
+          <ol type="1" className="list-group list-group-numbered mt-2">
+            {thematiques &&
+              thematiques.map((thematique, index) => (
+                <li className="list-group-item" key={'thematique-item-' + index}>
+                  <strong>{thematique.libellelong}</strong>
+                  <ol type="a" className="list-group list-group-numbered">
+                    {thematique.dimensions.map((dimension, index2) => (
+                      <li className="list-group-item" key={'dimension-item-' + index2}>
+                        {dimension.libelle}
+                        <ul className="">
+                          {dimension.variables.map((variable, index3) => (
+                            <ul type="none" className="list-group" key={'variable-item-' + index3}>
+                              {/* <strong>{variable.libelle}</strong> */}
+                              {variable.questions.map((question, index4) => (
+                                <li key={'question-item-' + index4}>
+                                  <div className="">
+                                    <label htmlFor="" className="form-label fw-bolder ">
+                                      {question.libelle}
+                                    </label>
+                                    {/* Text */}
+                                    {question.typemodalite === 'text' && (
+                                      <div
+                                        className="mb-2"
+                                        key={'question-typemodalite-text-item-' + index4}
+                                      >
+                                        <input
+                                          className="form-control"
+                                          type="text"
+                                          id={'question-typemodalite-text-item-' + index4}
+                                          name={question.id}
+                                          disabled={question.parent_id !== null ? true : false}
+                                        />
+                                      </div>
+                                    )}
+                                    {/* Radio */}
+                                    {question.typemodalite === 'unique' && (
+                                      <div className="mb-2">
+                                        {question.valeurmodalite !== null &&
+                                          question.valeurmodalite.split(';').map((v, index5) => (
+                                            <div
+                                              className="form-check form-check-inline"
+                                              key={'question-typemodalite-radio-item-' + index5}
+                                            >
+                                              <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                id={'question-typemodalite-radio-item-' + index5}
+                                                name={question.id}
+                                                value={v}
+                                                onChange={handleRadio}
+                                              />
+                                              <label
+                                                className="form-check-label"
+                                                htmlFor={
+                                                  'question-typemodalite-radio-item-' + index5
+                                                }
+                                              >
+                                                {v}
+                                              </label>
+                                            </div>
+                                          ))}
+                                      </div>
+                                    )}
+                                    {/* Checkbox */}
+                                    {question.typemodalite === 'multiple' && (
+                                      <div className="mb-2">
+                                        {question.valeurmodalite !== null &&
+                                          question.valeurmodalite.split(';').map((v, index6) => (
+                                            <div
+                                              className="form-check"
+                                              key={'question-typemodalite-checkbox-item-' + index6}
+                                            >
+                                              <input
+                                                className="form-check-input"
+                                                type="checkbox"
+                                                id={'question-typemodalite-checkbox-item-' + index6}
+                                                name={question.id}
+                                                value={v}
+                                              />
+                                              <label
+                                                className="form-check-label"
+                                                htmlFor={
+                                                  'question-typemodalite-checkbox-item-' + index6
+                                                }
+                                              >
+                                                {v}
+                                              </label>
+                                            </div>
+                                          ))}
+                                      </div>
+                                    )}
+                                    {/*  */}
+                                  </div>
+                                </li>
+                              ))}
+                            </ul>
+                          ))}
+                        </ul>
+                      </li>
+                    ))}
+                  </ol>
                 </li>
-              ))
-            })}
+              ))}
           </ol>
         </div>
-      </div>
-
-      {/* Boutons : */}
-      <div className="formulaireButtons mt-2 d-flex justify-content-center sticky-bottom p-2">
-        <button
-          type="reset"
-          className="btn btnFormulaireReset me-2"
-          title="Effacer toutes les données saisies"
-          onClick={(e) => {
-            handleReset(e)
-          }}
-        >
-          <i className="fa fa-refresh me-1" aria-hidden="true"></i>
-          <span>Réinitialiser</span>
-        </button>
-        <button
-          type="submit"
-          className="btn btnFormulaireSave me-2"
-          title="Sauvegarder temporairement les données"
-          onClick={() => setSubmitter('save')}
-        >
-          <i className="fa fa-save me-1" aria-hidden="true"></i>
-          <span>Sauvegarder</span>
-        </button>
-        <button
-          type="submit"
-          className="btn btnFormulaireSubmit"
-          title="Envoyer les données"
-          onClick={() => setSubmitter('send')}
-        >
-          <i className="fa fa-paper-plane me-1" aria-hidden="true"></i>
-          <span> Soumettre</span>
-        </button>
-      </div>
-      {/*  */}
-    </form>
+        {/*  */}
+      </form>
+    </div>
   )
 }
 

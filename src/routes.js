@@ -11,11 +11,12 @@ const Variable = React.lazy(() => import('./views/variables/Variable'))
 const Question = React.lazy(() => import('./views/questions/Question'))
 const Repondant = React.lazy(() => import('./views/repondants/Repondant'))
 const Typerepondant = React.lazy(() => import('./views/typerepondants/Typerepondant'))
+const Indicateur = React.lazy(() => import('./views/indicateurs/Indicateur'))
 
 const routes = [
   { path: '/dashboard', name: 'Dashboard', element: Dashboard },
   { path: '/questionnaires', name: 'Questionnaire', element: Questionnaire },
-  { path: '/formulaire', name: 'Formulaire', element: Formulaire },
+  { path: '/questionnaires/:questionnaireId/formulaire', name: 'Formulaire', element: Formulaire },
   { path: '/thematiques', name: 'Thematiques', element: Thematique },
   { path: '/dimensions', name: 'Dimensions', element: Dimension },
   { path: '/variables', name: 'Variables', element: Variable },
@@ -24,6 +25,7 @@ const routes = [
   { path: '/typerepondants', name: 'Type Répondants', element: Typerepondant },
   { path: '/resultats', name: 'Resultat', element: Resultat },
   { path: '/analyses', name: 'Analyse', element: Analyse },
+  { path: '/indicateurs', name: 'Indicateur', element: Indicateur },
 ]
 
 export default routes
