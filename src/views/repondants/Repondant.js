@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react'
 
 import 'jquery'
-import $ from 'jquery'
+import $, { type } from 'jquery'
 import 'datatables.net-bs5'
 import 'datatables.net-select'
 import 'datatables.net-buttons'
@@ -25,16 +25,27 @@ import { CustomCreateAlert } from '../../components/CustomCreateAlert'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus, faEdit } from '@fortawesome/free-solid-svg-icons'
 
+import * as XLSX from 'xlsx'
+
 const Repondant = () => {
   const tableRef = useRef()
+
   const createFormRef = useRef()
   const deleteFormRef = useRef()
+
   const createFormBtnLaunchRef = useRef()
   const createFormBtnCloseRef = useRef()
   const createFormBtnResetRef = useRef()
+
   const showModalBtnLaunchRef = useRef()
+
   const deleteFormBtnLaunchRef = useRef()
   const deleteFormBtnCloseRef = useRef()
+
+  const importFormRef = useRef()
+  const importFormBtnLaunchRef = useRef()
+  const importFormBtnCloseRef = useRef()
+  const importFormBtnResetRef = useRef()
 
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(false)
@@ -49,6 +60,8 @@ const Repondant = () => {
 
   const [itemToShow, setItemToShow] = useState([])
 
+  const [excelData, setExcelData] = useState([])
+
   const apiResource = {
     get: 'repondants',
     show: 'repondants/:id',
@@ -60,6 +73,7 @@ const Repondant = () => {
   const columns = [
     { title: 'ID', data: 'id' },
     { title: 'IDENTIFIANT', data: 'identifiant' },
+    { title: 'EMAIL', data: 'email' },
     { title: 'ACTIVE', data: 'estactive' },
     {
       title: 'TYPE',
@@ -129,7 +143,6 @@ const Repondant = () => {
             buttons: [
               {
                 text: '<i class="fa fa-plus me-1" aria-hidden="true"></i>Ajouter',
-                // titleAttr: "Ajouter",
                 className: 'dt-btn datatable-button rounded dt-btnCreate btnCreate',
                 enabled: true,
                 action: () => {
@@ -140,7 +153,37 @@ const Repondant = () => {
                     createFormBtnLaunchRef.current.click()
                   }
                 },
-                width: '50px',
+              },
+              {
+                text: '<i class="fa fa-trash me-1" aria-hidden="true"></i>Tout supprimer',
+                className: 'dt-btn datatable-button rounded dt-btnCreate btnDeleteAll ms-2',
+                enabled: data.length > 0 ? true : false,
+                action: () => {
+                  if (deleteFormRef.current && deleteFormBtnLaunchRef.current) {
+                    setIndexAlert(null)
+                    $('#deleteQuestion').text(
+                      'Voulez-vous vraiment supprimer tous les enregistrements (' +
+                        data.length +
+                        ') ?',
+                    )
+                    deleteFormRef.current.setAttribute('delete-data-action', 'delete')
+                    deleteFormRef.current.setAttribute('delete-data-id', 'all')
+                    deleteFormBtnLaunchRef.current.click()
+                  }
+                },
+              },
+              {
+                text: '<i class="fa fa-file-import me-1" aria-hidden="true"></i>Importer',
+                className: 'dt-btn datatable-button rounded dt-btnImport btnImport ms-2',
+                enabled: true,
+                action: () => {
+                  if (importFormRef.current && importFormBtnLaunchRef.current) {
+                    //   setCreateFormAction('create')
+                    importFormRef.current.setAttribute('form-action', 'import')
+                    importFormRef.current.setAttribute('target-id', '')
+                    importFormBtnLaunchRef.current.click()
+                  }
+                },
               },
             ],
           },
@@ -227,6 +270,7 @@ const Repondant = () => {
         createFormRef.current.setAttribute('create-data-id', id)
         $('#typerepondant').val(response.typerepondant_id)
         $('#identifiant').val(response.identifiant)
+        $('#email').val(response.email)
         $('#identifiant').prop('disabled', true)
         $('input[name="active"][value="' + response.estactive + '"]').prop('checked', true)
         createFormBtnLaunchRef.current.click()
@@ -296,6 +340,7 @@ const Repondant = () => {
     const response = await getItem(apiResource.show.replace(':id', id))
     if (deleteFormRef.current && deleteFormBtnLaunchRef.current) {
       if (response) {
+        $('#deleteQuestion').text('Voulez-vous vraiment supprimer cet enregistrement ?')
         deleteFormRef.current.setAttribute('delete-data-action', 'delete')
         deleteFormRef.current.setAttribute('delete-data-id', id)
         deleteFormBtnLaunchRef.current.click()
@@ -323,6 +368,81 @@ const Repondant = () => {
       }
     }
     fetchGet()
+  }
+  // ===
+
+  // === Import form
+  const handleCancelImportForm = () => {
+    if (importFormRef.current && importFormBtnCloseRef.current) {
+      importFormRef.current.setAttribute('form-action', '')
+      importFormRef.current.setAttribute('target-id', '')
+      setExcelData([])
+      importFormBtnResetRef.current.click()
+      importFormBtnCloseRef.current.click()
+    }
+  }
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0]
+    if (file) {
+      // console.log(file)
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        const data = e.target.result
+        // Parse the binary data   // 65001 is the codepage for UTF-8
+        const workbook = XLSX.read(data, { type: 'binary', codepage: 65001 })
+        // Get the first worksheet name
+        const sheetName = workbook.SheetNames[0]
+        const worksheet = workbook.Sheets[sheetName]
+        // Convert the worksheet to an array of JSON objects
+        const jsonOptions = { header: 1 } // Use 'header: 1' if the first row is data, omit for object keys
+        const jsonData = XLSX.utils.sheet_to_json(worksheet, jsonOptions)
+
+        if (jsonData.length > 0) {
+          // Obtenir les index concernés.
+          const values = ['ine', 'matricule', 'email']
+          let columns = []
+          jsonData[0].map((item, index) => {
+            if (values.includes(item.toLowerCase())) {
+              columns.push(index)
+            }
+          })
+          // Filtrer la liste suivant les index concernés
+          const filterData = []
+          jsonData.map((item) => {
+            // if (index > 0) {
+            filterData.push(item.filter((_, index) => columns.includes(index)))
+            // }
+          })
+          setExcelData(filterData)
+        }
+      }
+      // Read the file as binary string
+      reader.readAsBinaryString(file)
+    }
+  }
+
+  const handleSubmitImportForm = async (e) => {
+    e.preventDefault()
+    // récupération des données de la liste
+    if (importFormRef.current && importFormBtnCloseRef.current) {
+      const formData = new FormData(importFormRef.current)
+      const formValues = Object.fromEntries(formData)
+      const data = excelData.filter((_, index) => index > 0)
+
+      const response = await createItem('repondants/import', {
+        typerepondant: formValues.typerepondant,
+        imports: data,
+      })
+
+      if (response.success) {
+        if (importFormRef.current && importFormBtnCloseRef.current) {
+          importFormBtnCloseRef.current.click()
+        }
+      }
+      setIndexAlert(response)
+      fetchGet()
+    }
   }
   // ===
 
@@ -433,6 +553,7 @@ const Repondant = () => {
                               id="typerepondant"
                               name="typerepondant"
                               required
+                              autoFocus
                             >
                               <option value="">Sélectionner ici !</option>
                               {typerepondants.map((typerepondant, index) => {
@@ -461,7 +582,22 @@ const Repondant = () => {
                               id="identifiant"
                               name="identifiant"
                               required
-                              autoFocus
+                            />
+                          </div>
+                        </div>
+                        {/* Email */}
+                        <div className="mb-2">
+                          <label htmlFor="email" className="form-label mb-0">
+                            Email
+                            <CustomRequired />
+                          </label>
+                          <div className="">
+                            <input
+                              type="email"
+                              className="form-control"
+                              id="email"
+                              name="email"
+                              required
                             />
                           </div>
                         </div>
@@ -570,7 +706,9 @@ const Repondant = () => {
                       className="fa fa-exclamation-triangle me-1 text-danger fw-bolder"
                       aria-hidden="true"
                     ></i>
-                    Voulez-vous vraiment supprimer cet enregistrement ?
+                    <span id="deleteQuestion">
+                      Voulez-vous vraiment supprimer cet enregistrement ?
+                    </span>
                   </div>
                   <div className="modal-footer border-0 py-1">
                     <button
@@ -585,6 +723,185 @@ const Repondant = () => {
                     <button type="submit" className="btn btn-primary">
                       <i className="fa fa-trash me-1" aria-hidden="true"></i>
                       Supprimer
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+          {/*  */}
+          {/* Import form */}
+          <form
+            ref={importFormRef}
+            onSubmit={handleSubmitImportForm}
+            method="POST"
+            encType=""
+            form-action="import"
+            target-id=""
+          >
+            <button
+              ref={importFormBtnLaunchRef}
+              type="button"
+              className="btn btn-primary d-none"
+              data-bs-toggle="modal"
+              data-bs-target="#importModal"
+            >
+              <i className="fa fa-plus me-2" aria-hidden="true"></i>Launch demo static modal
+            </button>
+            {/* <!-- Modal --> */}
+            <div
+              className="modal fade"
+              id="importModal"
+              data-bs-backdrop="static"
+              data-bs-keyboard="false"
+              tabIndex="-1"
+              aria-labelledby="importModal"
+              aria-hidden="true"
+            >
+              <div className="modal-dialog modal-lg modal-dialog-scrollable">
+                <div className="modal-content">
+                  <div className="modal-header py-1 bg-primary">
+                    <h5 className="modal-title  fw-bold text-light" id="importModalLabel">
+                      <i className="fa fa-file-import me-1" aria-hidden="true"></i>Importer une
+                      liste de répondants
+                    </h5>
+                    <button
+                      ref={importFormBtnCloseRef}
+                      type="button"
+                      className="btn-close d-none"
+                      data-bs-dismiss="modal"
+                      aria-label="Close"
+                    ></button>
+                  </div>
+                  <div className="modal-body">
+                    <div className="d-flex pb-1">
+                      <CustomRequired tagP={true} />
+                      <CustomCreateAlert alert={createAlert} />
+                    </div>
+
+                    <div className="card">
+                      <div className="card-body">
+                        {/* Type de répondant */}
+                        <div className="mb-2">
+                          <label htmlFor="typerepondant" className="form-label mb-0">
+                            Type de répondant
+                            <CustomRequired />
+                          </label>
+                          <div className="">
+                            <select
+                              className="form-select"
+                              aria-label="Default select example"
+                              id="typerepondant"
+                              name="typerepondant"
+                              required
+                              autoFocus
+                            >
+                              <option value="">Sélectionner ici !</option>
+
+                              {typerepondants.map((typerepondant, index) => (
+                                <option
+                                  value={typerepondant.id}
+                                  key={'typerepondant-item-' + index}
+                                >
+                                  {index + 1 + '. ' + typerepondant.libelle}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        </div>
+                        {/* FIchier */}
+                        <div className="mb-2">
+                          <label htmlFor="identifiant" className="form-label mb-0">
+                            Fichier
+                            <CustomRequired />
+                          </label>
+                          <div className="">
+                            <input
+                              type="file"
+                              className="form-control"
+                              id="fichier"
+                              name="fichier"
+                              aria-describedby="fichierHelpBlock"
+                              accept=".xlsx, .xls, .csv"
+                              required
+                              onChange={handleFileUpload}
+                            />
+                            <div id="fichierHelpBlock" className="form-text mt-0 fw-bold">
+                              Le fichier doit être de type Excel (.xls, .xlsx) ou CSV (.csv)
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* List preview */}
+                        {excelData.length > 0 && (
+                          <div className="py-1 bg-success text-light fw-bolder text-center">
+                            <i className="fa fa-check me-1" aria-hidden="true"></i>
+                            {excelData.length - 1 + ' répondant(s) trouvé(s) !'}
+                          </div>
+                        )}
+
+                        {/* Optional: Display the imported data (e.g., in a table) */}
+                        <div className="table-responsive table-responsive-sm overflow-auto d-none">
+                          {excelData.length > 0 && (
+                            <table
+                              className="table table-sm align-middle table-borderless table-striped"
+                              style={{ width: '100%' }}
+                            >
+                              <thead>
+                                <tr>
+                                  {excelData[0].map((headerTitle, index) => (
+                                    <th
+                                      className="text-uppercase"
+                                      scope="col"
+                                      key={'header-title-' + index}
+                                    >
+                                      {headerTitle}
+                                    </th>
+                                  ))}
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {excelData.map((row, index) => {
+                                  return index > 0 ? (
+                                    <tr key={'row-' + index}>
+                                      {row.map((r, index2) => (
+                                        <td scope="row" key={'row-' + index + '-td-' + index2}>
+                                          {r}
+                                        </td>
+                                      ))}
+                                    </tr>
+                                  ) : (
+                                    ''
+                                  )
+                                })}
+                              </tbody>
+                            </table>
+                          )}
+                        </div>
+                        {/*  */}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="modal-footer border-0 py-0">
+                    <button type="submit" className="btn btn-primary text-white importModalBtnSave">
+                      <i className="fa fa-check me-1" aria-hidden="true"></i>
+                      Valider
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-secondary importModalBtnCancel"
+                      data-bs-dismiss="modal"
+                      onClick={handleCancelImportForm}
+                    >
+                      <i className="fa fa-close me-1" aria-hidden="true"></i>Annuler
+                    </button>
+                    <button
+                      ref={importFormBtnResetRef}
+                      type="reset"
+                      className="btn btn-secondary d-none"
+                    >
+                      <i className="fa fa-refresh me-1" aria-hidden="true"></i>
+                      Reset
                     </button>
                   </div>
                 </div>

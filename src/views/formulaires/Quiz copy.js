@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useParams } from 'react-router-dom'
 import { getData, getItem } from '../../apiService'
 import Typerepondant from '../typerepondants/Typerepondant'
@@ -8,7 +9,8 @@ import $ from 'jquery'
 
 // import { isDate } from 'validator'
 
-const Formulaire = () => {
+const Quiz = () => {
+  const navigate = useNavigate()
   const formRef = useRef()
 
   const [data, setData] = useState([])
@@ -17,7 +19,6 @@ const Formulaire = () => {
 
   const [questionnaire, setQuestionnaire] = useState([])
   const [thematiques, setThematiques] = useState([])
-  const [typerepondants, setTyperepondants] = useState([])
   const [dimensions, setDimensions] = useState([])
   const [show, setShow] = useState(false)
   const separator = ', '
@@ -34,31 +35,32 @@ const Formulaire = () => {
     delete: 'questionnaires/:id',
   }
 
+  
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         setIsLoading(true)
         const response = await getItem(apiResource.show.replace(':id', questionnaireId))
         if (response.success) {
+          const q = response.data[0]
           setShow(true)
-          setData(response.data)
+          setData(q)
           // Dates de début et de fin
-          const dd = response.data.datedebut !== null ? new Date(response.data.datedebut) : null
-          const df = response.data.datefin !== null ? new Date(response.data.datefin) : null
+          const dd = q.datedebut !== null ? new Date(q.datedebut) : null
+          const df = q.datefin !== null ? new Date(q.datefin) : null
           setDates({
             datedebut: dd !== null ? dd.toLocaleDateString() : dd,
             datefin: df !== null ? df.toLocaleDateString() : df,
           })
           // Thématiques
-          // const thms = response.data.thematiques
-          // setThematiques(thms)
-          // // Types repondants
-          // const trps = thms.map((thm) => thm.typerepondants)
-          // setTyperepondants(trps)
-          // // Dimensions
-          // const dms = thms.map((thm) => thm.dimensions)
-          // setDimensions(dms)
-          // Questions
+          const themas = q.thematiques
+          setThematiques(themas)
+          // Dimensions
+          const dimens = themas.map((thema) => thema.dimensions)
+          setDimensions(dimens)
+          // Variables
+          const varias = dimens.map((dimen) => dimen.variables)
         }
       } catch (err) {
         setError(err)
@@ -69,51 +71,25 @@ const Formulaire = () => {
     fetchData()
   }, [])
 
-  // Save or Send form values
-  const handleQuestionnaireChange = async (e) => {
-    await getItem(apiResource.show.replace(':id', e.target.value)).then((response) => {
-      if (response.id) {
-        setShow(true)
-        setQuestionnaire(response)
-        const dd = response.datedebut !== null ? new Date(response.datedebut) : null
-        const df = response.datefin !== null ? new Date(response.datefin) : null
-        setDates({
-          datedebut: dd !== null ? dd.toLocaleDateString() : dd,
-          datefin: df !== null ? df.toLocaleDateString() : df,
-        })
-        // Thématiques
-        const thms = response.thematiques
-        setThematiques(thms)
-        // Types repondants
-        const trps = thms.map((thm) => thm.typerepondants)
-        setTyperepondants(trps)
-        // Dimensions
-        const dms = thms.map((thm) => thm.dimensions)
-        setDimensions(dms)
-        // Questions
-      } else {
-        setQuestionnaire([])
-        setDates({ datedebut: null, datefin: null })
-        setThematiques([])
-        setTyperepondants([])
-        setDimensions([])
-        setShow(false)
-      }
-    })
-  }
-
   // Fonctions
   const handleRadio = async (e) => {
     const { name, value } = e.target
     await getItem('questions/' + name).then((response) => {
       if (response.length === 1) {
-        const ch = response[0].child
-        const qs = $('input[name="' + ch.id + '"]')
+        const resp = response[0]
+        const ch = resp.child
         if (ch !== null) {
+          const qs = $('input[name="' + ch.id + '"]')
+          const qsType = qs.attr('type')
           // Déclencheur = valeur choisie ?
-          if (value === response[0].declencheur) {
-            qs.prop('disabled', false)
-            qs.focus()
+          if (value.trim() === resp.declencheur.trim()) {
+            // text, radio, checkbox, select, textarea, ...
+            if (qsType === 'text' || qsType === 'radio' || qsType === 'checkbox') {
+              qs.prop('disabled', false)
+              // qs.focus()
+            } else {
+              qs.prop('disabled', true)
+            }
           } else {
             qs.prop('disabled', true)
           }
@@ -132,14 +108,14 @@ const Formulaire = () => {
     formValues.repondant = 1
     //
     const id = e.target.getAttribute('questionnaire-id')
-    // console.log(formValues)
+    console.log(formValues)
     // Use event.nativeEvent.submitter to identify which button was clicked
     const submitterName = e.nativeEvent.submitter.name
     if (submitterName === 'sauvegarder') {
       //
     } else if (submitterName === 'soumettre') {
       const response = await createItem('questionquestionnairerepondants', formValues)
-      // console.log(response)
+      console.log(response)
       setAlert(response)
       // // Succès
       // if (response.status === 200) {
@@ -178,32 +154,12 @@ const Formulaire = () => {
 
   if (error) return <div>Error: {error.message}</div>
 
-  if (data.length === 0)
-    return (
-      <div className="container">
-        <div className="row mt-5">
-          <div className="col-md-6 offset-md-3">
-            <div className="card">
-              <div className="card-header fw-bolder" style={{ color: '#00407D' }}>
-                Génération automatique de formulaire
-              </div>
-              <div className="card-body text-center text-danger fw-bolder">
-                <i className="fa fa-exclamation-triangle me-2" aria-hidden="true"></i>Aucun
-                questionnaire disponible !
-              </div>
-              <div className="card-footer d-grid">
-                <a className="btn btn-primary" href="#/questionnaires">
-                  <i className="fa fa-plus me-1" aria-hidden="true"></i>Ajouter un questionnaire
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
+  if (data.length === 0) navigate('/questionnaires', { replace: true })
 
   return (
-    <div className="container-fluid">
+    <div className="">
+      {/* <div className="row">
+        <div className="col-md-8 offset-md-2 d-flex flex-column vh-100  bg-success"> */}
       <form
         ref={formRef}
         onSubmit={handleSubmitForm}
@@ -213,114 +169,86 @@ const Formulaire = () => {
       >
         {/* Questionnaire */}
         <div className="">
-          <div className="card">
-            <div className="card-body d-grid gap-1">
-              {/* Buttons  & Alerts */}
-              <div className="d-flex mb-2">
-                <button
-                  type="submit"
-                  className="btn custom-btn formulaire-btn-save me-3"
-                  name="sauvegarder"
-                  disabled={!show}
-                >
+          {/* Infos */}
+          <div className="card" style={{ backgroundColor: '#00407D' }}>
+            <div className="card-body fw-bolder text-light">
+              {'Questionnaire N°' + data.numero + ' du ' + dates.datedebut + ' au ' + dates.datefin}{' '}
+            </div>
+          </div>
+          {/* Alerts & Buttons */}
+          <div className="card mt-1" style={{ backgroundColor: '' }}>
+            <div className="card-body fw-bolder text-light py-1 text-end d-flex align-items-center">
+              {/* Alerts */}
+              <div className="">
+                {alert !== null ? (
+                  <div className="">
+                    {alert.success ? (
+                      <div className="px-2 py-1 bg-success text-light">
+                        <i className="fa fa-check me-1" aria-hidden="true"></i>
+                        {alert.message}
+                      </div>
+                    ) : (
+                      <div className="px-2 py-1 bg-danger text-light">
+                        <i className="fa fa-exclamation-triangle me-1" aria-hidden="true"></i>
+                        {alert.message}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className=""></div>
+                )}
+              </div>
+              {/* Buttons */}
+              <div className="ms-auto d-flex">
+                <button type="submit" className="btn btn-outline-primary me-3" name="sauvegarder">
                   <i className="fa fa-save me-1" aria-hidden="true"></i>Sauvegarder
                 </button>
-                <button
-                  type="submit"
-                  className="btn custom-btn formulaire-btn-submit"
-                  name="soumettre"
-                  disabled={!show}
-                >
+                <button type="submit" className="btn btn-outline-primary" name="soumettre">
                   <i className="fa fa-paper-plane me-1" aria-hidden="true"></i>Soumettre
                 </button>
-                {/* Alerts */}
-                <div className="ms-auto">
-                  {alert !== null ? (
-                    <div className="">
-                      {alert.success ? (
-                        <div className="px-2 py-1 bg-success text-light">
-                          <i className="fa fa-check me-1" aria-hidden="true"></i>
-                          {alert.message}
-                        </div>
-                      ) : (
-                        <div className="px-2 py-1 bg-danger text-light">
-                          <i className="fa fa-exclamation-triangle me-1" aria-hidden="true"></i>
-                          {alert.message}
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <div className=""></div>
-                  )}
-                </div>
-              </div>
-              {/* Select */}
-              <div className="">
-                <label htmlFor="questionnaire" className="form-label mb-0 fw-bolder">
-                  Questionnaires disponibles
-                  {/* <CustomRequired /> */}
-                </label>
-                <div className="">
-                  <select
-                    className="form-select"
-                    aria-label="Default select example"
-                    id="questionnaire"
-                    name="questionnaire"
-                    // value={questionnaire.id ? questionnaire.id : ''}
-                    // onChange={handleQuestionnaireChange}
-                  >
-                    <option value="">Sélectionner ici !</option>
-                    {data.map((dat, index) => {
-                      return (
-                        <option value={dat.id} key={'data-item-' + index}>
-                          {index + 1 + '. ' + dat.numero}
-                        </option>
-                      )
-                    })}
-                  </select>
-                </div>
-              </div>
-              {/* Notifications */}
-              <div className="ms-auto text-success mt-2 fw-bolder">
-                {dates.datedebut !== null && dates.datefin !== null
-                  ? 'Ouvert du ' + dates.datedebut + ' au ' + dates.datefin
-                  : ''}
               </div>
             </div>
           </div>
         </div>
 
         {/* Contents */}
-        <div className="" style={{ top: '' }}>
+        <div className="">
           <ol type="1" className="list-group list-group-numbered mt-2">
             {thematiques &&
               thematiques.map((thematique, index) => (
                 <li className="list-group-item" key={'thematique-item-' + index}>
                   <strong>{thematique.libellelong}</strong>
                   <ol type="a" className="list-group list-group-numbered">
+                    {/* Dimensions */}
                     {thematique.dimensions.map((dimension, index2) => (
-                      <li className="list-group-item" key={'dimension-item-' + index2}>
-                        {dimension.libelle}
+                      <li className="list-group-item" key={'list-dimension-item-' + index2}>
+                        <span className="fw-bolder" style={{ color: '#00407D' }}>
+                          {dimension.libelle}
+                        </span>
                         <ul className="">
-                          {dimension.variables.map((variable, index3) => (
-                            <ul type="none" className="list-group" key={'variable-item-' + index3}>
+                          {dimension.variables.map((variable) => (
+                            <ul
+                              type="none"
+                              className="list-group mt-2"
+                              key={'variable-item-' + variable.id}
+                            >
                               {/* <strong>{variable.libelle}</strong> */}
                               {variable.questions.map((question, index4) => (
-                                <li key={'question-item-' + index4}>
+                                <li key={'list-question-item-' + question.id}>
                                   <div className="">
-                                    <label htmlFor="" className="form-label fw-bolder ">
+                                    <label htmlFor="" className="form-label fw-bolder mb-0">
                                       {question.libelle}
                                     </label>
                                     {/* Text */}
                                     {question.typemodalite === 'text' && (
                                       <div
                                         className="mb-2"
-                                        key={'question-typemodalite-text-item-' + index4}
+                                        key={'question-item-' + question.id + '-' + index4}
                                       >
                                         <input
                                           className="form-control"
                                           type="text"
-                                          id={'question-typemodalite-text-item-' + index4}
+                                          id={'question-item-' + question.id}
                                           name={question.id}
                                           disabled={question.parent_id !== null ? true : false}
                                         />
@@ -333,20 +261,23 @@ const Formulaire = () => {
                                           question.valeurmodalite.split(';').map((v, index5) => (
                                             <div
                                               className="form-check form-check-inline"
-                                              key={'question-typemodalite-radio-item-' + index5}
+                                              key={'question-item-' + question.id + '-' + index5}
                                             >
                                               <input
                                                 className="form-check-input"
                                                 type="radio"
-                                                id={'question-typemodalite-radio-item-' + index5}
+                                                id={'question-item-' + question.id + '-' + index5}
                                                 name={question.id}
-                                                value={v}
+                                                value={v.trim()}
                                                 onChange={handleRadio}
+                                                disabled={
+                                                  question.parent_id !== null ? true : false
+                                                }
                                               />
                                               <label
                                                 className="form-check-label"
                                                 htmlFor={
-                                                  'question-typemodalite-radio-item-' + index5
+                                                  'question-item-' + question.id + '-' + index5
                                                 }
                                               >
                                                 {v}
@@ -361,20 +292,23 @@ const Formulaire = () => {
                                         {question.valeurmodalite !== null &&
                                           question.valeurmodalite.split(';').map((v, index6) => (
                                             <div
-                                              className="form-check"
-                                              key={'question-typemodalite-checkbox-item-' + index6}
+                                              className="form-check form-check-inline"
+                                              key={'question-item-' + question.id + '-' + index6}
                                             >
                                               <input
                                                 className="form-check-input"
                                                 type="checkbox"
-                                                id={'question-typemodalite-checkbox-item-' + index6}
+                                                id={'question-item-' + question.id + '-' + index6}
                                                 name={question.id}
-                                                value={v}
+                                                value={v.trim()}
+                                                disabled={
+                                                  question.parent_id !== null ? true : false
+                                                }
                                               />
                                               <label
                                                 className="form-check-label"
                                                 htmlFor={
-                                                  'question-typemodalite-checkbox-item-' + index6
+                                                  'question-item-' + question.id + '-' + index6
                                                 }
                                               >
                                                 {v}
@@ -397,10 +331,11 @@ const Formulaire = () => {
               ))}
           </ol>
         </div>
-        {/*  */}
       </form>
     </div>
+    //   </div>
+    // </div>
   )
 }
 
-export default Formulaire
+export default Quiz

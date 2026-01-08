@@ -162,7 +162,24 @@ const Question = () => {
                     createFormBtnLaunchRef.current.click()
                   }
                 },
-                width: '50px',
+              },
+              {
+                text: '<i class="fa fa-trash me-1" aria-hidden="true"></i>Tout supprimer',
+                className: 'dt-btn datatable-button rounded dt-btnCreate btnDeleteAll ms-2',
+                enabled: data.length > 0 ? true : false,
+                action: () => {
+                  if (deleteFormRef.current && deleteFormBtnLaunchRef.current) {
+                    setIndexAlert(null)
+                    $('#deleteQuestion').text(
+                      'Voulez-vous vraiment supprimer tous les enregistrements (' +
+                        data.length +
+                        ') ?',
+                    )
+                    deleteFormRef.current.setAttribute('delete-data-action', 'delete')
+                    deleteFormRef.current.setAttribute('delete-data-id', 'all')
+                    deleteFormBtnLaunchRef.current.click()
+                  }
+                },
               },
             ],
           },
@@ -740,7 +757,9 @@ const Question = () => {
                       className="fa fa-exclamation-triangle me-1 text-danger fw-bolder"
                       aria-hidden="true"
                     ></i>
-                    Voulez-vous vraiment supprimer cet enregistrement ?
+                    <span id="deleteQuestion">
+                      Voulez-vous vraiment supprimer cet enregistrement ?
+                    </span>
                   </div>
                   <div className="modal-footer border-0 py-1">
                     <button

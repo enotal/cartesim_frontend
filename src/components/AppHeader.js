@@ -44,7 +44,7 @@ const AppHeader = () => {
   return (
     <CHeader
       position="sticky"
-      className="mb-4 p-0 AppHeader"
+      className="mb-4 p-0 AppHeader fixed-top"
       ref={headerRef}
       style={{ backgroundColor: '#00407D' }}
     >

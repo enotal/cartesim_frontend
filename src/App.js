@@ -18,6 +18,7 @@ import './styles.css'
 
 // Containers
 const Home = React.lazy(() => import('./Home'))
+const Quiz = React.lazy(() => import('./views/formulaires/Quiz'))
 const DefaultLayout = React.lazy(() => import('./layout/DefaultLayout'))
 
 const App = () => {
@@ -50,6 +51,7 @@ const App = () => {
         <Routes>
           {/* Public Routes */}
           <Route exact path="/" name="Accueil" element={<Home />} />
+          <Route path="/quiz/:id" name="Quiz" element={<Quiz />} />
           {/* Protected Routes */}
           {/* <Route element={<ProtectedRoute />}> */}
           <Route path="*" name="Dashboard" element={<DefaultLayout />} />

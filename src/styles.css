@@ -1,5 +1,172 @@
 /*  */
 
+/* Here you can add other styles */
+.defaultLayout-main-container,
+.home-main-container {
+  background-image: url('../assets/images/background.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* === AppGuestHeader */
+.guest-header {
+  background-color: #17376e;
+  .app-header-brand-image {
+    height: 80px;
+    display: block;
+  }
+  .app-header-brand-name {
+    color: lightgray;
+    text-transform: uppercase;
+    font-weight: bolder;
+    font-size: 20px;
+  }
+  .app-header-brand-slogan {
+    color: lightgrey;
+    font-style: italic;
+  }
+}
+/*  */
+
+.defaultLayout-main-container,
+.home-main-container {
+  background-image: url('../assets/images/background.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.home-main-container {
+  .home-image {
+    height: 128px;
+    display: block;
+  }
+
+  .home-title {
+    font-weight: bolder;
+    span {
+      color: #17376e;
+      font-size: 26px;
+      text-transform: uppercase;
+    }
+    p {
+      font-size: 18px;
+      color: #cd2009;
+      font-style: italic;
+    }
+  }
+
+  .app-home-description,
+  .app-home-connexion {
+    text-align: justify;
+    font-size: 16px;
+  }
+
+  .app-home-connexion {
+    .card-title {
+      color: #17376e;
+      font-size: 16px;
+      text-align: justify;
+    }
+  }
+}
+
+/* === Buttons */
+.app-btn-primary {
+  background-color: #17376e;
+  border-color: #17376e;
+  color: lightgray;
+}
+.app-btn-primary:hover {
+  background-color: #1a3e7c;
+  border-color: #1a3e7c;
+  color: lightgray;
+}
+
+/* === DataTable buttons */
+.dt-btn,
+.dt-actions-btn {
+  background-color: #6b7785;
+  color: lightgray;
+}
+
+.dt-btn:hover,
+.dt-actions-btn:hover {
+  background-color: #98a0a9;
+  color: #fff;
+}
+
+/* === */
+
+.btnFormulaireReset,
+.btnFormulaireReset:hover {
+  background-color: #443027;
+  color: #fff;
+  border-color: #443027;
+}
+
+.btnFormulaireSave,
+.btnFormulaireSave:hover {
+  background-color: #970000;
+  color: #fff;
+  border-color: #970000;
+}
+
+.btnFormulaireSubmit,
+.btnFormulaireSubmit:hover {
+  background-color: #056409;
+  color: #fff;
+  border-color: #056409;
+}
+
+.form-check-label {
+  cursor: pointer;
+}
+
+/* === */
+
+/* Media */
+
+@media (max-width: 768px) {
+  .home-main-container {
+    .home-image {
+      height: 64px;
+      display: none;
+    }
+
+    .home-title {
+      span {
+        font-size: 24px;
+      }
+      p {
+        font-size: 16px;
+      }
+    }
+
+    .app-home-description,
+    .app-home-connexion {
+      text-align: justify;
+      font-size: 12px;
+    }
+  }
+
+  .formulaireButtons {
+    display: flex;
+    justify-content: center;
+    .btnFormulaireReset,
+    .btnFormulaireSave,
+    .btnFormulaireSubmit {
+      span {
+        /* display: none; */
+      }
+    }
+  }
+}
+
+/* === BEFORE === */
+
+
 .custom-btn {
   border: 1px solid #00407d;
 }

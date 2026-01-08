@@ -29,6 +29,18 @@ export const getItem = async (apiResource) => {
   }
 }
 
+// get by
+export const getItemBy = async (apiResource, resourceData) => {
+  try {
+    const response = await axios.post(API_BASE_URL + apiResource, resourceData)
+    return response.data
+  } catch (error) {
+    return error.response
+    // console.error('Error fetching user data:', error)
+    // throw error // Re-throw to allow component-level error handling
+  }
+}
+
 // Store
 export const createItem = async (apiResource, resourceData) => {
   try {

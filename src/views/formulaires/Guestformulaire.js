@@ -9,7 +9,7 @@ import $ from 'jquery'
 
 // import { isDate } from 'validator'
 
-const Formulaire = () => {
+const Guestformulaire = () => {
   const navigate = useNavigate()
   const formRef = useRef()
 
@@ -20,7 +20,6 @@ const Formulaire = () => {
   const [questionnaire, setQuestionnaire] = useState([])
   const [thematiques, setThematiques] = useState([])
   const [dimensions, setDimensions] = useState([])
-  
   const [show, setShow] = useState(false)
   const separator = ', '
   const [dates, setDates] = useState({ datedebut: null, datefin: null })
@@ -337,4 +336,4 @@ const Formulaire = () => {
   )
 }
 
-export default Formulaire
+export default Guestformulaire

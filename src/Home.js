@@ -1,5 +1,6 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+
 import { AppGuestHeader, AppGuestFooter } from './components/index'
 import { CampusFasoLoginLink, CampusFasoOptiacademiqplusLink } from './assets/images/images'
 
@@ -8,11 +9,34 @@ import KeycloakService from './KeycloakService'
 import { useState } from 'react'
 //
 
+import { getData, getItemBy } from './apiService'
+import { CustomRequired } from './components/CustomRequired'
+import { CustomCreateAlert } from './components/CustomCreateAlert'
+
 const Home = () => {
+  const quizFormRef = useRef()
+  const quizFormBtnLaunchRef = useRef()
+  const quizFormBtnResetRef = useRef()
+  const quizFormBtnCloseRef = useRef()
+
   const navigate = useNavigate()
+
   // v23122025
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [token, setToken] = useState(null)
+
+  const [questionnaire, setQuestionnaire] = useState([])
+  const [data, setData] = useState([])
+  const [createAlert, setCreateAlert] = useState(null)
+
+  const getQuestionnaire = async () => {
+    await getData('questionnaires')
+      .then((response) => {
+        setData(response)
+        setQuestionnaire(response.filter((item) => item.estactive === 'oui'))
+      })
+      .catch((err) => console.log(err))
+  }
 
   // Vérification SSO Keycloak
   useEffect(() => {
@@ -34,6 +58,8 @@ const Home = () => {
       .catch((err) => {
         console.error('Keycloak init error', err)
       })
+
+    getQuestionnaire()
   }, [])
 
   // Nouveau useEffect pour suivre l'état du token
@@ -63,6 +89,36 @@ const Home = () => {
   const handleLogin = () => {
     // window.location.href = 'https://services.campusfaso.bf/#/services'
     navigate('/dashboard', { replace: true })
+  }
+
+  // Redirection vers le questionnaire
+  const handleQuiz = () => {
+    // navigate('/quiz/3', { replace: true })
+    if (quizFormRef.current && quizFormBtnLaunchRef.current) {
+      setCreateAlert(null)
+      quizFormBtnResetRef.current.click()
+      quizFormBtnLaunchRef.current.click()
+    }
+  }
+
+  const handleCancelQuizForm = () => {
+    setCreateAlert(null)
+    quizFormBtnResetRef.current.click()
+    quizFormBtnCloseRef.current.click()
+  }
+
+  const handleSubmitQuizForm = async (e) => {
+    e.preventDefault()
+    // Récupération des données du formulaire
+    const formData = new FormData(quizFormRef.current)
+    const formValues = Object.fromEntries(formData)
+    // Soumission
+    const response = await getItemBy('repondants/quiz', formValues)
+    if (response.success) {
+      handleCancelQuizForm()  
+      navigate('/quiz/' + response.data[0].id, { replace: true })
+    }
+    setCreateAlert(response)
   }
 
   return (
@@ -111,8 +167,12 @@ const Home = () => {
                 apprenants.
               </p>
               <p className="pb-0">
-                Le nom <b>OptiAcadémiQ+</b> résulte d’une combinaison stratégique des trois concepts clés{' '}
-                <b>Opti</b> pour <i>Optimisation</i>, <b>AcadémiQ</b> pour <i>Académique</i> et <i>Intellectuel</i> <i>(IQ)</i> le signe <b>« + »</b>, symbole de la <i>valeur ajoutée, de l'exercice continu et d'un encadrement pédagogique renforcé.</i>
+                Le nom <b>OptiAcadémiQ+</b> résulte d’une combinaison stratégique des trois concepts
+                clés <b>Opti</b> pour <i>Optimisation</i>, <b>AcadémiQ</b> pour <i>Académique</i> et{' '}
+                <i>Intellectuel</i> <i>(IQ)</i> le signe <b>« + »</b>, symbole de la{' '}
+                <i>
+                  valeur ajoutée, de l'exercice continu et d'un encadrement pédagogique renforcé.
+                </i>
               </p>
             </div>
             {/*  */}
@@ -143,15 +203,137 @@ const Home = () => {
                   </div>
                 </li>
               </ol>
-              <div className="d-grid mt-3">
+              <div className="d-grid gap-3 mt-4">
                 <button className="btn app-btn-primary" onClick={handleLogin}>
                   <i className="fa fa-sign-in me-1" aria-hidden="true"></i>Se connecter
                 </button>
+                {questionnaire.length > 0 && (
+                  <button className="btn app-btn-primary" onClick={handleQuiz}>
+                    <i className="fa fa-tasks me-1" aria-hidden="true"></i>Répondre à un
+                    questionnaire
+                  </button>
+                )}
               </div>
             </div>
             {/*  */}
           </div>
         </div>
+        {/*  */}
+
+        {/* Import form */}
+        <form
+          ref={quizFormRef}
+          onSubmit={handleSubmitQuizForm}
+          method="POST"
+          encType=""
+          form-action="quiz"
+          target-id=""
+        >
+          <button
+            ref={quizFormBtnLaunchRef}
+            type="button"
+            className="btn btn-primary d-none"
+            data-bs-toggle="modal"
+            data-bs-target="#quizModal"
+          >
+            <i className="fa fa-plus me-2" aria-hidden="true"></i>Launch demo static modal
+          </button>
+          {/* <!-- Modal --> */}
+          <div
+            className="modal fade"
+            id="quizModal"
+            data-bs-backdrop="static"
+            data-bs-keyboard="false"
+            tabIndex="-1"
+            aria-labelledby="quizModal"
+            aria-hidden="true"
+          >
+            <div className="modal-dialog modal-md modal-dialog-scrollable">
+              <div className="modal-content">
+                <div className="modal-header py-1 bg-primary">
+                  <h5 className="modal-title  fw-bold text-light" id="quizModalLabel">
+                    <i className="fa fa-file-import me-1" aria-hidden="true"></i>Répondre à un
+                    questionnaire
+                  </h5>
+                  <button
+                    ref={quizFormBtnCloseRef}
+                    type="button"
+                    className="btn-close d-none"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                  ></button>
+                </div>
+                <div className="modal-body">
+                  <div className="d-flex pb-1">
+                    <CustomRequired tagP={true} />
+                    <CustomCreateAlert alert={createAlert} />
+                  </div>
+
+                  <div className="card">
+                    <div className="card-body">
+                      {/* Identifiant = {ine, matricule, etc.} */}
+                      <div className="mb-2">
+                        <label htmlFor="identifiant" className="form-label mb-0">
+                          Identifiant (INE, Matricule, etc.)
+                          <CustomRequired />
+                        </label>
+                        <div className="">
+                          <input
+                            type="text"
+                            className="form-control"
+                            id="identifiant"
+                            name="identifiant"
+                            required
+                            autoFocus
+                          />
+                        </div>
+                      </div>
+                      {/* Email */}
+                      <div className="mb-2">
+                        <label htmlFor="email" className="form-label mb-0">
+                          Email
+                          <CustomRequired />
+                        </label>
+                        <div className="">
+                          <input
+                            type="email"
+                            className="form-control"
+                            id="email"
+                            name="email"
+                            required
+                          />
+                        </div>
+                      </div>
+                      {/*  */}
+                    </div>
+                  </div>
+                </div>
+                <div className="modal-footer border-0 py-0">
+                  <button type="submit" className="btn btn-primary text-white quizModalBtnSave">
+                    <i className="fa fa-check me-1" aria-hidden="true"></i>
+                    Valider
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-secondary quizModalBtnCancel"
+                    data-bs-dismiss="modal"
+                    onClick={handleCancelQuizForm}
+                  >
+                    <i className="fa fa-close me-1" aria-hidden="true"></i>Annuler
+                  </button>
+                  <button
+                    ref={quizFormBtnResetRef}
+                    type="reset"
+                    className="btn btn-secondary d-none"
+                  >
+                    <i className="fa fa-refresh me-1" aria-hidden="true"></i>
+                    Reset
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
         {/*  */}
       </div>
       <AppGuestFooter />

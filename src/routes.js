@@ -3,6 +3,7 @@ import React from 'react'
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 const Questionnaire = React.lazy(() => import('./views/questionnaires/Questionnaire'))
 const Formulaire = React.lazy(() => import('./views/formulaires/Formulaire'))
+// const Quiz = React.lazy(() => import('./views/formulaires/Quiz'))
 const Resultat = React.lazy(() => import('./views/resultats/Resultat'))
 const Analyse = React.lazy(() => import('./views/analyses/Analyse'))
 const Thematique = React.lazy(() => import('./views/thematiques/Thematique'))
@@ -26,6 +27,7 @@ const routes = [
   { path: '/resultats', name: 'Resultat', element: Resultat },
   { path: '/analyses', name: 'Analyse', element: Analyse },
   { path: '/indicateurs', name: 'Indicateur', element: Indicateur },
+  // { path: '/quiz/:repondantId', name: 'quiz', element: Quiz },
 ]
 
 export default routes
