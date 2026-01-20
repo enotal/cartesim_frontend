@@ -21,11 +21,11 @@ import { getData, getItem, createItem, updateItem, deleteItem } from '../../apiS
 import { CustomRequired } from '../../components/CustomRequired'
 import { CustomIndexAlert } from '../../components/CustomIndexAlert'
 import { CustomCreateAlert } from '../../components/CustomCreateAlert'
+import { actives, sexes, colors } from '../../constants'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlus, faEdit } from '@fortawesome/free-solid-svg-icons'
-import { actives, colors } from '../../constants'
+import { faPlus, faEdit, faKey } from '@fortawesome/free-solid-svg-icons'
 
-const Typerepondant = () => {
+const Utilisateur = () => {
   const tableRef = useRef()
   const createFormRef = useRef()
   const deleteFormRef = useRef()
@@ -43,65 +43,95 @@ const Typerepondant = () => {
   const [indexAlert, setIndexAlert] = useState(null)
   const [createAlert, setCreateAlert] = useState(null)
   const [createFormAction, setCreateFormAction] = useState(null)
+  const [roles, setRoles] = useState([])
+  const [regions, setRegions] = useState([])
+  const [provinces, setProvinces] = useState([])
+  const [selectedRoles, setSelectedRoles] = useState([])
+  const [sessiondemandes, setSessiondemandes] = useState([])
+  const [sites, setSites] = useState([])
+
+  const indexAlertBg = {
+    success: '#056709',
+    danger: '#970000',
+  }
 
   const apiResource = {
-    get: 'typerepondants',
-    show: 'typerepondants/:id',
-    create: 'typerepondants',
-    update: 'typerepondants/:id',
-    delete: 'typerepondants/:id',
+    get: 'users',
+    show: 'users/:id',
+    create: 'users',
+    update: 'users/:id',
+    delete: 'users/:id',
   }
 
   const columns = [
     { title: 'ID', data: 'id' },
-    { title: 'CODE', data: 'tyrcode' },
-    { title: 'LIBELLE', data: 'tyrlibelle' },
-
+    { title: 'PRENOM(S)', data: 'lastname' },
+    { title: 'NOM', data: 'name' },
+    { title: 'EMAIL', data: 'email' },
     {
-      title: 'SESSIONS DEMANDES',
+      title: 'SEXE',
       data: null,
       render: (data, type, row) => {
-        return row.sessiondemandes && row.sessiondemandes.length
+        return row.sexe.substring(0, 1)
       },
     },
     {
-      title: 'SESSIONS REMISES',
+      title: 'ROLES',
       data: null,
       render: (data, type, row) => {
-        return row.sessionremises && row.sessionremises.length
+        const d = row.roles ? row.roles.map((role) => role.rlelibelle) : ''
+        return d
       },
     },
     {
-      title: 'REPONDANT',
+      title: 'REGION',
       data: null,
       render: (data, type, row) => {
-        return row.repondants && row.repondants.length
+        const d = row.region && row.region.rgnnom
+        return d
+      },
+    },
+    {
+      title: 'PROVINCE',
+      data: null,
+      render: (data, type, row) => {
+        const d = row.province && row.province.prvnom
+        return d
       },
     },
     {
       title: 'ACTIVE',
       data: null,
       render: (data, type, row) => {
-        return `<div class="d-flex justify-content-center align-content-center ${row.tyractive === 'oui' ? 'text-success' : 'text-danger'}"><i class="fa fa-circle " aria-hidden="true"></i></div>`
+        return `<div class="d-flex justify-content-center align-content-center ${row.active === 'oui' ? 'text-success' : 'text-danger'}"><i class="fa fa-circle " aria-hidden="true"></i></div>`
       },
     },
+    {
+      title: 'STATUT',
+      data: null,
+      render: (data, type, row) => {
+        return `<div class="d-flex justify-content-center align-content-center ${row.status === 'oui' ? 'text-success' : 'text-danger'}"><i class="fa fa-circle " aria-hidden="true"></i></div>`
+      },
+    },
+
     {
       title: 'ACTIONS',
       data: null,
       render: (data, type, row) => {
         // Détails, Edit, Delete
-        // const btnShow = `<a class="btn btn-outline-warning me-1 table-btn tableActionBtnShowItem" href="#" data-id="${row.id}"><i class="fa fa-eye" aria-hidden="true"></i></a>`
-        const btnEdit = `<a class="btn btn-outline-info me-1 table-btn tableActionBtnEditItem" href="#" data-id="${row.id}"><i class="fa fa-edit" aria-hidden="true"></i></a>`
-        const btnDelete = `<a class="btn btn-outline-danger tableActionBtn tableActionBtnDeleteItem" href="#" data-id="${row.id}"><i class="fa fa-trash" aria-hidden="true"></i></a>`
-        return `<div class="d-flex justify-content-center">${btnEdit + btnDelete}</div>`
+        // const btnShow = `<a class="btn btn-outline-warning me-1 tableActionBtn tableActionBtnShowItem" href="#" data-id="${row.id}" title="Voir les détails"><i class="fa fa-eye" aria-hidden="true"></i></a>`
+        const btnEdit = `<a class="btn btn-outline-info me-1 tableActionBtn tableActionBtnEditItem" href="#" data-id="${row.id}" title="Editer"><i class="fa fa-edit" aria-hidden="true"></i></a>`
+        const btnDelete = `<a class="btn btn-outline-danger me-1 tableActionBtn tableActionBtnDeleteItem" href="#" data-id="${row.id}" title="Supprimer"><i class="fa fa-trash" aria-hidden="true"></i></a>`
+        const btnPassword = `<a class="btn btn-outline-secondary tableActionBtn tableActionBtnPasswordItem" href="#" data-id="${row.id}" title="Générer un nouveau mot de passe"><i class="fa fa-key" aria-hidden="true"></i></a>`
+        return `<div class="d-flex align-content-center justify-content-center">${btnEdit + btnDelete + btnPassword}</div>`
       },
     },
   ]
 
   const fetchGet = async () => {
     try {
-      const data = await getData(apiResource.get)
-      setData(data)
+      const response = await getData(apiResource.get)
+      setData(response)
     } catch (err) {
       setError(err)
     } finally {
@@ -109,13 +139,39 @@ const Typerepondant = () => {
     }
   }
 
+  const fetchGetRole = async () => {
+    await getData('roles')
+      .then((response) => {
+        setRoles(response)
+      })
+      .catch((err) => console.log(err))
+  }
+
+  const fetchGetRegion = async () => {
+    await getData('regions')
+      .then((response) => {
+        setRegions(response)
+      })
+      .catch((err) => console.log(err))
+  }
+
+  const fetchGetProvince = async () => {
+    await getData('provinces')
+      .then((response) => {
+        setProvinces(response)
+      })
+      .catch((err) => console.log(err))
+  }
+
   useEffect(() => {
-    let timerId = setInterval(() => {
-      fetchGet()
-    }, 2000)
-    return () => {
-      clearInterval(timerId)
-    }
+    // let timerId = setInterval(() => {
+    fetchGet()
+    fetchGetRole()
+    fetchGetRegion()
+    // }, 2000)
+    // return () => {
+    //   clearInterval(timerId)
+    // }
   }, [])
 
   useEffect(() => {
@@ -140,7 +196,6 @@ const Typerepondant = () => {
             buttons: [
               {
                 text: '<i class="fa fa-plus me-1" aria-hidden="true"></i>Ajouter',
-                // titleAttr: "Ajouter",
                 className: 'dt-btn datatable-button rounded dt-btnCreate btnCreate',
                 enabled: true,
                 action: () => {
@@ -156,7 +211,7 @@ const Typerepondant = () => {
               {
                 text: '<i class="fa fa-trash me-1" aria-hidden="true"></i>Tout supprimer',
                 className: 'dt-btn datatable-button rounded dt-btnCreate btnDeleteAll ms-2',
-                enabled: data && data.length > 0 ? true : false,
+                enabled: data.length > 0 ? true : false,
                 action: () => {
                   if (deleteFormRef.current && deleteFormBtnLaunchRef.current) {
                     setIndexAlert(null)
@@ -240,6 +295,10 @@ const Typerepondant = () => {
       })
   }, [data, columns])
 
+  // Actions
+
+  //=== Launch modals
+
   // === Show item
   $('#myTable tbody').on('click', '.tableActionBtnShowItem', async function (e) {
     e.preventDefault()
@@ -261,9 +320,29 @@ const Typerepondant = () => {
           setCreateFormAction('edit')
           createFormRef.current.setAttribute('create-data-action', 'edit')
           createFormRef.current.setAttribute('create-data-id', id)
-          $('#code').val(r.tyrcode)
-          $('#libelle').val(r.tyrlibelle)
-          $('input[name="active"][value="' + r.tyractive + '"]').prop('checked', true)
+          // Iterate over all checkboxes with the name 'choices[]'
+          $('input[name="role"]').each(function () {
+            var checkboxValue = $(this).val()
+            // Check if the current checkbox value is in the 'selectedValues' array
+            const rleIds = r.roles.map((role) => role.id)
+            if (rleIds.toString().includes(checkboxValue)) {
+              // If it is, set the 'checked' property to true
+              $(this).prop('checked', true)
+              selectedRoles.push($(this).val())
+            } else {
+              // Optional: uncheck the box if it's not in the array
+              selectedRoles.pop($(this).val())
+              $(this).prop('checked', false)
+            }
+          })
+          $('input[name="region"][value="' + r.region_id + '"]').prop('checked', true)
+          $('input[name="province"][value="' + r.province_id + '"]').prop('checked', true)
+          $('#region').val(r.region_id)
+          $('#nom').val(r.name)
+          $('#prenoms').val(r.lastname)
+          $('#email').val(r.email)
+          $('input[name="sexe"][value="' + r.sexe + '"]').prop('checked', true)
+          $('input[name="active"][value="' + r.active + '"]').prop('checked', true)
           createFormBtnLaunchRef.current.click()
         }
       } else {
@@ -281,6 +360,21 @@ const Typerepondant = () => {
     }
   }
   //
+
+  const handleRole = (event) => {
+    const { value, checked } = event.target
+    // Use a functional state update to ensure the latest state is used
+    setSelectedRoles((prevSelectedItems) => {
+      if (checked) {
+        // If checked, add the value to the array
+        return [...prevSelectedItems, value]
+      } else {
+        // If unchecked, remove the value from the array using filter
+        return prevSelectedItems.filter((item) => item !== value)
+      }
+    })
+  }
+
   const handleSubmitCreateForm = async (e) => {
     e.preventDefault()
     // récupération des données du formulaire
@@ -289,6 +383,7 @@ const Typerepondant = () => {
     if (createFormRef.current && createFormBtnCloseRef.current) {
       const formData = new FormData(createFormRef.current)
       const formValues = Object.fromEntries(formData)
+      formValues.role = selectedRoles
       if (action === 'create') {
         await createItem(apiResource.create, formValues).then((response) => {
           if (response.success) {
@@ -358,6 +453,24 @@ const Typerepondant = () => {
   }
   // ===
 
+  // === Générate new password
+  $('#myTable tbody').on('click', '.tableActionBtnPasswordItem', async function (e) {
+    e.preventDefault()
+    const id = $(this).data('id')
+    const response = await updateItem(apiResource.update.replace(':id', id), {
+      resetpassword: 'resetpassword',
+    })
+    // Succès
+    if (response.status === 200) {
+      setIndexAlert(response.data)
+    }
+    // Echec
+    if (response.status === 201) {
+      setCreateAlert(response.data)
+    }
+  })
+  //
+
   // Datatable loading...
   if (loading) {
     return (
@@ -415,7 +528,7 @@ const Typerepondant = () => {
             ref={createFormRef}
             onSubmit={handleSubmitCreateForm}
             method="POST"
-            encType="multipart/form-data"
+            encType=""
             create-data-action="create"
             create-data-id=""
           >
@@ -438,7 +551,7 @@ const Typerepondant = () => {
               aria-labelledby="createModal"
               aria-hidden="true"
             >
-              <div className="modal-dialog modal-dialog-scrollable">
+              <div className="modal-dialog modal-lg modal-dialog-scrollable">
                 <div className="modal-content">
                   <div className="modal-header py-1 bg-primary">
                     <h5 className="modal-title  fw-bold text-light" id="createModalLabel">
@@ -477,68 +590,198 @@ const Typerepondant = () => {
                     <div className="d-flex pb-1">
                       <CustomRequired tagP={true} />
                     </div>
-                    {/*  */}{' '}
+                    {/*  */}
                     <div className="card">
                       <div className="card-body">
-                        {/* Code */}
+                        {/* Rôles */}
                         <div className="mb-2">
-                          <label htmlFor="code" className="form-label mb-0">
-                            Code
+                          <label htmlFor="role" className="form-label mb-0 fw-bolder">
+                            Rôles
+                            <CustomRequired />
+                          </label>
+                          <div className="">
+                            {roles.map((role, index) => (
+                              <div
+                                className="form-check form-check-inline"
+                                key={'role-item-' + index}
+                              >
+                                <input
+                                  className="form-check-input"
+                                  type="checkbox"
+                                  id={'role-' + role.id}
+                                  name="role"
+                                  value={role.id}
+                                  onChange={handleRole}
+                                />
+                                <label className="form-check-label" htmlFor={'role-' + role.id}>
+                                  {index + 1 + '. ' + role.rlelibelle}
+                                </label>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Régions */}
+                        <div className="mb-2">
+                          <label htmlFor="region" className="form-label mb-0 fw-bolder">
+                            Région
+                            <CustomRequired />
+                          </label>
+                          <div className="">
+                            {regions.map((region, index) => (
+                              <div
+                                className="form-check form-check-inline"
+                                key={'region-item-' + index}
+                              >
+                                <input
+                                  className="form-check-input"
+                                  type="radio"
+                                  id={'region-' + region.id}
+                                  name="region"
+                                  value={region.id}
+                                />
+                                <label className="form-check-label" htmlFor={'region-' + region.id}>
+                                  {index + 1 + '. ' + region.rgnnom}
+                                </label>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Provinces */}
+                        <div className="mb-2">
+                          <label htmlFor="province" className="form-label mb-0 fw-bolder">
+                            Province
+                            <CustomRequired />
+                          </label>
+                          <div className="">
+                            <select
+                              className="form-select"
+                              aria-label="Default select example"
+                              id="province"
+                              name="province"
+                            >
+                              <option value="">Sélectionner ici !</option>
+                              {provinces.map((province, index) => {
+                                return (
+                                  <option value={province.id} key={'province-item-' + index}>
+                                    {index + 1 + '. ' + province.prvnom}
+                                  </option>
+                                )
+                              })}
+                            </select>
+                          </div>
+                        </div>
+
+                        <div className="row mb-2">
+                          {/* Nom */}
+                          <div className="col-md-6 mb-2">
+                            <label htmlFor="nom" className="form-label mb-0 fw-bolder">
+                              Nom
+                              <CustomRequired />
+                            </label>
+                            <div className="">
+                              <input
+                                type="text"
+                                className="form-control"
+                                id="nom"
+                                name="nom"
+                                required
+                              />
+                            </div>
+                          </div>
+                          {/* Prénom(s) */}
+                          <div className="col-md-6 mb-2">
+                            <label htmlFor="prenoms" className="form-label mb-0 fw-bolder">
+                              Prénoms
+                              <CustomRequired />
+                            </label>
+                            <div className="">
+                              <input
+                                type="text"
+                                className="form-control"
+                                id="prenoms"
+                                name="prenoms"
+                                required
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Email */}
+                        <div className="mb-2">
+                          <label htmlFor="email" className="form-label mb-0 fw-bolder">
+                            Email
                             <CustomRequired />
                           </label>
                           <div className="">
                             <input
-                              type="text"
+                              type="email"
                               className="form-control"
-                              id="code"
-                              name="code"
-                              required
-                              autoFocus
-                            />
-                          </div>
-                        </div>
-                        {/* Libelle */}
-                        <div className="mb-2">
-                          <label htmlFor="libelle" className="form-label mb-0">
-                            Libellé
-                            <CustomRequired />
-                          </label>
-                          <div className="">
-                            <input
-                              type="text"
-                              className="form-control"
-                              id="libelle"
-                              name="libelle"
+                              id="email"
+                              name="email"
+                              placeholder="Votre email professionnel ou autre."
                               required
                             />
                           </div>
                         </div>
-                        {/* Est activé */}
-                        <div className="">
-                          <label htmlFor="active" className="form-label mb-0">
-                            Activé
-                          </label>
-                          <div className="">
-                            {actives.map((active, index) => {
-                              return (
-                                <div
-                                  className="form-check form-check-inline"
-                                  key={'active-item-' + index}
-                                >
-                                  <input
-                                    className="form-check-input"
-                                    type="radio"
-                                    name="active"
-                                    id={'active' + index}
-                                    value={active}
-                                    // defaultChecked={estActive === 'non' ? true : false}
-                                  />
-                                  <label className="form-check-label" htmlFor={'active' + index}>
-                                    {active}
-                                  </label>
-                                </div>
-                              )
-                            })}
+
+                        <div className="row mb-2">
+                          {/* Sexe */}
+                          <div className="col-md-6 mb-2">
+                            <label htmlFor="sexe" className="form-label mb-0 fw-bolder">
+                              Sexe
+                            </label>
+                            <div className="">
+                              {sexes.map((sexe, index) => {
+                                return (
+                                  <div
+                                    className="form-check form-check-inline"
+                                    key={'sexe-item-' + index}
+                                  >
+                                    <input
+                                      className="form-check-input"
+                                      type="radio"
+                                      name="sexe"
+                                      id={'sexe' + index}
+                                      value={sexe}
+                                      // defaultChecked={estActive === 'non' ? true : false}
+                                    />
+                                    <label className="form-check-label" htmlFor={'sexe' + index}>
+                                      {sexe}
+                                    </label>
+                                  </div>
+                                )
+                              })}
+                            </div>
+                          </div>
+                          {/* Est activé */}
+                          <div className="col-md-6 mb-2">
+                            <label htmlFor="active" className="form-label mb-0 fw-bolder">
+                              Activé
+                            </label>
+                            <div className="">
+                              {actives.map((active, index) => {
+                                return (
+                                  <div
+                                    className="form-check form-check-inline"
+                                    key={'active-item-' + index}
+                                  >
+                                    <input
+                                      className="form-check-input"
+                                      type="radio"
+                                      name="active"
+                                      id={'active' + index}
+                                      value={active}
+                                      // defaultChecked={estActive === 'non' ? true : false}
+                                    />
+                                    <label className="form-check-label" htmlFor={'active' + index}>
+                                      {active}
+                                    </label>
+                                  </div>
+                                )
+                              })}
+                            </div>
                           </div>
                         </div>
                         {/*  */}
@@ -546,10 +789,7 @@ const Typerepondant = () => {
                     </div>
                   </div>
                   <div className="modal-footer border-0 py-0">
-                    <button
-                      type="submit"
-                      className="btn custom-btn-success text-white createModalBtnSave"
-                    >
+                    <button type="submit" className="btn custom-btn-success createModalBtnSave">
                       <i className="fa fa-check me-1" aria-hidden="true"></i>
                       Valider
                     </button>
@@ -561,7 +801,11 @@ const Typerepondant = () => {
                     >
                       <i className="fa fa-close me-1" aria-hidden="true"></i>Annuler
                     </button>
-                    <button ref={createFormBtnResetRef} type="reset" className="btn d-none">
+                    <button
+                      ref={createFormBtnResetRef}
+                      type="reset"
+                      className="btn btn-secondary d-none"
+                    >
                       <i className="fa fa-refresh me-1" aria-hidden="true"></i>
                       Reset
                     </button>
@@ -625,7 +869,7 @@ const Typerepondant = () => {
                   <div className="modal-footer border-0 py-1">
                     <button
                       type="button"
-                      className="btn custom-btn-secondary btn-submit"
+                      className="btn custom-btn-secondary"
                       data-bs-dismiss="modal"
                       onClick={handleCancelDeleteForm}
                     >
@@ -648,4 +892,4 @@ const Typerepondant = () => {
   )
 }
 
-export default Typerepondant
+export default Utilisateur

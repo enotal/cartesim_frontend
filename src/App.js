@@ -13,12 +13,13 @@ import { CSpinner, useColorModes } from '@coreui/react'
 import './scss/style.scss'
 // We use those styles to show code examples, you should remove them in your application.
 import './scss/examples.scss'
-// import './scss/_custom.scss'
 import './styles.css'
 
 // Containers
 const Home = React.lazy(() => import('./Home'))
-const Quiz = React.lazy(() => import('./views/formulaires/Quiz'))
+const DemandeGuestSoumettre = React.lazy(() => import('./views/demandes/DemandeGuestSoumettre'))
+const DemandeGuestSuivre = React.lazy(() => import('./views/demandes/DemandeGuestSuivre'))
+const SimDeclarerPerte = React.lazy(() => import('./views/sims/SimDeclarerPerte'))
 const DefaultLayout = React.lazy(() => import('./layout/DefaultLayout'))
 
 const App = () => {
@@ -51,11 +52,25 @@ const App = () => {
         <Routes>
           {/* Public Routes */}
           <Route exact path="/" name="Accueil" element={<Home />} />
-          <Route path="/quiz/:id" name="Quiz" element={<Quiz />} />
+          <Route
+            path="/demandes/soumettre"
+            name="DemandeGuestSoumettre"
+            element={<DemandeGuestSoumettre />}
+          />
+          <Route
+            path="/demandes/suivre"
+            name="DemandeGuestSuivre"
+            element={<DemandeGuestSuivre />}
+          />
+          <Route
+            path="/sims/declarer/perte"
+            name="SimDeclarerPerte"
+            element={<SimDeclarerPerte />}
+          />
           {/* Protected Routes */}
-          {/* <Route element={<ProtectedRoute />}> */}
-          <Route path="*" name="Dashboard" element={<DefaultLayout />} />
-          {/* </Route> */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="*" name="Dashboard" element={<DefaultLayout />} />
+          </Route>
           {/*  */}
         </Routes>
       </Suspense>

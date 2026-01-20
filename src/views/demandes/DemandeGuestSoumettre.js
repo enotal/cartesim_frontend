@@ -1,0 +1,273 @@
+import React, { useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { AppGuestHeader, AppGuestFooter } from '../../components'
+import { CustomRequired } from '../../components/CustomRequired'
+import { getItem, getItemBy, createItem } from '../../apiService'
+import { CustomIndexAlert } from '../../components/CustomIndexAlert'
+import { isEmpty } from 'validator'
+import $ from 'jquery'
+import { colors } from '../../constants'
+
+const DemandeGuestSoumettre = () => {
+  const navigate = useNavigate()
+  const formRef = useRef()
+  const btnResetRef = useRef()
+  const tableRef = useRef()
+  const [alert, setAlert] = useState(null)
+  const [dates, setDates] = useState({ datedebut: '', datefin: '' })
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+  const [sessiondemande, setSessiondemande] = useState([])
+  const [regions, setRegions] = useState([])
+  const [sites, setSites] = useState([])
+  const [show, setShow] = useState(false)
+
+  const fetchGetSessiondemande = async () => {
+    await getItem('sessiondemandes_getactive')
+      .then((response) => {
+        setSessiondemande(response.data)
+        if (response.success) {
+          const dd = response.data.seddatedebut !== null ? new Date(response.data.seddatedebut) : ''
+          const df = response.data.seddatefin !== null ? new Date(response.data.seddatefin) : ''
+          setDates({
+            datedebut: dd !== null ? dd.toLocaleDateString() : '',
+            datefin: df !== null ? df.toLocaleDateString() : '',
+          })
+        }
+        setShow(response.success)
+      })
+      .catch((err) => console.log(err))
+  }
+
+  const fetchGetRegion = async () => {
+    await getItem('regions_getactive')
+      .then((response) => {
+        setRegions(response.data)
+      })
+      .catch((err) => console.log(err))
+  }
+
+  useEffect(() => {
+    // let timerId = setInterval(() => {
+    fetchGetSessiondemande()
+    fetchGetRegion()
+    // }, 2000)
+    // return () => {
+    //   clearInterval(timerId)
+    // }
+  }, [])
+
+  // Redirection vers la page d'accueil
+  const handleHome = (e) => {
+    navigate('/', { replace: true })
+  }
+
+  // Filter sites by regions
+  const handleRegion = async (e) => {
+    const { name, value } = e.target
+    if (!isEmpty(value)) {
+      await getItem('regions/:id'.replace(':id', value)).then((response) => {
+        const r = response.data
+        const obj = $('#site')
+        if (r) {
+          if (r.provinces.length > 0) {
+            let s = r.provinces[0].sites
+            setSites(s)
+            if (s.length > 0) {
+              obj.prop('disabled', false)
+            } else {
+              obj.prop('disabled', true)
+            }
+          } else {
+            obj.prop('disabled', true)
+          }
+        } else {
+          obj.prop('disabled', true)
+        }
+      })
+    }
+  }
+
+  // Search & Submit
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    const submitterName = e.nativeEvent.submitter.name
+    // Search
+    if (submitterName === 'btn-submit') {
+      // récupération des données du formulaire
+      const formData = new FormData(formRef.current)
+      const formValues = Object.fromEntries(formData)
+      formValues.sessiondemande = sessiondemande && sessiondemande.id
+      await createItem('demandes/guestsubmit', formValues).then((response) => {
+        if (response.success) {
+          //   if (btnResetRef.current) {
+          //     btnResetRef.current.click()
+          //   }
+        }
+        setAlert(response)
+      })
+    }
+  }
+
+  return (
+    <div className="demandeGuestSoumettre min-vh-100">
+      <AppGuestHeader />
+      <div className="container pt-5">
+        <div className="row">
+          <div className="col-md-8 offset-md-2">
+            {show ? (
+              <form ref={formRef} onSubmit={handleSubmit} method="POST" encType="">
+                {/* Notifications & Alerts */}
+                {/* Notifications */}
+                <div className="card mb-2 sessionInfo">
+                  <div className="card-body py-1 fw-bolder text-center">
+                    <i className="fa fa-exclamation-circle me-2" aria-hidden="true"></i>
+                    {'La session est ouverte du ' +
+                      dates.datedebut +
+                      ' au ' +
+                      dates.datefin +
+                      ' inclus !'}
+                  </div>
+                </div>
+                {/* Alerts */}
+                {alert && (
+                  <div
+                    className="card mb-2"
+                    style={{
+                      backgroundColor: colors[alert.type],
+                      borderColor: colors[alert.type],
+                    }}
+                  >
+                    <div className="card-body py-1">
+                      <CustomIndexAlert alert={alert} />
+                    </div>
+                  </div>
+                )}
+                {/* Submit */}
+                <div className="card">
+                  <div className="card-header py-1 d-flex justify-content-center align-content-center">
+                    <div className="card-header-custom-title align-content-center">
+                      <i className="fa fa-edit me-1" aria-hidden="true"></i>Soumettre ma demande
+                    </div>
+                    <button
+                      type="button"
+                      className="btn ms-auto custom-btn-secondary"
+                      onClick={handleHome}
+                    >
+                      <i className="fa fa-home me-1" aria-hidden="true"></i>Page d'accueil
+                    </button>
+                  </div>
+                  <div className="card-body py-1">
+                    <CustomRequired tagP={true} />
+
+                    {/* INE */}
+                    <div className="my-2">
+                      <label htmlFor="identifiant" className="form-label mb-0 fw-bolder">
+                        INE
+                        <CustomRequired />
+                      </label>
+                      <div className="">
+                        <input
+                          type="text"
+                          className="form-control"
+                          id="identifiant"
+                          name="identifiant"
+                          required
+                          autoFocus
+                        />
+                      </div>
+                    </div>
+                    {/* Région du site désiré pour la remise */}
+                    <div className="my-2">
+                      <label htmlFor="region" className="form-label mb-0 fw-bolder">
+                        Région du site désiré pour la remise
+                        <CustomRequired />
+                      </label>
+                      <div className="">
+                        <select
+                          className="form-select"
+                          aria-label="Default select example"
+                          id="region"
+                          name="region"
+                          required
+                          onChange={handleRegion}
+                        >
+                          <option value="">Sélectionner ici !</option>
+                          {regions.map((region, index) => (
+                            <option value={region.id} key={'region-item-' + index}>
+                              {index + 1 + '. ' + region.rgnnom + ', ' + region.rgncheflieu}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Site désiré pour la remise */}
+                    <div className="my-2">
+                      <label htmlFor="site" className="form-label mb-0 fw-bolder">
+                        Site désiré pour la remise
+                        <CustomRequired />
+                      </label>
+                      <div className="">
+                        <select
+                          className="form-select"
+                          aria-label="Default select example"
+                          id="site"
+                          name="site"
+                          required
+                          disabled
+                        >
+                          <option value="">Sélectionner ici !</option>
+                          {sites.map((site, index) => (
+                            <option value={site.id} key={'site-item-' + index}>
+                              {index + 1 + '. ' + site.sitlibelle}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                    {/*  */}
+                  </div>
+                  <div className="card-footer py-1 d-flex align-content-center ">
+                    <button ref={btnResetRef} type="reset" className="btn d-none" name="btn-reset">
+                      Annuler
+                    </button>
+                    <button
+                      type="submit"
+                      className="btn custom-btn-success ms-auto"
+                      name="btn-submit"
+                    >
+                      <i className="fa fa-paper-plane me-1" aria-hidden="true"></i>Soumettre
+                    </button>
+                  </div>
+                </div>
+                {/*  */}
+              </form>
+            ) : (
+              <div className="card">
+                <div className="card-header py-1 d-flex justify-content-center align-content-center">
+                  <div className="card-header-custom-title align-content-center">
+                    <i className="fa fa-edit me-1" aria-hidden="true"></i>Soumettre ma demande
+                  </div>
+                  <button
+                    type="button"
+                    className="btn ms-auto custom-btn-secondary"
+                    onClick={handleHome}
+                  >
+                    <i className="fa fa-home me-1" aria-hidden="true"></i>Page d'accueil
+                  </button>
+                </div>
+                <div className="card-body text-center sorryBecauseNone">
+                  <i className="fa fa-exclamation-triangle me-3" aria-hidden="true"></i>Désolé,
+                  aucune de session de demande en cours !
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default DemandeGuestSoumettre

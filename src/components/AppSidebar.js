@@ -23,16 +23,16 @@ const AppSidebar = () => {
   const unfoldable = useSelector((state) => state.sidebarUnfoldable)
 
   const handleOnHide = () => {
-    // 
+    //
   }
 
   const handleOnShow = () => {
-    // 
+    //
   }
 
   return (
     <CSidebar
-      className=""
+      className="sidebar"
       colorScheme="dark"
       narrow={false}
       onHide={handleOnHide}
@@ -41,16 +41,19 @@ const AppSidebar = () => {
         dispatch({ type: 'set', sidebarShow: visible })
       }}
       overlaid={false}
-      placement='start'
+      placement="start"
       position="fixed"
-      size="sm" 
+      size="sm"
       unfoldable={unfoldable}
-      visible={sidebarShow} 
-      style={{ backgroundColor: '#00407D' }}
+      visible={sidebarShow}
+      style={{ backgroundColor: '#056709' }}
     >
-      <CSidebarHeader className="pt-1">
+      <CSidebarHeader
+        className="py-0 sidebarHeader"
+        style={{ backgroundColor: '#056709', borderBottom: '1px solid #fff' }}
+      >
         <CSidebarBrand>
-          <CImage className="" src={LogoUvbfAccueil} height={48} />
+          <CImage className="" src={LogoUvbfAccueil} height={52} />
         </CSidebarBrand>
         <CCloseButton
           className="d-lg-none"

@@ -1,9 +1,32 @@
 import axios from 'axios'
-// import KeycloakService from '../../KeycloakService'
-import KeycloakService from './KeycloakService'
 
-// const API_BASE_URL = 'http://optiacademiqplus.uv.bf:8080/api/'
+// export const API_BASE_URL = 'http://10.192.3.31:8000/api/'
 export const API_BASE_URL = 'http://localhost:8000/api/'
+// export const API_BASE_URL = 'http://192.168.11.195:8000/api/'
+
+// login
+export const login = async (resourceData) => {
+  try {
+    const response = await axios.post(API_BASE_URL + 'login', resourceData)
+    return response.data
+  } catch (error) {
+    return error.response
+    // console.error('Error fetching user data:', error)
+    // throw error // Re-throw to allow component-level error handling
+  }
+}
+
+// logout
+export const logout = async (resource) => {
+  try {
+    const response = await axios.post(API_BASE_URL + 'logout/' + resource)
+    return response.data
+  } catch (error) {
+    return error.response
+    // console.error('Error fetching user data:', error)
+    // throw error // Re-throw to allow component-level error handling
+  }
+}
 
 // List
 export const getData = async (apiResource) => {
@@ -57,7 +80,7 @@ export const createItem = async (apiResource, resourceData) => {
 export const updateItem = async (apiResource, resourceData) => {
   try {
     const response = await axios.patch(API_BASE_URL + apiResource, resourceData)
-    return response
+    return response.data
   } catch (error) {
     return error.response
     // console.error('Error updating post:', error)
@@ -76,5 +99,3 @@ export const deleteItem = async (apiResource) => {
     // throw error
   }
 }
-
-

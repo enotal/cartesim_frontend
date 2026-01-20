@@ -25,7 +25,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus, faEdit } from '@fortawesome/free-solid-svg-icons'
 import { actives, colors } from '../../constants'
 
-const Typerepondant = () => {
+const Role = () => {
   const tableRef = useRef()
   const createFormRef = useRef()
   const deleteFormRef = useRef()
@@ -43,65 +43,52 @@ const Typerepondant = () => {
   const [indexAlert, setIndexAlert] = useState(null)
   const [createAlert, setCreateAlert] = useState(null)
   const [createFormAction, setCreateFormAction] = useState(null)
+  const [sessiondemandes, setSessiondemandes] = useState([])
+  const [sites, setSites] = useState([])
 
   const apiResource = {
-    get: 'typerepondants',
-    show: 'typerepondants/:id',
-    create: 'typerepondants',
-    update: 'typerepondants/:id',
-    delete: 'typerepondants/:id',
+    get: 'roles',
+    show: 'roles/:id',
+    create: 'roles',
+    update: 'roles/:id',
+    delete: 'roles/:id',
   }
 
   const columns = [
     { title: 'ID', data: 'id' },
-    { title: 'CODE', data: 'tyrcode' },
-    { title: 'LIBELLE', data: 'tyrlibelle' },
-
+    { title: 'LIBELLE', data: 'rlelibelle' },
+    // { title: 'DESCRIPTION', data: 'rledescription' },
     {
-      title: 'SESSIONS DEMANDES',
+      title: 'UTILISATEURS',
       data: null,
       render: (data, type, row) => {
-        return row.sessiondemandes && row.sessiondemandes.length
-      },
-    },
-    {
-      title: 'SESSIONS REMISES',
-      data: null,
-      render: (data, type, row) => {
-        return row.sessionremises && row.sessionremises.length
-      },
-    },
-    {
-      title: 'REPONDANT',
-      data: null,
-      render: (data, type, row) => {
-        return row.repondants && row.repondants.length
+        return row.users && row.users.length
       },
     },
     {
       title: 'ACTIVE',
       data: null,
       render: (data, type, row) => {
-        return `<div class="d-flex justify-content-center align-content-center ${row.tyractive === 'oui' ? 'text-success' : 'text-danger'}"><i class="fa fa-circle " aria-hidden="true"></i></div>`
+        return `<div class="d-flex justify-content-center align-content-center ${row.rleactive === 'oui' ? 'text-success' : 'text-danger'}"><i class="fa fa-circle " aria-hidden="true"></i></div>`
       },
     },
-    {
-      title: 'ACTIONS',
-      data: null,
-      render: (data, type, row) => {
-        // Détails, Edit, Delete
-        // const btnShow = `<a class="btn btn-outline-warning me-1 table-btn tableActionBtnShowItem" href="#" data-id="${row.id}"><i class="fa fa-eye" aria-hidden="true"></i></a>`
-        const btnEdit = `<a class="btn btn-outline-info me-1 table-btn tableActionBtnEditItem" href="#" data-id="${row.id}"><i class="fa fa-edit" aria-hidden="true"></i></a>`
-        const btnDelete = `<a class="btn btn-outline-danger tableActionBtn tableActionBtnDeleteItem" href="#" data-id="${row.id}"><i class="fa fa-trash" aria-hidden="true"></i></a>`
-        return `<div class="d-flex justify-content-center">${btnEdit + btnDelete}</div>`
-      },
-    },
+    // {
+    //   title: 'ACTIONS',
+    //   data: null,
+    //   render: (data, type, row) => {
+    //     // Détails, Edit, Delete
+    //     const btnShow = `<a class="btn btn-outline-warning me-1 tableActionBtn tableActionBtnShowItem" href="#" data-id="${row.id}"><i class="fa fa-eye" aria-hidden="true"></i></a>`
+    //     const btnEdit = `<a class="btn btn-outline-info me-1 tableActionBtn tableActionBtnEditItem" href="#" data-id="${row.id}"><i class="fa fa-edit" aria-hidden="true"></i></a>`
+    //     const btnDelete = `<a class="btn btn-outline-danger tableActionBtn tableActionBtnDeleteItem" href="#" data-id="${row.id}"><i class="fa fa-trash" aria-hidden="true"></i></a>`
+    //     return `<div class="d-flex align-content-center justify-content-center">${btnShow + btnEdit + btnDelete}</div>`
+    //   },
+    // },
   ]
 
   const fetchGet = async () => {
     try {
-      const data = await getData(apiResource.get)
-      setData(data)
+      const response = await getData(apiResource.get)
+      setData(response)
     } catch (err) {
       setError(err)
     } finally {
@@ -110,12 +97,12 @@ const Typerepondant = () => {
   }
 
   useEffect(() => {
-    let timerId = setInterval(() => {
-      fetchGet()
-    }, 2000)
-    return () => {
-      clearInterval(timerId)
-    }
+    // let timerId = setInterval(() => {
+    fetchGet()
+    // }, 2000)
+    // return () => {
+    //   clearInterval(timerId)
+    // }
   }, [])
 
   useEffect(() => {
@@ -136,43 +123,42 @@ const Typerepondant = () => {
         columnDefs: [{ targets: '_all', orderable: false }],
         select: false,
         layout: {
-          top1Start: {
-            buttons: [
-              {
-                text: '<i class="fa fa-plus me-1" aria-hidden="true"></i>Ajouter',
-                // titleAttr: "Ajouter",
-                className: 'dt-btn datatable-button rounded dt-btnCreate btnCreate',
-                enabled: true,
-                action: () => {
-                  if (createFormRef.current && createFormBtnLaunchRef.current) {
-                    setCreateAlert(null)
-                    setCreateFormAction('create')
-                    createFormRef.current.setAttribute('create-data-action', 'create')
-                    createFormRef.current.setAttribute('create-data-id', '')
-                    createFormBtnLaunchRef.current.click()
-                  }
-                },
-              },
-              {
-                text: '<i class="fa fa-trash me-1" aria-hidden="true"></i>Tout supprimer',
-                className: 'dt-btn datatable-button rounded dt-btnCreate btnDeleteAll ms-2',
-                enabled: data && data.length > 0 ? true : false,
-                action: () => {
-                  if (deleteFormRef.current && deleteFormBtnLaunchRef.current) {
-                    setIndexAlert(null)
-                    $('#deleteQuestion').text(
-                      'Voulez-vous vraiment supprimer tous les enregistrements (' +
-                        data.length +
-                        ') ?',
-                    )
-                    deleteFormRef.current.setAttribute('delete-data-action', 'delete')
-                    deleteFormRef.current.setAttribute('delete-data-id', 'all')
-                    deleteFormBtnLaunchRef.current.click()
-                  }
-                },
-              },
-            ],
-          },
+          // top1Start: {
+          //   buttons: [
+          //     {
+          //       text: '<i class="fa fa-plus me-1" aria-hidden="true"></i>Ajouter',
+          //       className: 'dt-btn datatable-button rounded dt-btnCreate btnCreate',
+          //       enabled: true,
+          //       action: () => {
+          //         if (createFormRef.current && createFormBtnLaunchRef.current) {
+          //           setCreateAlert(null)
+          //           setCreateFormAction('create')
+          //           createFormRef.current.setAttribute('create-data-action', 'create')
+          //           createFormRef.current.setAttribute('create-data-id', '')
+          //           createFormBtnLaunchRef.current.click()
+          //         }
+          //       },
+          //     },
+          //     {
+          //       text: '<i class="fa fa-trash me-1" aria-hidden="true"></i>Tout supprimer',
+          //       className: 'dt-btn datatable-button rounded dt-btnCreate btnDeleteAll ms-2',
+          //       enabled: data && data.length > 0 ? true : false,
+          //       action: () => {
+          //         if (deleteFormRef.current && deleteFormBtnLaunchRef.current) {
+          //           setIndexAlert(null)
+          //           $('#deleteQuestion').text(
+          //             'Voulez-vous vraiment supprimer tous les enregistrements (' +
+          //               data.length +
+          //               ') ?',
+          //           )
+          //           deleteFormRef.current.setAttribute('delete-data-action', 'delete')
+          //           deleteFormRef.current.setAttribute('delete-data-id', 'all')
+          //           deleteFormBtnLaunchRef.current.click()
+          //         }
+          //       },
+          //     },
+          //   ],
+          // },
           top1End: {
             buttons: [
               {
@@ -240,13 +226,9 @@ const Typerepondant = () => {
       })
   }, [data, columns])
 
-  // === Show item
-  $('#myTable tbody').on('click', '.tableActionBtnShowItem', async function (e) {
-    e.preventDefault()
-    // const id = $(this).data('id')
-    // const response = await getItem(apiResource.show.replace(':id', id))
-  })
-  //
+  // Actions
+
+  //=== Launch modals
 
   // === Edit item
   $('#myTable tbody').on('click', '.tableActionBtnEditItem', async function (e) {
@@ -261,9 +243,9 @@ const Typerepondant = () => {
           setCreateFormAction('edit')
           createFormRef.current.setAttribute('create-data-action', 'edit')
           createFormRef.current.setAttribute('create-data-id', id)
-          $('#code').val(r.tyrcode)
-          $('#libelle').val(r.tyrlibelle)
-          $('input[name="active"][value="' + r.tyractive + '"]').prop('checked', true)
+          $('#libelle').val(r.rlelibelle)
+          $('#description').val(r.rledescription)
+          $('input[name="active"][value="' + r.rleactive + '"]').prop('checked', true)
           createFormBtnLaunchRef.current.click()
         }
       } else {
@@ -477,27 +459,10 @@ const Typerepondant = () => {
                     <div className="d-flex pb-1">
                       <CustomRequired tagP={true} />
                     </div>
-                    {/*  */}{' '}
+                    {/*  */}
                     <div className="card">
                       <div className="card-body">
-                        {/* Code */}
-                        <div className="mb-2">
-                          <label htmlFor="code" className="form-label mb-0">
-                            Code
-                            <CustomRequired />
-                          </label>
-                          <div className="">
-                            <input
-                              type="text"
-                              className="form-control"
-                              id="code"
-                              name="code"
-                              required
-                              autoFocus
-                            />
-                          </div>
-                        </div>
-                        {/* Libelle */}
+                        {/* Libellé */}
                         <div className="mb-2">
                           <label htmlFor="libelle" className="form-label mb-0">
                             Libellé
@@ -511,6 +476,20 @@ const Typerepondant = () => {
                               name="libelle"
                               required
                             />
+                          </div>
+                        </div>
+                        {/* Description */}
+                        <div className="mb-2">
+                          <label htmlFor="description" className="form-label mb-0">
+                            Description
+                          </label>
+                          <div className="">
+                            <textarea
+                              className="form-control"
+                              rows={2}
+                              id="description"
+                              name="description"
+                            ></textarea>
                           </div>
                         </div>
                         {/* Est activé */}
@@ -546,10 +525,7 @@ const Typerepondant = () => {
                     </div>
                   </div>
                   <div className="modal-footer border-0 py-0">
-                    <button
-                      type="submit"
-                      className="btn custom-btn-success text-white createModalBtnSave"
-                    >
+                    <button type="submit" className="btn custom-btn-success createModalBtnSave">
                       <i className="fa fa-check me-1" aria-hidden="true"></i>
                       Valider
                     </button>
@@ -648,4 +624,4 @@ const Typerepondant = () => {
   )
 }
 
-export default Typerepondant
+export default Role

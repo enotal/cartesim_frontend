@@ -1,12 +1,14 @@
 // Example of a ProtectedRoute component
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Navigate, Outlet } from 'react-router-dom'
+import { getItemBy } from './apiService'
 
-const ProtectedRoute = ({ auth, redirectPath = '/' }) => {
-  if (!auth) {console.log('auth')
+const ProtectedRoute = ({ redirectPath = '/' }) => {
+  const auth = JSON.parse(localStorage.getItem('cartesim.auth'))
+  if (!auth) {
     return <Navigate to={redirectPath} replace />
   }
-  return <Outlet /> // Renders the child routes/components
+  return <Outlet auth={auth} /> // Renders the child routes/components
 }
 
 export default ProtectedRoute

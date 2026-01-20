@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react'
 // Datatables
 import 'jquery'
-import $ from 'jquery'
+import $, { type } from 'jquery'
 import 'datatables.net-bs5'
 import 'datatables.net-select'
 import 'datatables.net-buttons'
@@ -24,76 +24,76 @@ import { CustomCreateAlert } from '../../components/CustomCreateAlert'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus, faEdit } from '@fortawesome/free-solid-svg-icons'
 import { actives, colors } from '../../constants'
+import * as XLSX from 'xlsx'
 
-const Typerepondant = () => {
+const Province = () => {
   const tableRef = useRef()
   const createFormRef = useRef()
   const deleteFormRef = useRef()
+  const unlinksimFormRef = useRef()
   const createFormBtnLaunchRef = useRef()
   const createFormBtnCloseRef = useRef()
   const createFormBtnResetRef = useRef()
-  const showModalBtnLaunchRef = useRef()
   const deleteFormBtnLaunchRef = useRef()
   const deleteFormBtnCloseRef = useRef()
-
+  const unlinksimFormBtnLaunchRef = useRef()
+  const unlinksimFormBtnCloseRef = useRef()
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
-
   const [indexAlert, setIndexAlert] = useState(null)
   const [createAlert, setCreateAlert] = useState(null)
   const [createFormAction, setCreateFormAction] = useState(null)
+  const [regions, setRegions] = useState([])
+  const [anneeacademiques, setAnneeacademiques] = useState([])
 
   const apiResource = {
-    get: 'typerepondants',
-    show: 'typerepondants/:id',
-    create: 'typerepondants',
-    update: 'typerepondants/:id',
-    delete: 'typerepondants/:id',
+    get: 'provinces',
+    show: 'provinces/:id',
+    create: 'provinces',
+    update: 'provinces/:id',
+    delete: 'provinces/:id',
   }
 
   const columns = [
     { title: 'ID', data: 'id' },
-    { title: 'CODE', data: 'tyrcode' },
-    { title: 'LIBELLE', data: 'tyrlibelle' },
-
+    { title: 'CODE', data: 'prvcode' },
+    { title: 'NOM', data: 'prvnom' },
+    { title: 'CHEF-LIEU', data: 'prvcheflieu' },
+    { title: 'REGION', data: 'region.rgnnom' },
     {
-      title: 'SESSIONS DEMANDES',
+      title: 'SITES',
       data: null,
       render: (data, type, row) => {
-        return row.sessiondemandes && row.sessiondemandes.length
+        return row.sites && row.sites.length
       },
     },
     {
-      title: 'SESSIONS REMISES',
+      title: 'SIMS',
       data: null,
       render: (data, type, row) => {
-        return row.sessionremises && row.sessionremises.length
-      },
-    },
-    {
-      title: 'REPONDANT',
-      data: null,
-      render: (data, type, row) => {
-        return row.repondants && row.repondants.length
+        return row.sims && row.sims.length
       },
     },
     {
       title: 'ACTIVE',
       data: null,
       render: (data, type, row) => {
-        return `<div class="d-flex justify-content-center align-content-center ${row.tyractive === 'oui' ? 'text-success' : 'text-danger'}"><i class="fa fa-circle " aria-hidden="true"></i></div>`
+        return `<div class="d-flex justify-content-center align-content-center ${row.prvactive === 'oui' ? 'text-success' : 'text-danger'}"><i class="fa fa-circle" aria-hidden="true"></i></div>`
       },
     },
     {
       title: 'ACTIONS',
       data: null,
       render: (data, type, row) => {
-        // Détails, Edit, Delete
-        // const btnShow = `<a class="btn btn-outline-warning me-1 table-btn tableActionBtnShowItem" href="#" data-id="${row.id}"><i class="fa fa-eye" aria-hidden="true"></i></a>`
-        const btnEdit = `<a class="btn btn-outline-info me-1 table-btn tableActionBtnEditItem" href="#" data-id="${row.id}"><i class="fa fa-edit" aria-hidden="true"></i></a>`
+        const ns = row.sims && row.sims
+        const btnUnlinkSim =
+          ns.length > 0
+            ? `<a class="btn btn-outline-secondary me-1 table-btn tableActionBtnUnlinkSimItem" href="#" data-id="${row.id}" data-nbr="${ns.length}" title="Dissocier les cartes SIM"><i class="fa fa-close" aria-hidden="true"></i></a>`
+            : ''
+        const btnEdit = `<a class="btn btn-outline-info me-1 tableActionBtn tableActionBtnEditItem" href="#" data-id="${row.id}"><i class="fa fa-edit" aria-hidden="true"></i></a>`
         const btnDelete = `<a class="btn btn-outline-danger tableActionBtn tableActionBtnDeleteItem" href="#" data-id="${row.id}"><i class="fa fa-trash" aria-hidden="true"></i></a>`
-        return `<div class="d-flex justify-content-center">${btnEdit + btnDelete}</div>`
+        return `<div class="d-flex align-content-center justify-content-center">${btnUnlinkSim + btnEdit + btnDelete}</div>`
       },
     },
   ]
@@ -109,13 +109,31 @@ const Typerepondant = () => {
     }
   }
 
+  const fetchGetRegion = async () => {
+    await getData('regions')
+      .then((response) => {
+        setRegions(response)
+      })
+      .catch((err) => console.log(err))
+  }
+
+  const fetchGetAnneeacademique = async () => {
+    await getData('anneeacademiques')
+      .then((response) => {
+        setAnneeacademiques(response)
+      })
+      .catch((err) => console.log(err))
+  }
+
   useEffect(() => {
-    let timerId = setInterval(() => {
-      fetchGet()
-    }, 2000)
-    return () => {
-      clearInterval(timerId)
-    }
+    // let timerId = setInterval(() => {
+    fetchGet()
+    fetchGetRegion()
+    fetchGetAnneeacademique()
+    // }, 2000)
+    // return () => {
+    //   clearInterval(timerId)
+    // }
   }, [])
 
   useEffect(() => {
@@ -140,12 +158,10 @@ const Typerepondant = () => {
             buttons: [
               {
                 text: '<i class="fa fa-plus me-1" aria-hidden="true"></i>Ajouter',
-                // titleAttr: "Ajouter",
                 className: 'dt-btn datatable-button rounded dt-btnCreate btnCreate',
                 enabled: true,
                 action: () => {
                   if (createFormRef.current && createFormBtnLaunchRef.current) {
-                    setCreateAlert(null)
                     setCreateFormAction('create')
                     createFormRef.current.setAttribute('create-data-action', 'create')
                     createFormRef.current.setAttribute('create-data-id', '')
@@ -156,7 +172,7 @@ const Typerepondant = () => {
               {
                 text: '<i class="fa fa-trash me-1" aria-hidden="true"></i>Tout supprimer',
                 className: 'dt-btn datatable-button rounded dt-btnCreate btnDeleteAll ms-2',
-                enabled: data && data.length > 0 ? true : false,
+                enabled: data.length > 0 ? true : false,
                 action: () => {
                   if (deleteFormRef.current && deleteFormBtnLaunchRef.current) {
                     setIndexAlert(null)
@@ -171,6 +187,19 @@ const Typerepondant = () => {
                   }
                 },
               },
+              /*{
+                text: '<i class="fa fa-file-import me-1" aria-hidden="true"></i>Importer',
+                className: 'dt-btn datatable-button rounded dt-btnImport btnImport ms-2',
+                enabled: true,
+                action: () => {
+                  if (importFormRef.current && importFormBtnLaunchRef.current) {
+                    //   setCreateFormAction('create')
+                    importFormRef.current.setAttribute('form-action', 'import')
+                    importFormRef.current.setAttribute('target-id', '')
+                    importFormBtnLaunchRef.current.click()
+                  }
+                },
+              },*/
             ],
           },
           top1End: {
@@ -240,13 +269,27 @@ const Typerepondant = () => {
       })
   }, [data, columns])
 
-  // === Show item
-  $('#myTable tbody').on('click', '.tableActionBtnShowItem', async function (e) {
+  // Actions
+
+  // === Unlink Sim
+  $('#myTable tbody').on('click', '.tableActionBtnUnlinkSimItem', async function (e) {
     e.preventDefault()
-    // const id = $(this).data('id')
-    // const response = await getItem(apiResource.show.replace(':id', id))
+    setIndexAlert(null)
+    setCreateAlert(null)
+    const id = $(this).data('id')
+    const nbr = $(this).data('nbr')
+    await getItem(apiResource.show.replace(':id', id)).then((response) => {
+      if (response.success) {
+        if (unlinksimFormRef.current && unlinksimFormBtnLaunchRef.current) {
+          unlinksimFormRef.current.setAttribute('data-id', id)
+          unlinksimFormRef.current.setAttribute('data-nbr', nbr)
+          unlinksimFormBtnLaunchRef.current.click()
+        }
+      } else {
+        setIndexAlert(response)
+      }
+    })
   })
-  //
 
   // === Edit item
   $('#myTable tbody').on('click', '.tableActionBtnEditItem', async function (e) {
@@ -261,9 +304,12 @@ const Typerepondant = () => {
           setCreateFormAction('edit')
           createFormRef.current.setAttribute('create-data-action', 'edit')
           createFormRef.current.setAttribute('create-data-id', id)
-          $('#code').val(r.tyrcode)
-          $('#libelle').val(r.tyrlibelle)
-          $('input[name="active"][value="' + r.tyractive + '"]').prop('checked', true)
+          $('#region').val(r.region_id)
+          $('#code').val(r.prvcode)
+          $('#nom').val(r.prvnom)
+          $('#cheflieu').val(r.prvcheflieu)
+          $('input[name="active"][value="' + r.prvactive + '"]').prop('checked', true)
+          $('#commentaire').val(r.prvcommentaire)
           createFormBtnLaunchRef.current.click()
         }
       } else {
@@ -292,7 +338,11 @@ const Typerepondant = () => {
       if (action === 'create') {
         await createItem(apiResource.create, formValues).then((response) => {
           if (response.success) {
-            createFormBtnResetRef.current.click()
+            // createFormBtnResetRef.current.click()
+            $('#code').val('')
+            $('#nom').val('')
+            $('#cheflieu').val('')
+            $('#commentaire').val('')
           }
           setCreateAlert(response)
         })
@@ -312,6 +362,14 @@ const Typerepondant = () => {
     fetchGet()
   }
   // ===
+
+  // === Show item
+  $('#myTable tbody').on('click', '.tableActionBtnShowItem', async function (e) {
+    e.preventDefault()
+    // const id = $(this).data('id')
+    // const response = await getItem(apiResource.show.replace(':id', id))
+  })
+  //
 
   // === Delete item
   $('#myTable tbody').on('click', '.tableActionBtnDeleteItem', async function (e) {
@@ -356,6 +414,36 @@ const Typerepondant = () => {
     }
     fetchGet()
   }
+  // ===
+
+  // === Unlink SIM
+
+  const handleCancelUnlinksimForm = () => {
+    setCreateAlert(null)
+    setIndexAlert(null)
+  }
+
+  const handleSubmitUnlinksimForm = async (e) => {
+    e.preventDefault()
+    // récupération des données du formulaire
+    const id = e.target.getAttribute('data-id')
+    const nbr = e.target.getAttribute('data-nbr')
+    const aca = $('#anneeacademique').val()
+    if (unlinksimFormRef.current && unlinksimFormBtnCloseRef.current) {
+      await getItem(
+        'sims_provinces_dissocier/:id'.replace(':id', id) +
+          '/:nbr'.replace(':nbr', nbr) +
+          '/:anneeacademique'.replace(':anneeacademique', aca),
+      ).then((response) => {
+        if (response.success) {
+          unlinksimFormBtnCloseRef.current.click()
+        }
+        setIndexAlert(response)
+      })
+    }
+    fetchGet()
+  }
+
   // ===
 
   // Datatable loading...
@@ -477,48 +565,76 @@ const Typerepondant = () => {
                     <div className="d-flex pb-1">
                       <CustomRequired tagP={true} />
                     </div>
-                    {/*  */}{' '}
+                    {/*  */}
                     <div className="card">
                       <div className="card-body">
+                        {/* Région */}
+                        <div className="mb-2">
+                          <label htmlFor="region" className="form-label mb-0">
+                            Région
+                            <CustomRequired />
+                          </label>
+                          <div className="">
+                            <select
+                              className="form-select"
+                              aria-label="Default select example"
+                              id="region"
+                              name="region"
+                              required
+                              autoFocus
+                            >
+                              <option value="">Sélectionner ici !</option>
+                              {regions.map((region, index) => {
+                                return (
+                                  <option value={region.id} key={'region-item-' + index}>
+                                    {index + 1 + '. ' + region.rgnnom}
+                                  </option>
+                                )
+                              })}
+                            </select>
+                          </div>
+                        </div>
                         {/* Code */}
                         <div className="mb-2">
                           <label htmlFor="code" className="form-label mb-0">
                             Code
-                            <CustomRequired />
                           </label>
                           <div className="">
-                            <input
-                              type="text"
-                              className="form-control"
-                              id="code"
-                              name="code"
-                              required
-                              autoFocus
-                            />
+                            <input type="text" className="form-control" id="code" name="code" />
                           </div>
                         </div>
-                        {/* Libelle */}
+                        {/* Nom */}
                         <div className="mb-2">
-                          <label htmlFor="libelle" className="form-label mb-0">
-                            Libellé
+                          <label htmlFor="nom" className="form-label mb-0">
+                            Nom
+                            <CustomRequired />
+                          </label>
+                          <div className="">
+                            <input type="text" className="form-control" id="nom" name="nom" />
+                          </div>
+                        </div>
+                        {/* Chef-lieu */}
+                        <div className="mb-2">
+                          <label htmlFor="cheflieu" className="form-label mb-0">
+                            Chef-lieu
                             <CustomRequired />
                           </label>
                           <div className="">
                             <input
                               type="text"
                               className="form-control"
-                              id="libelle"
-                              name="libelle"
+                              id="cheflieu"
+                              name="cheflieu"
                               required
                             />
                           </div>
                         </div>
                         {/* Est activé */}
-                        <div className="">
+                        <div className="mb-2">
                           <label htmlFor="active" className="form-label mb-0">
                             Activé
                           </label>
-                          <div className="">
+                          <div className="" id="active">
                             {actives.map((active, index) => {
                               return (
                                 <div
@@ -531,7 +647,6 @@ const Typerepondant = () => {
                                     name="active"
                                     id={'active' + index}
                                     value={active}
-                                    // defaultChecked={estActive === 'non' ? true : false}
                                   />
                                   <label className="form-check-label" htmlFor={'active' + index}>
                                     {active}
@@ -539,6 +654,20 @@ const Typerepondant = () => {
                                 </div>
                               )
                             })}
+                          </div>
+                        </div>
+                        {/* Commentaire */}
+                        <div className="">
+                          <label htmlFor="commentaire" className="form-label mb-0">
+                            Commentaire
+                          </label>
+                          <div className="">
+                            <textarea
+                              className="form-control"
+                              rows={2}
+                              id="commentaire"
+                              name="commentaire"
+                            ></textarea>
                           </div>
                         </div>
                         {/*  */}
@@ -629,12 +758,123 @@ const Typerepondant = () => {
                       data-bs-dismiss="modal"
                       onClick={handleCancelDeleteForm}
                     >
-                      <i className="fa fa-close me-1" aria-hidden="true"></i>
+                      <i className="fa fa-close me-1 btn-cancel" aria-hidden="true"></i>
                       Annuler
                     </button>
                     <button type="submit" className="btn custom-btn-danger">
                       <i className="fa fa-trash me-1" aria-hidden="true"></i>
                       Supprimer
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+          {/*  */}
+          {/* Unlink SIM form */}
+          <form
+            ref={unlinksimFormRef}
+            onSubmit={handleSubmitUnlinksimForm}
+            method="POST"
+            encType=""
+            data-action="unlink"
+            data-id=""
+            data-nbr=""
+          >
+            <button
+              ref={unlinksimFormBtnLaunchRef}
+              type="button"
+              className="btn btn-primary d-none"
+              data-bs-toggle="modal"
+              data-bs-target="#unlinksimModal"
+            >
+              <i className="fa fa-trash me-2" aria-hidden="true"></i>Launch static backdrop modal
+            </button>
+            {/* <!-- Modal --> */}
+            <div
+              className="modal fade"
+              id="unlinksimModal"
+              data-bs-backdrop="static"
+              data-bs-keyboard="false"
+              tabIndex="-1"
+              aria-labelledby="unlinksimModalLabel"
+              aria-hidden="true"
+            >
+              <div className="modal-dialog">
+                <div className="modal-content">
+                  <div className="modal-header py-1 bg-primary">
+                    <h5 className="modal-title fw-bold text-light" id="unlinksimModalLabel">
+                      <i className="fa fa-trash me-1" aria-hidden="true"></i>Supprimer
+                    </h5>
+                    <button
+                      ref={unlinksimFormBtnCloseRef}
+                      type="button"
+                      className="btn-close d-none"
+                      data-bs-dismiss="modal"
+                      aria-label="Close"
+                    ></button>
+                  </div>
+                  <div className="modal-body">
+                    <div className="d-flex justify-content-center mb-3">
+                      <i
+                        className="fa fa-exclamation-triangle me-1 text-danger fw-bolder"
+                        aria-hidden="true"
+                      ></i>
+                      <span id="unlinksimQuestion">
+                        Voulez-vous vraiment dissocier les cartes SIM ?
+                      </span>
+                    </div>
+                    {/* Année académique */}
+                    <div className="mb-2">
+                      <label htmlFor="anneeacademique" className="form-label mb-0">
+                        Année académique
+                        <CustomRequired />
+                      </label>
+                      <div className="">
+                        <select
+                          className="form-select"
+                          aria-label="Default select example"
+                          id="anneeacademique"
+                          // name="anneeacademique"
+                          required
+                          autoFocus
+                          // onChange={handleAnneeacademique}
+                        >
+                          <option value="">Sélectionner ici !</option>
+                          {anneeacademiques.map((anneeacademique, index) => (
+                            <option
+                              value={anneeacademique.id}
+                              key={'anneeacademique-item-' + index}
+                            >
+                              {index + 1 + '. ' + anneeacademique.acacode}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                    <div
+                      className="card"
+                      style={{ backgroundColor: colors['danger'], borderColor: colors['danger'] }}
+                    >
+                      <div className="card-body p-1 text-small text-light">
+                        <span className="fw-bolder">N.B :</span> Si l'année n'est pas précisée,
+                        toutes les cartes associées à la province seront dissociées d'elle !
+                      </div>
+                    </div>
+                  </div>
+                  <div className="modal-footer border-0 py-1">
+                    <button
+                      type="button"
+                      className="btn custom-btn-secondary btn-submit"
+                      data-bs-dismiss="modal"
+                      onClick={handleCancelUnlinksimForm}
+                    >
+                      <i className="fa fa-close me-1" aria-hidden="true"></i>
+                      Annuler
+                    </button>
+                    <button type="submit" className="btn custom-btn-success">
+                      <i className="fa fa-trash me-1" aria-hidden="true"></i>
+                      Dissocier
                     </button>
                   </div>
                 </div>
@@ -648,4 +888,4 @@ const Typerepondant = () => {
   )
 }
 
-export default Typerepondant
+export default Province

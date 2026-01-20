@@ -8,6 +8,9 @@ import 'simplebar-react/dist/simplebar.min.css'
 import { CBadge, CNavLink, CSidebarNav } from '@coreui/react'
 
 export const AppSidebarNav = ({ items }) => {
+  const auth = JSON.parse(localStorage.getItem('cartesim.auth'))
+  const roles = auth ? auth.roles : null
+
   const navLink = (name, icon, badge, indent = false) => {
     return (
       <>
@@ -38,6 +41,8 @@ export const AppSidebarNav = ({ items }) => {
             {...(rest.to && { as: NavLink })}
             {...(rest.href && { target: '_blank', rel: 'noopener noreferrer' })}
             {...rest}
+            // className="sidebarNavLink"
+            style={{ backgroundColor: '', padding: '5px', margin: '3px 0' }}
           >
             {navLink(name, icon, badge, indent)}
           </CNavLink>
@@ -61,9 +66,16 @@ export const AppSidebarNav = ({ items }) => {
   }
 
   return (
-    <CSidebarNav as={SimpleBar}>
+    <CSidebarNav as={SimpleBar} className="sidebarNav">
       {items &&
-        items.map((item, index) => (item.items ? navGroup(item, index) : navItem(item, index)))}
+        items.map((item, index) => {
+          const trouve = roles.filter(
+            (r) => item.role && (item.role === '*' || item.role.includes(r)),
+          )
+          if (trouve.length > 0) {
+            return item.items ? navGroup(item, index) : navItem(item, index)
+          }
+        })}
     </CSidebarNav>
   )
 }

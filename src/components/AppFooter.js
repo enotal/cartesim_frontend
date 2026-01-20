@@ -4,11 +4,20 @@ import { isAuthenticated } from '../authService'
 
 const AppFooter = () => {
   const isLoggedIn = isAuthenticated()
+  const [year, setYear] = useState('2025')
+  useEffect(() => {
+    let timerId = setInterval(() => {
+      setYear('2026')
+    }, 2000)
+    return () => {
+      clearInterval(timerId)
+    }
+  }, [])
   if (!isLoggedIn) {
     return (
       <CFooter className="px-4 align-items-center justify-content-center border-0 opacity-75">
-        <div className="">
-          <span>UV-BF &copy; 2025 - Tous droits réservés.</span>
+        <div className="container">
+          <p>&copy;{' ' + year + ' UV-BF - Tous droits réservés.'}</p>
         </div>
       </CFooter>
     )

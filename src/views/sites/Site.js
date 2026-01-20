@@ -25,14 +25,14 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus, faEdit } from '@fortawesome/free-solid-svg-icons'
 import { actives, colors } from '../../constants'
 
-const Typerepondant = () => {
+const Site = () => {
   const tableRef = useRef()
   const createFormRef = useRef()
   const deleteFormRef = useRef()
   const createFormBtnLaunchRef = useRef()
   const createFormBtnCloseRef = useRef()
   const createFormBtnResetRef = useRef()
-  const showModalBtnLaunchRef = useRef()
+
   const deleteFormBtnLaunchRef = useRef()
   const deleteFormBtnCloseRef = useRef()
 
@@ -44,45 +44,45 @@ const Typerepondant = () => {
   const [createAlert, setCreateAlert] = useState(null)
   const [createFormAction, setCreateFormAction] = useState(null)
 
+  const [provinces, setProvinces] = useState([])
+
   const apiResource = {
-    get: 'typerepondants',
-    show: 'typerepondants/:id',
-    create: 'typerepondants',
-    update: 'typerepondants/:id',
-    delete: 'typerepondants/:id',
+    get: 'sites',
+    show: 'sites/:id',
+    create: 'sites',
+    update: 'sites/:id',
+    delete: 'sites/:id',
   }
 
   const columns = [
     { title: 'ID', data: 'id' },
-    { title: 'CODE', data: 'tyrcode' },
-    { title: 'LIBELLE', data: 'tyrlibelle' },
-
+    { title: 'LIBELLE', data: 'sitlibelle' },
     {
-      title: 'SESSIONS DEMANDES',
+      title: 'DEMANDES',
       data: null,
       render: (data, type, row) => {
-        return row.sessiondemandes && row.sessiondemandes.length
+        return row.demandes && row.demandes.length
       },
     },
     {
-      title: 'SESSIONS REMISES',
+      title: 'PROVINCE',
       data: null,
       render: (data, type, row) => {
-        return row.sessionremises && row.sessionremises.length
+        return row.province && row.province.prvnom
       },
     },
     {
-      title: 'REPONDANT',
+      title: 'REGION',
       data: null,
       render: (data, type, row) => {
-        return row.repondants && row.repondants.length
+        return row.province && row.province.region ? row.province.region.rgnnom : ''
       },
     },
     {
       title: 'ACTIVE',
       data: null,
       render: (data, type, row) => {
-        return `<div class="d-flex justify-content-center align-content-center ${row.tyractive === 'oui' ? 'text-success' : 'text-danger'}"><i class="fa fa-circle " aria-hidden="true"></i></div>`
+        return `<div class="d-flex justify-content-center align-content-center ${row.sitactive === 'oui' ? 'text-success' : 'text-danger'}"><i class="fa fa-circle " aria-hidden="true"></i></div>`
       },
     },
     {
@@ -90,10 +90,10 @@ const Typerepondant = () => {
       data: null,
       render: (data, type, row) => {
         // Détails, Edit, Delete
-        // const btnShow = `<a class="btn btn-outline-warning me-1 table-btn tableActionBtnShowItem" href="#" data-id="${row.id}"><i class="fa fa-eye" aria-hidden="true"></i></a>`
-        const btnEdit = `<a class="btn btn-outline-info me-1 table-btn tableActionBtnEditItem" href="#" data-id="${row.id}"><i class="fa fa-edit" aria-hidden="true"></i></a>`
+        // const btnShow = `<a class="btn btn-outline-warning me-1 tableActionBtn tableActionBtnShowItem" href="#" data-id="${row.id}"><i class="fa fa-eye" aria-hidden="true"></i></a>`
+        const btnEdit = `<a class="btn btn-outline-info me-1 tableActionBtn tableActionBtnEditItem" href="#" data-id="${row.id}"><i class="fa fa-edit" aria-hidden="true"></i></a>`
         const btnDelete = `<a class="btn btn-outline-danger tableActionBtn tableActionBtnDeleteItem" href="#" data-id="${row.id}"><i class="fa fa-trash" aria-hidden="true"></i></a>`
-        return `<div class="d-flex justify-content-center">${btnEdit + btnDelete}</div>`
+        return `<div class="d-flex align-content-center justify-content-center">${btnEdit + btnDelete}</div>`
       },
     },
   ]
@@ -109,13 +109,22 @@ const Typerepondant = () => {
     }
   }
 
+  const fetchGetProvince = async () => {
+    await getData('provinces')
+      .then((response) => {
+        setProvinces(response)
+      })
+      .catch((err) => console.log(err))
+  }
+
   useEffect(() => {
-    let timerId = setInterval(() => {
-      fetchGet()
-    }, 2000)
-    return () => {
-      clearInterval(timerId)
-    }
+    // let timerId = setInterval(() => {
+    fetchGet()
+    fetchGetProvince()
+    // }, 2000)
+    // return () => {
+    //   clearInterval(timerId)
+    // }
   }, [])
 
   useEffect(() => {
@@ -140,7 +149,6 @@ const Typerepondant = () => {
             buttons: [
               {
                 text: '<i class="fa fa-plus me-1" aria-hidden="true"></i>Ajouter',
-                // titleAttr: "Ajouter",
                 className: 'dt-btn datatable-button rounded dt-btnCreate btnCreate',
                 enabled: true,
                 action: () => {
@@ -156,7 +164,7 @@ const Typerepondant = () => {
               {
                 text: '<i class="fa fa-trash me-1" aria-hidden="true"></i>Tout supprimer',
                 className: 'dt-btn datatable-button rounded dt-btnCreate btnDeleteAll ms-2',
-                enabled: data && data.length > 0 ? true : false,
+                enabled: data.length > 0 ? true : false,
                 action: () => {
                   if (deleteFormRef.current && deleteFormBtnLaunchRef.current) {
                     setIndexAlert(null)
@@ -240,6 +248,10 @@ const Typerepondant = () => {
       })
   }, [data, columns])
 
+  // Actions
+
+  //=== Launch modals
+
   // === Show item
   $('#myTable tbody').on('click', '.tableActionBtnShowItem', async function (e) {
     e.preventDefault()
@@ -261,9 +273,10 @@ const Typerepondant = () => {
           setCreateFormAction('edit')
           createFormRef.current.setAttribute('create-data-action', 'edit')
           createFormRef.current.setAttribute('create-data-id', id)
-          $('#code').val(r.tyrcode)
-          $('#libelle').val(r.tyrlibelle)
-          $('input[name="active"][value="' + r.tyractive + '"]').prop('checked', true)
+          $('#province').val(r.province_id)
+          $('#libelle').val(r.sitlibelle)
+          $('input[name="active"][value="' + r.sitactive + '"]').prop('checked', true)
+          $('#commentaire').val(r.sitcommentaire)
           createFormBtnLaunchRef.current.click()
         }
       } else {
@@ -477,24 +490,36 @@ const Typerepondant = () => {
                     <div className="d-flex pb-1">
                       <CustomRequired tagP={true} />
                     </div>
-                    {/*  */}{' '}
+                    {/*  */}
                     <div className="card">
                       <div className="card-body">
-                        {/* Code */}
+                        {/* Province */}
                         <div className="mb-2">
-                          <label htmlFor="code" className="form-label mb-0">
-                            Code
-                            <CustomRequired />
+                          <label htmlFor="province" className="form-label mb-0">
+                            Province
                           </label>
                           <div className="">
-                            <input
-                              type="text"
-                              className="form-control"
-                              id="code"
-                              name="code"
-                              required
+                            <select
+                              className="form-select"
+                              aria-label="Default select example"
+                              id="province"
+                              name="province"
                               autoFocus
-                            />
+                            >
+                              <option value="">Sélectionner ici !</option>
+                              {provinces.map((province, index) => {
+                                return (
+                                  <option value={province.id} key={'province-item-' + index}>
+                                    {index +
+                                      1 +
+                                      '. ' +
+                                      province.prvnom +
+                                      ', ' +
+                                      province.prvcheflieu}
+                                  </option>
+                                )
+                              })}
+                            </select>
                           </div>
                         </div>
                         {/* Libelle */}
@@ -539,6 +564,20 @@ const Typerepondant = () => {
                                 </div>
                               )
                             })}
+                          </div>
+                        </div>
+                        {/* Commentaire */}
+                        <div className="mb-2">
+                          <label htmlFor="commentaire" className="form-label mb-0">
+                            Commentaire
+                          </label>
+                          <div className="">
+                            <textarea
+                              className="form-control"
+                              rows={2}
+                              id="commentaire"
+                              name="commentaire"
+                            ></textarea>
                           </div>
                         </div>
                         {/*  */}
@@ -629,7 +668,7 @@ const Typerepondant = () => {
                       data-bs-dismiss="modal"
                       onClick={handleCancelDeleteForm}
                     >
-                      <i className="fa fa-close me-1" aria-hidden="true"></i>
+                      <i className="fa fa-close me-1 btn-cancel" aria-hidden="true"></i>
                       Annuler
                     </button>
                     <button type="submit" className="btn custom-btn-danger">
@@ -648,4 +687,4 @@ const Typerepondant = () => {
   )
 }
 
-export default Typerepondant
+export default Site

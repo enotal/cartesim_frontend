@@ -1,21 +1,8 @@
 /*  */
 
 /* Here you can add other styles */
-.defaultLayout-main-container,
-.home-main-container {
-  background-image: url('../assets/images/background.jpg');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-}
-
 /* === AppGuestHeader */
 .guest-header {
-  background-color: #17376e;
-  .app-header-brand-image {
-    height: 80px;
-    display: block;
-  }
   .app-header-brand-name {
     color: lightgray;
     text-transform: uppercase;
@@ -29,156 +16,199 @@
 }
 /*  */
 
-.defaultLayout-main-container,
-.home-main-container {
-  background-image: url('../assets/images/background.jpg');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-}
-
-.home-main-container {
-  .home-image {
-    height: 128px;
-    display: block;
-  }
-
-  .home-title {
-    font-weight: bolder;
-    span {
-      color: #17376e;
-      font-size: 26px;
-      text-transform: uppercase;
-    }
-    p {
-      font-size: 18px;
-      color: #cd2009;
-      font-style: italic;
-    }
-  }
-
-  .app-home-description,
-  .app-home-connexion {
-    text-align: justify;
-    font-size: 16px;
-  }
-
-  .app-home-connexion {
-    .card-title {
-      color: #17376e;
-      font-size: 16px;
-      text-align: justify;
-    }
-  }
-}
-
-/* === Buttons */
-.app-btn-primary {
-  background-color: #17376e;
-  border-color: #17376e;
-  color: lightgray;
-}
-.app-btn-primary:hover {
-  background-color: #1a3e7c;
-  border-color: #1a3e7c;
-  color: lightgray;
-}
-
-/* === DataTable buttons */
-.dt-btn,
-.dt-actions-btn {
-  background-color: #6b7785;
-  color: lightgray;
-}
-
-.dt-btn:hover,
-.dt-actions-btn:hover {
-  background-color: #98a0a9;
+/* 08012026 */
+.homeTitle {
+  background-color: #056709;
+  border-color: #056709;
+  font-weight: bolder;
+  font-size: 1.5em;
   color: #fff;
 }
 
-/* === */
-
-.btnFormulaireReset,
-.btnFormulaireReset:hover {
-  background-color: #443027;
-  color: #fff;
-  border-color: #443027;
+.home-description {
+  text-align: justify;
 }
 
-.btnFormulaireSave,
-.btnFormulaireSave:hover {
+.home-login-form .card {
+  /* background-color: #f3f4f7; */
+  border: 1px solid #056709;
+}
+
+.card-header-custom-title {
+  font-weight: bolder;
+  color: #00407d;
+}
+
+.custom-btn-primary {
+  background-color: #00407d;
+  border: #00407d;
+  color: #fff;
+}
+.custom-btn-primary:hover {
+  background-color: #00407d;
+  border: #00407d;
+  color: #fff;
+}
+
+.custom-btn-success {
+  background-color: #056709;
+  border: #056709;
+  color: #fff;
+}
+.custom-btn-success:hover {
+  background-color: #069f0b;
+  border: #056709;
+  color: #fff;
+}
+
+.custom-btn-danger {
   background-color: #970000;
+  border: #970000;
   color: #fff;
+}
+.custom-btn-danger:hover {
+  background-color: #970000;
+  border: #970000;
+  color: #fff;
+}
+
+.custom-btn-secondary {
+  background-color: #666363;
+  border: #666363;
+  color: #fff;
+}
+.custom-btn-secondary:hover {
+  background-color: #817e7e;
+  border: #666363;
+  color: #fff;
+}
+
+.sorryBecauseNone {
+  color: #970000;
+  font-weight: bolder;
+  font-size: 1.2em;
+}
+
+table .show-table-title {
+  color: #000;
+}
+
+table .show-table-value {
+  color: #00407d;
+  text-align: end;
+  font-weight: bold;
+}
+
+.form-label {
+  font-weight: bolder;
+}
+
+/* === Guest === */
+.demandeGuestSoumettre .sessionInfo {
+  background-color: #fcd116;
+  border: 5px solid #056709;
+  color: #056709;
+  font-size: auto;
+}
+
+/* ============= */
+
+/*.sidebar, .sidebarHeader, .sidebarNav {
+  background-color: #056709;
+}*/
+.sidebarNav .nav-link {
+  background-color: #056709;
+  /* background-color: #00407d; */
+  /* border: 1px solid #fcd116; */
+}
+.sidebarNav .nav-link:hover {
+  background-color: #069f0b;
+  /* background-color: #fcd116; */
+  /* border: 1px solid #00407d; */
+  /* color: #00407d; */
+}
+.sidebarNav .nav-link:active {
+  /* background-color: #970000; */
+}
+
+/* === Dashboard === */
+
+.dashboardHeader {
+  background-color: #fcd116;
+  border: 5px solid #056709;
+  font-size: 1.1em;
+  font-weight: bolder;
+}
+.dashboardHeader span {
+  color: #00407d;
+}
+
+.statisticCard{
+background-color: #f3f4f7; 
+border: 1px solid #056709;
+}
+.statisticCardTitle {
+  font-size: 1.2em;
+  font-weight: bolder;
+  color: #00407d;
+}
+.statisticCardTitle span {
+  font-weight: normal;
+  color: #fff;
+  background-color: #970000;
+  padding: 1px 10px;
+  border-radius: 5px;
+}
+.statisticCardValue {
+  font-size: 1em;
+}
+.statisticCardValue span {
+  /* font-weight: bolder; */
+  background-color: #056709;
+  color: #fff;
+  padding: 1px 10px;
+  border-radius: 5px;
+}
+.statisticCardValue p {
+  font-weight: bolder;
+}
+
+/* ============= */
+
+/* === Datatables === */
+
+.btnCreate,
+.btnCreate:hover {
+  background-color: #00407d;
+  border-color: #00407d;
+  color: #fff;
+}
+
+.btnDeleteAll,
+.btnDeleteAll:hover {
+  background-color: #970000;
   border-color: #970000;
-}
-
-.btnFormulaireSubmit,
-.btnFormulaireSubmit:hover {
-  background-color: #056409;
   color: #fff;
-  border-color: #056409;
 }
 
-.form-check-label {
-  cursor: pointer;
+/* fcd116 */
+.btnImport,
+.btnAttribute,
+.btnImport:hover,
+.btnAttribute:hover {
+  background-color: #a08408;
+  border-color: #a08408;
+  color: #fff;
 }
+
+/* ============= */
 
 /* === */
 
 /* Media */
 
 @media (max-width: 768px) {
-  .home-main-container {
-    .home-image {
-      height: 64px;
-      display: none;
-    }
-
-    .home-title {
-      span {
-        font-size: 24px;
-      }
-      p {
-        font-size: 16px;
-      }
-    }
-
-    .app-home-description,
-    .app-home-connexion {
-      text-align: justify;
-      font-size: 12px;
-    }
+  .demandeGuestSoumettre .sessionInfo {
+    font-size: 0.9em;
   }
-
-  .formulaireButtons {
-    display: flex;
-    justify-content: center;
-    .btnFormulaireReset,
-    .btnFormulaireSave,
-    .btnFormulaireSubmit {
-      span {
-        /* display: none; */
-      }
-    }
-  }
-}
-
-/* === BEFORE === */
-
-
-.custom-btn {
-  border: 1px solid #00407d;
-}
-
-.formulaire-btn-save,
-.formulaire-btn-submit {
-  color: #00407d;
-}
-
-.formulaire-btn-save:hover,
-.formulaire-btn-submit:hover {
-  border: 1px solid #00407d;
-  background-color: #00407d;
-  color: #fff;
 }

@@ -25,7 +25,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus, faEdit } from '@fortawesome/free-solid-svg-icons'
 import { actives, colors } from '../../constants'
 
-const Typerepondant = () => {
+const Sessiondemande = () => {
   const tableRef = useRef()
   const createFormRef = useRef()
   const deleteFormRef = useRef()
@@ -44,45 +44,49 @@ const Typerepondant = () => {
   const [createAlert, setCreateAlert] = useState(null)
   const [createFormAction, setCreateFormAction] = useState(null)
 
+  const [anneeacademiques, setAnneeacademiques] = useState([])
+  const [typerepondants, setTyperepondants] = useState([])
+
   const apiResource = {
-    get: 'typerepondants',
-    show: 'typerepondants/:id',
-    create: 'typerepondants',
-    update: 'typerepondants/:id',
-    delete: 'typerepondants/:id',
+    get: 'sessiondemandes',
+    show: 'sessiondemandes/:id',
+    create: 'sessiondemandes',
+    update: 'sessiondemandes/:id',
+    delete: 'sessiondemandes/:id',
   }
 
   const columns = [
     { title: 'ID', data: 'id' },
-    { title: 'CODE', data: 'tyrcode' },
-    { title: 'LIBELLE', data: 'tyrlibelle' },
-
+    { title: 'ANNEE ACADEMIQUE', data: 'anneeacademique.acacode' },
     {
-      title: 'SESSIONS DEMANDES',
+      title: 'DATE DEBUT',
       data: null,
       render: (data, type, row) => {
-        return row.sessiondemandes && row.sessiondemandes.length
+        let d = new Date(row.seddatedebut)
+        return d.toLocaleDateString()
       },
     },
     {
-      title: 'SESSIONS REMISES',
+      title: 'DATE FIN',
       data: null,
       render: (data, type, row) => {
-        return row.sessionremises && row.sessionremises.length
+        let d = new Date(row.seddatefin)
+        return d.toLocaleDateString()
       },
     },
+    { title: 'TYPE REPONDANT', data: 'typerepondant.tyrlibelle' },
     {
-      title: 'REPONDANT',
+      title: 'DEMANDES',
       data: null,
       render: (data, type, row) => {
-        return row.repondants && row.repondants.length
+        return row.demandes && row.demandes.length
       },
     },
     {
       title: 'ACTIVE',
       data: null,
       render: (data, type, row) => {
-        return `<div class="d-flex justify-content-center align-content-center ${row.tyractive === 'oui' ? 'text-success' : 'text-danger'}"><i class="fa fa-circle " aria-hidden="true"></i></div>`
+        return `<div class="d-flex justify-content-center align-content-center ${row.sedactive === 'oui' ? 'text-success' : 'text-danger'}"><i class="fa fa-circle " aria-hidden="true"></i></div>`
       },
     },
     {
@@ -90,10 +94,10 @@ const Typerepondant = () => {
       data: null,
       render: (data, type, row) => {
         // Détails, Edit, Delete
-        // const btnShow = `<a class="btn btn-outline-warning me-1 table-btn tableActionBtnShowItem" href="#" data-id="${row.id}"><i class="fa fa-eye" aria-hidden="true"></i></a>`
-        const btnEdit = `<a class="btn btn-outline-info me-1 table-btn tableActionBtnEditItem" href="#" data-id="${row.id}"><i class="fa fa-edit" aria-hidden="true"></i></a>`
+        // const btnShow = `<a class="btn btn-outline-warning me-1 tableActionBtn tableActionBtnShowItem" href="#" data-id="${row.id}"><i class="fa fa-eye" aria-hidden="true"></i></a>`
+        const btnEdit = `<a class="btn btn-outline-info me-1 tableActionBtn tableActionBtnEditItem" href="#" data-id="${row.id}"><i class="fa fa-edit" aria-hidden="true"></i></a>`
         const btnDelete = `<a class="btn btn-outline-danger tableActionBtn tableActionBtnDeleteItem" href="#" data-id="${row.id}"><i class="fa fa-trash" aria-hidden="true"></i></a>`
-        return `<div class="d-flex justify-content-center">${btnEdit + btnDelete}</div>`
+        return `<div class="d-flex align-content-center justify-content-center">${btnEdit + btnDelete}</div>`
       },
     },
   ]
@@ -109,13 +113,31 @@ const Typerepondant = () => {
     }
   }
 
+  const fetchGetAnneeacademique = async () => {
+    await getData('anneeacademiques')
+      .then((response) => {
+        setAnneeacademiques(response)
+      })
+      .catch((err) => console.log(err))
+  }
+
+  const fetchGetTyperepondant = async () => {
+    await getData('typerepondants')
+      .then((response) => {
+        setTyperepondants(response)
+      })
+      .catch((err) => console.log(err))
+  }
+
   useEffect(() => {
-    let timerId = setInterval(() => {
-      fetchGet()
-    }, 2000)
-    return () => {
-      clearInterval(timerId)
-    }
+    // let timerId = setInterval(() => {
+    fetchGet()
+    fetchGetAnneeacademique()
+    fetchGetTyperepondant()
+    // }, 2000)
+    // return () => {
+    //   clearInterval(timerId)
+    // }
   }, [])
 
   useEffect(() => {
@@ -140,7 +162,6 @@ const Typerepondant = () => {
             buttons: [
               {
                 text: '<i class="fa fa-plus me-1" aria-hidden="true"></i>Ajouter',
-                // titleAttr: "Ajouter",
                 className: 'dt-btn datatable-button rounded dt-btnCreate btnCreate',
                 enabled: true,
                 action: () => {
@@ -156,7 +177,7 @@ const Typerepondant = () => {
               {
                 text: '<i class="fa fa-trash me-1" aria-hidden="true"></i>Tout supprimer',
                 className: 'dt-btn datatable-button rounded dt-btnCreate btnDeleteAll ms-2',
-                enabled: data && data.length > 0 ? true : false,
+                enabled: data.length > 0 ? true : false,
                 action: () => {
                   if (deleteFormRef.current && deleteFormBtnLaunchRef.current) {
                     setIndexAlert(null)
@@ -240,6 +261,10 @@ const Typerepondant = () => {
       })
   }, [data, columns])
 
+  // Actions
+
+  //=== Launch modals
+
   // === Show item
   $('#myTable tbody').on('click', '.tableActionBtnShowItem', async function (e) {
     e.preventDefault()
@@ -261,9 +286,12 @@ const Typerepondant = () => {
           setCreateFormAction('edit')
           createFormRef.current.setAttribute('create-data-action', 'edit')
           createFormRef.current.setAttribute('create-data-id', id)
-          $('#code').val(r.tyrcode)
-          $('#libelle').val(r.tyrlibelle)
-          $('input[name="active"][value="' + r.tyractive + '"]').prop('checked', true)
+          $('#anneeacademique').val(r.anneeacademique_id)
+          $('#typerepondant').val(r.typerepondant_id)
+          $('#datedebut').val(r.seddatedebut)
+          $('#datefin').val(r.seddatefin)
+          $('input[name="active"][value="' + r.sedactive + '"]').prop('checked', true)
+          $('#commentaire').val(r.sedcommentaire)
           createFormBtnLaunchRef.current.click()
         }
       } else {
@@ -477,40 +505,93 @@ const Typerepondant = () => {
                     <div className="d-flex pb-1">
                       <CustomRequired tagP={true} />
                     </div>
-                    {/*  */}{' '}
+                    {/*  */}
                     <div className="card">
                       <div className="card-body">
-                        {/* Code */}
+                        {/* Année académique */}
                         <div className="mb-2">
-                          <label htmlFor="code" className="form-label mb-0">
-                            Code
+                          <label htmlFor="anneeacademique" className="form-label mb-0">
+                            Année académique
                             <CustomRequired />
                           </label>
                           <div className="">
-                            <input
-                              type="text"
-                              className="form-control"
-                              id="code"
-                              name="code"
+                            <select
+                              className="form-select"
+                              aria-label="Default select example"
+                              id="anneeacademique"
+                              name="anneeacademique"
                               required
-                              autoFocus
-                            />
+                            >
+                              <option value="">Sélectionner ici !</option>
+                              {anneeacademiques.map((anneeacademique, index) => (
+                                <option
+                                  value={anneeacademique.id}
+                                  key={'anneeacademique-item-' + index}
+                                >
+                                  {index + 1 + '. ' + anneeacademique.acacode}
+                                </option>
+                              ))}
+                            </select>
                           </div>
                         </div>
-                        {/* Libelle */}
+                        {/* Types de répondants */}
                         <div className="mb-2">
-                          <label htmlFor="libelle" className="form-label mb-0">
-                            Libellé
+                          <label htmlFor="typerepondant" className="form-label mb-0">
+                            Type répondant
                             <CustomRequired />
                           </label>
                           <div className="">
-                            <input
-                              type="text"
-                              className="form-control"
-                              id="libelle"
-                              name="libelle"
+                            <select
+                              className="form-select"
+                              aria-label="Default select example"
+                              id="typerepondant"
+                              name="typerepondant"
                               required
-                            />
+                            >
+                              <option value="">Sélectionner ici !</option>
+                              {typerepondants.map((typerepondant, index) => (
+                                <option
+                                  value={typerepondant.id}
+                                  key={'typerepondant-item-' + index}
+                                >
+                                  {index + 1 + '. ' + typerepondant.tyrlibelle}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        </div>
+                        {/* Date début */}
+                        <div className="row">
+                          <div className="mb-2 col-md-6">
+                            <label htmlFor="datedebut" className="form-label mb-0">
+                              Date début
+                              <CustomRequired />
+                            </label>
+                            <div className="">
+                              <input
+                                type="date"
+                                className="form-control"
+                                id="datedebut"
+                                name="datedebut"
+                                required
+                              />
+                            </div>
+                          </div>
+                          {/* Date fin */}
+                          <div className="mb-2 col-md-6">
+                            <label htmlFor="datefin" className="form-label mb-0">
+                              Date fin
+                              <CustomRequired />
+                            </label>
+                            <div className="">
+                              <input
+                                type="date"
+                                className="form-control"
+                                id="datefin"
+                                name="datefin"
+                                required
+                              />
+                            </div>
                           </div>
                         </div>
                         {/* Est activé */}
@@ -541,15 +622,26 @@ const Typerepondant = () => {
                             })}
                           </div>
                         </div>
+                        {/* Commentaire */}
+                        <div className="mb-2">
+                          <label htmlFor="commentaire" className="form-label mb-0">
+                            Commentaire
+                          </label>
+                          <div className="">
+                            <textarea
+                              className="form-control"
+                              rows={2}
+                              id="commentaire"
+                              name="commentaire"
+                            ></textarea>
+                          </div>
+                        </div>
                         {/*  */}
                       </div>
                     </div>
                   </div>
                   <div className="modal-footer border-0 py-0">
-                    <button
-                      type="submit"
-                      className="btn custom-btn-success text-white createModalBtnSave"
-                    >
+                    <button type="submit" className="btn custom-btn-success createModalBtnSave">
                       <i className="fa fa-check me-1" aria-hidden="true"></i>
                       Valider
                     </button>
@@ -632,7 +724,7 @@ const Typerepondant = () => {
                       <i className="fa fa-close me-1" aria-hidden="true"></i>
                       Annuler
                     </button>
-                    <button type="submit" className="btn custom-btn-danger">
+                    <button type="submit" className="btn custom-btn-success">
                       <i className="fa fa-trash me-1" aria-hidden="true"></i>
                       Supprimer
                     </button>
@@ -648,4 +740,4 @@ const Typerepondant = () => {
   )
 }
 
-export default Typerepondant
+export default Sessiondemande

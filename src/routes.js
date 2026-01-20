@@ -1,33 +1,37 @@
 import React from 'react'
 
-const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
-const Questionnaire = React.lazy(() => import('./views/questionnaires/Questionnaire'))
-const Formulaire = React.lazy(() => import('./views/formulaires/Formulaire'))
-// const Quiz = React.lazy(() => import('./views/formulaires/Quiz'))
-const Resultat = React.lazy(() => import('./views/resultats/Resultat'))
-const Analyse = React.lazy(() => import('./views/analyses/Analyse'))
-const Thematique = React.lazy(() => import('./views/thematiques/Thematique'))
-const Dimension = React.lazy(() => import('./views/dimensions/Dimension'))
-const Variable = React.lazy(() => import('./views/variables/Variable'))
-const Question = React.lazy(() => import('./views/questions/Question'))
-const Repondant = React.lazy(() => import('./views/repondants/Repondant'))
+const Dashboard = React.lazy(() => import('./views/dashboards/Dashboard'))
+const Anneeacademique = React.lazy(() => import('./views/anneeacademiques/Anneeacademique'))
 const Typerepondant = React.lazy(() => import('./views/typerepondants/Typerepondant'))
-const Indicateur = React.lazy(() => import('./views/indicateurs/Indicateur'))
+const Repondant = React.lazy(() => import('./views/repondants/Repondant'))
+const Sim = React.lazy(() => import('./views/sims/Sim'))
+const Remise = React.lazy(() => import('./views/sims/Remise'))
+const Region = React.lazy(() => import('./views/regions/Region'))
+const Province = React.lazy(() => import('./views/provinces/Province'))
+const Site = React.lazy(() => import('./views/sites/Site'))
+const Demande = React.lazy(() => import('./views/demandes/Demande'))
+const Sessiondemande = React.lazy(() => import('./views/sessiondemandes/Sessiondemande'))
+const Sessionremise = React.lazy(() => import('./views/sessionremises/Sessionremise'))
+const Role = React.lazy(() => import('./views/utilisateurs/Role'))
+const Utilisateur = React.lazy(() => import('./views/utilisateurs/Utilisateur'))
+// const Permission = React.lazy(() => import('./views/utilisateurs/Permission'))
 
 const routes = [
   { path: '/dashboard', name: 'Dashboard', element: Dashboard },
-  { path: '/questionnaires', name: 'Questionnaire', element: Questionnaire },
-  { path: '/questionnaires/:questionnaireId/formulaire', name: 'Formulaire', element: Formulaire },
-  { path: '/thematiques', name: 'Thematiques', element: Thematique },
-  { path: '/dimensions', name: 'Dimensions', element: Dimension },
-  { path: '/variables', name: 'Variables', element: Variable },
-  { path: '/questions', name: 'Questions', element: Question },
-  { path: '/repondants', name: 'Répondants', element: Repondant },
+  { path: '/anneeacademiques', name: 'Années académiques', element: Anneeacademique },
   { path: '/typerepondants', name: 'Type Répondants', element: Typerepondant },
-  { path: '/resultats', name: 'Resultat', element: Resultat },
-  { path: '/analyses', name: 'Analyse', element: Analyse },
-  { path: '/indicateurs', name: 'Indicateur', element: Indicateur },
-  // { path: '/quiz/:repondantId', name: 'quiz', element: Quiz },
+  { path: '/repondants', name: 'Répondants', element: Repondant },
+  { path: '/sims', name: 'Sims', element: Sim },
+  { path: '/remises', name: 'Remises Sims', element: Remise },
+  { path: '/regions', name: 'Régions', element: Region },
+  { path: '/provinces', name: 'Provinces', element: Province },
+  { path: '/sites', name: 'Sites', element: Site },
+  { path: '/demandes', name: 'Demandes', element: Demande },
+  { path: '/sessiondemandes', name: 'Sessiondemandes', element: Sessiondemande },
+  { path: '/sessionremises', name: 'Sessionremises', element: Sessionremise },
+  { path: '/roles', name: 'Rôles', element: Role },
+  { path: '/utilisateurs', name: 'Utilisateurs', element: Utilisateur },
+  // { path: '/permissions', name: 'Permissions', element: Permission },
 ]
 
 export default routes

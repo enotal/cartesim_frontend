@@ -1,11 +1,17 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCheck, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons'
 
-export const CustomCreateAlert = ({ alert }) => {
+export const CustomCreateAlert = ({ alert, alignment }) => {
+  const indexAlertBg = {
+    success: '#056709',
+    danger: '#970000',
+    warning: '',
+  }
+
   return (
-    <div className="ms-auto">
+    <div className={alignment ? alignment : 'ms-auto'}>
       {alert && (
-        <span className={`p-1 bg-${alert.type} text-white`}>
+        <span className="p-1 text-white" style={{ backgroundColor: indexAlertBg[alert.type] }}>
           <FontAwesomeIcon icon={alert.type === 'success' ? faCheck : faExclamationTriangle} />
           {alert.message}
         </span>

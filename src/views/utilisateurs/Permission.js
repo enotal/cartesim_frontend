@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react'
-// Datatables
+
 import 'jquery'
 import $ from 'jquery'
 import 'datatables.net-bs5'
@@ -16,16 +16,16 @@ import 'datatables.net-buttons-bs5/css/buttons.bootstrap5.css'
 import 'datatables.net-buttons-bs5/js/buttons.bootstrap5.js'
 import 'datatables.net-bs5/css/dataTables.bootstrap5.css'
 import 'datatables.net-bs5/js/dataTables.bootstrap5.js'
-//
+
 import { getData, getItem, createItem, updateItem, deleteItem } from '../../apiService'
 import { CustomRequired } from '../../components/CustomRequired'
 import { CustomIndexAlert } from '../../components/CustomIndexAlert'
 import { CustomCreateAlert } from '../../components/CustomCreateAlert'
+
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus, faEdit } from '@fortawesome/free-solid-svg-icons'
-import { actives, colors } from '../../constants'
 
-const Typerepondant = () => {
+const Permission = () => {
   const tableRef = useRef()
   const createFormRef = useRef()
   const deleteFormRef = useRef()
@@ -43,65 +43,43 @@ const Typerepondant = () => {
   const [indexAlert, setIndexAlert] = useState(null)
   const [createAlert, setCreateAlert] = useState(null)
   const [createFormAction, setCreateFormAction] = useState(null)
+  const [actives, setActives] = useState(['non', 'oui'])
+  const [sessiondemandes, setSessiondemandes] = useState([])
+  const [sites, setSites] = useState([])
+  const [itemToShow, setItemToShow] = useState([])
 
   const apiResource = {
-    get: 'typerepondants',
-    show: 'typerepondants/:id',
-    create: 'typerepondants',
-    update: 'typerepondants/:id',
-    delete: 'typerepondants/:id',
+    get: 'permissions',
+    show: 'premissions/:id',
+    create: 'permissions',
+    update: 'permissions/:id',
+    delete: 'permissions/:id',
   }
 
   const columns = [
     { title: 'ID', data: 'id' },
-    { title: 'CODE', data: 'tyrcode' },
-    { title: 'LIBELLE', data: 'tyrlibelle' },
-
-    {
-      title: 'SESSIONS DEMANDES',
-      data: null,
-      render: (data, type, row) => {
-        return row.sessiondemandes && row.sessiondemandes.length
-      },
-    },
-    {
-      title: 'SESSIONS REMISES',
-      data: null,
-      render: (data, type, row) => {
-        return row.sessionremises && row.sessionremises.length
-      },
-    },
-    {
-      title: 'REPONDANT',
-      data: null,
-      render: (data, type, row) => {
-        return row.repondants && row.repondants.length
-      },
-    },
-    {
-      title: 'ACTIVE',
-      data: null,
-      render: (data, type, row) => {
-        return `<div class="d-flex justify-content-center align-content-center ${row.tyractive === 'oui' ? 'text-success' : 'text-danger'}"><i class="fa fa-circle " aria-hidden="true"></i></div>`
-      },
-    },
+    { title: 'LIBELLE', data: 'prmlibelle' },
+    { title: 'LIEN', data: 'prmlien' },
+    { title: 'ACTIVE', data: 'prmactive' },
     {
       title: 'ACTIONS',
       data: null,
       render: (data, type, row) => {
         // Détails, Edit, Delete
-        // const btnShow = `<a class="btn btn-outline-warning me-1 table-btn tableActionBtnShowItem" href="#" data-id="${row.id}"><i class="fa fa-eye" aria-hidden="true"></i></a>`
-        const btnEdit = `<a class="btn btn-outline-info me-1 table-btn tableActionBtnEditItem" href="#" data-id="${row.id}"><i class="fa fa-edit" aria-hidden="true"></i></a>`
+        const btnShow = `<a class="btn btn-outline-warning me-1 tableActionBtn tableActionBtnShowItem" href="#" data-id="${row.id}"><i class="fa fa-eye" aria-hidden="true"></i></a>`
+        const btnEdit = `<a class="btn btn-outline-info me-1 tableActionBtn tableActionBtnEditItem" href="#" data-id="${row.id}"><i class="fa fa-edit" aria-hidden="true"></i></a>`
         const btnDelete = `<a class="btn btn-outline-danger tableActionBtn tableActionBtnDeleteItem" href="#" data-id="${row.id}"><i class="fa fa-trash" aria-hidden="true"></i></a>`
-        return `<div class="d-flex justify-content-center">${btnEdit + btnDelete}</div>`
+        return `<div class="d-flex align-content-center justify-content-center">${btnShow + btnEdit + btnDelete}</div>`
       },
     },
   ]
 
+  const showItems = []
+
   const fetchGet = async () => {
     try {
-      const data = await getData(apiResource.get)
-      setData(data)
+      const response = await getData(apiResource.get)
+      setData(response)
     } catch (err) {
       setError(err)
     } finally {
@@ -110,12 +88,7 @@ const Typerepondant = () => {
   }
 
   useEffect(() => {
-    let timerId = setInterval(() => {
-      fetchGet()
-    }, 2000)
-    return () => {
-      clearInterval(timerId)
-    }
+    fetchGet()
   }, [])
 
   useEffect(() => {
@@ -140,7 +113,6 @@ const Typerepondant = () => {
             buttons: [
               {
                 text: '<i class="fa fa-plus me-1" aria-hidden="true"></i>Ajouter',
-                // titleAttr: "Ajouter",
                 className: 'dt-btn datatable-button rounded dt-btnCreate btnCreate',
                 enabled: true,
                 action: () => {
@@ -240,6 +212,10 @@ const Typerepondant = () => {
       })
   }, [data, columns])
 
+  // Actions
+
+  //=== Launch modals
+
   // === Show item
   $('#myTable tbody').on('click', '.tableActionBtnShowItem', async function (e) {
     e.preventDefault()
@@ -251,25 +227,21 @@ const Typerepondant = () => {
   // === Edit item
   $('#myTable tbody').on('click', '.tableActionBtnEditItem', async function (e) {
     e.preventDefault()
-    setIndexAlert(null)
-    setCreateAlert(null)
     const id = $(this).data('id')
-    await getItem(apiResource.show.replace(':id', id)).then((response) => {
-      if (response.success) {
-        if (createFormRef.current && createFormBtnLaunchRef.current) {
-          const r = response.data
-          setCreateFormAction('edit')
-          createFormRef.current.setAttribute('create-data-action', 'edit')
-          createFormRef.current.setAttribute('create-data-id', id)
-          $('#code').val(r.tyrcode)
-          $('#libelle').val(r.tyrlibelle)
-          $('input[name="active"][value="' + r.tyractive + '"]').prop('checked', true)
-          createFormBtnLaunchRef.current.click()
-        }
-      } else {
-        //
+    const response = await getItem(apiResource.show.replace(':id', id))
+    if (createFormRef.current && createFormBtnLaunchRef.current) {
+      if (response) {
+        setCreateAlert(null)
+        setCreateFormAction('edit')
+        createFormRef.current.setAttribute('create-data-action', 'edit')
+        createFormRef.current.setAttribute('create-data-id', id)
+        $('#libelle').val(response.rlelibelle)
+        $('#lien').val(response.rlelien)
+        $('#description').val(response.rledescription)
+        $('input[name="active"][value="' + response.rleactive + '"]').prop('checked', true)
+        createFormBtnLaunchRef.current.click()
       }
-    })
+    }
   })
   //
   const handleCancelCreateForm = () => {
@@ -290,23 +262,30 @@ const Typerepondant = () => {
       const formData = new FormData(createFormRef.current)
       const formValues = Object.fromEntries(formData)
       if (action === 'create') {
-        await createItem(apiResource.create, formValues).then((response) => {
-          if (response.success) {
-            createFormBtnResetRef.current.click()
-          }
+        const response = await createItem(apiResource.create, formValues)
+        // Succès
+        if (response.status === 200) {
           setCreateAlert(response)
-        })
+          // $('#libelle').val('')
+          createFormBtnResetRef.current.click()
+        }
+        // Echec
+        if (response.status === 201) {
+          setCreateAlert(response)
+        }
       }
       if (action === 'edit') {
-        await updateItem(apiResource.update.replace(':id', id), formValues).then((response) => {
-          if (response.success) {
-            setIndexAlert(response)
-            createFormBtnResetRef.current.click()
-            createFormBtnCloseRef.current.click()
-          } else {
-            setCreateAlert(response)
-          }
-        })
+        const response = await updateItem(apiResource.update.replace(':id', id), formValues)
+        // Succès
+        if (response.status === 200) {
+          setIndexAlert(response.data)
+          createFormBtnResetRef.current.click()
+          createFormBtnCloseRef.current.click()
+        }
+        // Echec
+        if (response.status === 201) {
+          setCreateAlert(response.data)
+        }
       }
     }
     fetchGet()
@@ -316,20 +295,15 @@ const Typerepondant = () => {
   // === Delete item
   $('#myTable tbody').on('click', '.tableActionBtnDeleteItem', async function (e) {
     e.preventDefault()
-    setIndexAlert(null)
-    setCreateAlert(null)
     const id = $(this).data('id')
-    await getItem(apiResource.show.replace(':id', id)).then((response) => {
-      if (deleteFormRef.current && deleteFormBtnLaunchRef.current) {
-        if (response.success) {
-          deleteFormRef.current.setAttribute('delete-data-action', 'delete')
-          deleteFormRef.current.setAttribute('delete-data-id', id)
-          deleteFormBtnLaunchRef.current.click()
-        } else {
-          //
-        }
+    const response = await getItem(apiResource.show.replace(':id', id))
+    if (deleteFormRef.current && deleteFormBtnLaunchRef.current) {
+      if (response) {
+        deleteFormRef.current.setAttribute('delete-data-action', 'delete')
+        deleteFormRef.current.setAttribute('delete-data-id', id)
+        deleteFormBtnLaunchRef.current.click()
       }
-    })
+    }
   })
   //
   const handleCancelDeleteForm = () => {
@@ -346,12 +320,9 @@ const Typerepondant = () => {
       const action = deleteFormRef.current.getAttribute('delete-data-action')
       const id = deleteFormRef.current.getAttribute('delete-data-id')
       if (action === 'delete') {
-        await deleteItem(apiResource.delete.replace(':id', id)).then((response) => {
-          if (response.success) {
-            deleteFormBtnCloseRef.current.click()
-          }
-          setIndexAlert(response)
-        })
+        const response = await deleteItem(apiResource.delete.replace(':id', id))
+        setIndexAlert(response)
+        deleteFormBtnCloseRef.current.click()
       }
     }
     fetchGet()
@@ -386,23 +357,9 @@ const Typerepondant = () => {
     <div className="container">
       <div className="row">
         <div className="col-md-12 offset-md-0">
-          {/* Alerts */}
-          {indexAlert && (
-            <div
-              className="card mb-2"
-              style={{
-                backgroundColor: colors[indexAlert.type],
-                borderColor: colors[indexAlert.type],
-              }}
-            >
-              <div className="card-body py-1">
-                <CustomIndexAlert alert={indexAlert} />
-              </div>
-            </div>
-          )}
-          {/*  */}
           {/* List */}
           <div className="table-responsive p-2">
+            <CustomIndexAlert alert={indexAlert} />
             <table
               ref={tableRef}
               id="myTable"
@@ -459,45 +416,14 @@ const Typerepondant = () => {
                     ></button>
                   </div>
                   <div className="modal-body">
-                    {/* Alerts */}
-                    {createAlert && (
-                      <div
-                        className="card mb-2"
-                        style={{
-                          backgroundColor: colors[createAlert.type],
-                          borderColor: colors[createAlert.type],
-                        }}
-                      >
-                        <div className="card-body py-1">
-                          <CustomCreateAlert alert={createAlert} />
-                        </div>
-                      </div>
-                    )}
-                    {/* Required */}
                     <div className="d-flex pb-1">
                       <CustomRequired tagP={true} />
+                      <CustomCreateAlert alert={createAlert} />
                     </div>
-                    {/*  */}{' '}
+
                     <div className="card">
                       <div className="card-body">
-                        {/* Code */}
-                        <div className="mb-2">
-                          <label htmlFor="code" className="form-label mb-0">
-                            Code
-                            <CustomRequired />
-                          </label>
-                          <div className="">
-                            <input
-                              type="text"
-                              className="form-control"
-                              id="code"
-                              name="code"
-                              required
-                              autoFocus
-                            />
-                          </div>
-                        </div>
-                        {/* Libelle */}
+                        {/* Libellé */}
                         <div className="mb-2">
                           <label htmlFor="libelle" className="form-label mb-0">
                             Libellé
@@ -511,6 +437,36 @@ const Typerepondant = () => {
                               name="libelle"
                               required
                             />
+                          </div>
+                        </div>
+                        {/* Lien */}
+                        <div className="mb-2">
+                          <label htmlFor="lien" className="form-label mb-0">
+                            Lien
+                            <CustomRequired />
+                          </label>
+                          <div className="">
+                            <input
+                              type="text"
+                              className="form-control"
+                              id="lien"
+                              name="lien"
+                              required
+                            />
+                          </div>
+                        </div>
+                        {/* Description */}
+                        <div className="mb-2">
+                          <label htmlFor="description" className="form-label mb-0">
+                            Description
+                          </label>
+                          <div className="">
+                            <textarea
+                              className="form-control"
+                              rows={2}
+                              id="description"
+                              name="description"
+                            ></textarea>
                           </div>
                         </div>
                         {/* Est activé */}
@@ -548,20 +504,24 @@ const Typerepondant = () => {
                   <div className="modal-footer border-0 py-0">
                     <button
                       type="submit"
-                      className="btn custom-btn-success text-white createModalBtnSave"
+                      className="btn custom-btn-primary text-white createModalBtnSave"
                     >
                       <i className="fa fa-check me-1" aria-hidden="true"></i>
                       Valider
                     </button>
                     <button
                       type="button"
-                      className="btn custom-btn-secondary createModalBtnCancel"
+                      className="btn btn-secondary createModalBtnCancel"
                       data-bs-dismiss="modal"
                       onClick={handleCancelCreateForm}
                     >
                       <i className="fa fa-close me-1" aria-hidden="true"></i>Annuler
                     </button>
-                    <button ref={createFormBtnResetRef} type="reset" className="btn d-none">
+                    <button
+                      ref={createFormBtnResetRef}
+                      type="reset"
+                      className="btn btn-secondary d-none"
+                    >
                       <i className="fa fa-refresh me-1" aria-hidden="true"></i>
                       Reset
                     </button>
@@ -625,14 +585,14 @@ const Typerepondant = () => {
                   <div className="modal-footer border-0 py-1">
                     <button
                       type="button"
-                      className="btn custom-btn-secondary btn-submit"
+                      className="btn btn-secondary btn-submit"
                       data-bs-dismiss="modal"
                       onClick={handleCancelDeleteForm}
                     >
-                      <i className="fa fa-close me-1" aria-hidden="true"></i>
+                      <i className="fa fa-close me-1 btn-cancel" aria-hidden="true"></i>
                       Annuler
                     </button>
-                    <button type="submit" className="btn custom-btn-danger">
+                    <button type="submit" className="btn btn-primary">
                       <i className="fa fa-trash me-1" aria-hidden="true"></i>
                       Supprimer
                     </button>
@@ -648,4 +608,4 @@ const Typerepondant = () => {
   )
 }
 
-export default Typerepondant
+export default Permission

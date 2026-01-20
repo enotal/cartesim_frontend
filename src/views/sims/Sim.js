@@ -17,17 +17,19 @@ import 'datatables.net-buttons-bs5/js/buttons.bootstrap5.js'
 import 'datatables.net-bs5/css/dataTables.bootstrap5.css'
 import 'datatables.net-bs5/js/dataTables.bootstrap5.js'
 //
-import { getData, getItem, createItem, updateItem, deleteItem } from '../../apiService'
+import { getData, getItem, createItem, updateItem, deleteItem, getItemBy } from '../../apiService'
 import { CustomRequired } from '../../components/CustomRequired'
 import { CustomIndexAlert } from '../../components/CustomIndexAlert'
 import { CustomCreateAlert } from '../../components/CustomCreateAlert'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus, faEdit } from '@fortawesome/free-solid-svg-icons'
-import { actives, sexes, colors, repondantColumnToImport } from '../../constants'
+import { actives, colors, simColumnToImport } from '../../constants'
 import * as XLSX from 'xlsx'
+import { isEmpty } from 'validator'
 
-const Repondant = () => {
+const Sim = () => {
   const tableRef = useRef()
+  const tableDemandeRef = useRef()
   const createFormRef = useRef()
   const deleteFormRef = useRef()
   const createFormBtnLaunchRef = useRef()
@@ -39,48 +41,75 @@ const Repondant = () => {
   const importFormBtnLaunchRef = useRef()
   const importFormBtnCloseRef = useRef()
   const importFormBtnResetRef = useRef()
+  const attributeFormRef = useRef()
+  const attributeFormBtnLaunchRef = useRef()
+  const attributeFormBtnCloseRef = useRef()
+  const attributeFormBtnResetRef = useRef()
+  const dissocierFormRef = useRef()
+  const dissocierFormBtnLaunchRef = useRef()
+  const dissocierFormBtnCloseRef = useRef()
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [indexAlert, setIndexAlert] = useState(null)
   const [createAlert, setCreateAlert] = useState(null)
   const [createFormAction, setCreateFormAction] = useState(null)
-  const [typerepondants, setTyperepondants] = useState([])
   const [excelData, setExcelData] = useState([])
   const [importColumns, setImportColumns] = useState([])
+  const [attribute, setAttribute] = useState([])
+  const [sims, setSims] = useState([])
+  const [demandes, setDemandes] = useState([])
+  const [anneeacademiques, setAnneeacademiques] = useState([])
+  const [regions, setRegions] = useState([])
+  const [provinces, setProvinces] = useState([])
+  const [delay, SetDelay] = useState(2000)
 
   const apiResource = {
-    get: 'repondants',
-    show: 'repondants/:id',
-    create: 'repondants',
-    update: 'repondants/:id',
-    delete: 'repondants/:id',
+    get: 'sims',
+    show: 'sims/:id',
+    create: 'sims',
+    update: 'sims/:id',
+    delete: 'sims/:id',
   }
 
   const columns = [
     { title: 'ID', data: 'id' },
-    { title: 'IDENTIFIANT', data: 'repidentifiant' },
-    { title: 'SEXE', data: 'repsexe' },
-    { title: 'EMAIL', data: 'repemail' },
+    { title: 'NUMERO', data: 'simnumero' },
+    { title: 'CODE', data: 'simcode' },
     {
-      title: 'TYPE',
+      title: 'ANNEE ACAD.',
       data: null,
       render: (data, type, row) => {
-        return row.typerepondant.tyrlibelle
+        return row.anneeacademique ? row.anneeacademique.acacode : ''
       },
     },
     {
-      title: 'DEMANDES',
+      title: 'DEMANDE',
       data: null,
       render: (data, type, row) => {
-        return row.demandes && row.demandes.length
+        return row.demande ? row.demande.dmdcode : ''
       },
     },
     {
-      title: 'ACTIVE',
+      title: 'PROVINCE',
       data: null,
       render: (data, type, row) => {
-        return `<div class="d-flex justify-content-center align-content-center ${row.repactive === 'oui' ? 'text-success' : 'text-danger'}"><i class="fa fa-circle " aria-hidden="true"></i></div>`
+        return row.province && row.province.prvnom
+      },
+    },
+    {
+      title: 'REGION',
+      data: null,
+      render: (data, type, row) => {
+        return row.region && row.region.rgnnom
+      },
+    },
+    {
+      title: 'DATE REMISE',
+      data: null,
+      render: (data, type, row) => {
+        const d = row.simdateremise !== null ? new Date(row.simdateremise) : null
+        return d !== null ? d.toLocaleDateString() : ''
       },
     },
     {
@@ -88,18 +117,25 @@ const Repondant = () => {
       data: null,
       render: (data, type, row) => {
         // Détails, Edit, Delete
-        // const btnShow = `<a class="btn btn-outline-warning me-1 tableActionBtn tableActionBtnShowItem" href="#" data-id="${row.id}"><i class="fa fa-eye" aria-hidden="true"></i></a>`
-        const btnEdit = `<a class="btn btn-outline-info me-1 tableActionBtn tableActionBtnEditItem" href="#" data-id="${row.id}"><i class="fa fa-edit" aria-hidden="true"></i></a>`
-        const btnDelete = `<a class="btn btn-outline-danger tableActionBtn tableActionBtnDeleteItem" href="#" data-id="${row.id}"><i class="fa fa-trash" aria-hidden="true"></i></a>`
-        return `<div class="d-flex align-content-center justify-content-center">${btnEdit + btnDelete}</div>`
+        // const btnShow = `<a class="btn btn-outline-warning me-1 tableActionBtn tableActionBtnShowItem" href="#" data-id="${row.id}" title="Voir les détails"><i class="fa fa-eye" aria-hidden="true"></i></a>`
+        const btnEdit = `<a class="btn btn-outline-info me-1 tableActionBtn tableActionBtnEditItem" href="#" data-id="${row.id}" title="Editer"><i class="fa fa-edit" aria-hidden="true"></i></a>`
+        const btnDelete = `<a class="btn btn-outline-danger me-1 tableActionBtn tableActionBtnDeleteItem" href="#" data-id="${row.id}" title="Supprimer"><i class="fa fa-trash" aria-hidden="true"></i></a>`
+        return `<div class="d-flex">${btnEdit + btnDelete}</div>`
       },
     },
   ]
 
+  const demandeColumns = [
+    { title: 'ID', data: 'id' },
+    { title: 'CODE', data: 'dmdcode' },
+    { title: 'REPONDANT', data: 'repondant.repidentifiant' },
+  ]
+
   const fetchGet = async () => {
     try {
-      const data = await getData(apiResource.get)
-      setData(data)
+      const response = await getData(apiResource.get)
+      setData(response)
+      setSims(response.filter((item) => item.demande_id === null && item.region_id === null))
     } catch (err) {
       setError(err)
     } finally {
@@ -107,10 +143,18 @@ const Repondant = () => {
     }
   }
 
-  const fetchGetTyperepondant = async () => {
-    await getData('typerepondants')
+  const fetchGetAnneeacademique = async () => {
+    await getData('anneeacademiques')
       .then((response) => {
-        setTyperepondants(response)
+        setAnneeacademiques(response)
+      })
+      .catch((err) => console.log(err))
+  }
+
+  const fetchGetRegion = async () => {
+    await getData('regions')
+      .then((response) => {
+        setRegions(response)
       })
       .catch((err) => console.log(err))
   }
@@ -118,8 +162,9 @@ const Repondant = () => {
   useEffect(() => {
     // let timerId = setInterval(() => {
     fetchGet()
-    fetchGetTyperepondant()
-    // }, 2000)
+    fetchGetAnneeacademique()
+    fetchGetRegion()
+    // }, delay)
     // return () => {
     //   clearInterval(timerId)
     // }
@@ -151,6 +196,7 @@ const Repondant = () => {
                 enabled: true,
                 action: () => {
                   if (createFormRef.current && createFormBtnLaunchRef.current) {
+                    setCreateAlert(null)
                     setCreateFormAction('create')
                     createFormRef.current.setAttribute('create-data-action', 'create')
                     createFormRef.current.setAttribute('create-data-id', '')
@@ -161,7 +207,7 @@ const Repondant = () => {
               {
                 text: '<i class="fa fa-trash me-1" aria-hidden="true"></i>Tout supprimer',
                 className: 'dt-btn datatable-button rounded dt-btnCreate btnDeleteAll ms-2',
-                enabled: data.length > 0 ? true : false,
+                enabled: data && data.length > 0 ? true : false,
                 action: () => {
                   if (deleteFormRef.current && deleteFormBtnLaunchRef.current) {
                     setIndexAlert(null)
@@ -183,9 +229,26 @@ const Repondant = () => {
                 action: () => {
                   if (importFormRef.current && importFormBtnLaunchRef.current) {
                     //   setCreateFormAction('create')
+                    setIndexAlert(null)
+                    setCreateAlert(null)
                     importFormRef.current.setAttribute('form-action', 'import')
                     importFormRef.current.setAttribute('target-id', '')
                     importFormBtnLaunchRef.current.click()
+                  }
+                },
+              },
+              {
+                text: '<i class="fa fa-paper-plane me-1" aria-hidden="true"></i>Attribuer aux régions',
+                className: 'dt-btn datatable-button rounded dt-btnAttribute btnAttribute ms-2',
+                enabled: regions && sims && regions.length > 0 && sims.length > 0 ? true : false,
+                action: () => {
+                  if (attributeFormRef.current && attributeFormBtnLaunchRef.current) {
+                    //   setCreateFormAction('create')
+                    // setAttribute('multiple')
+                    // const d = demandes && demandes.length + ' demande(s) à satisfaire avec '
+                    // const s = sims && sims.length + ' carte(s) SIM !'
+                    // $('#attributeFormHeader').text(d + s)
+                    attributeFormBtnLaunchRef.current.click()
                   }
                 },
               },
@@ -245,6 +308,25 @@ const Repondant = () => {
       })
     }
 
+    if (tableDemandeRef.current) {
+      $(tableDemandeRef.current).DataTable({
+        data: demandes,
+        columns: demandeColumns,
+        responsive: true,
+        destroy: true,
+        fixedHeader: true,
+        scrollCollapse: true,
+        scroller: true,
+        // scrollY: 800,
+        paging: true,
+        info: true,
+        autoWidth: true,
+        language,
+        columnDefs: [{ targets: '_all', orderable: false }],
+        select: true,
+      })
+    }
+
     // === DATATABLE ACTIONS : create, show, edit, delete
     $('#myTable')
       .DataTable()
@@ -256,17 +338,35 @@ const Repondant = () => {
         dt.buttons(['.btnEdit']).enable(selectedRowsCount === 1)
         dt.button(['.btnDelete']).enable(selectedRowsCount > 0)
       })
+
+    $('#myTableDemande')
+      .DataTable()
+      .on('select', function (e, dt, type, indexes) {
+        var selectedRowId = dt.rows({ selected: true }).data()[0].id
+        if (attributeFormRef.current) {
+          attributeFormRef.current.setAttribute('data-demande', selectedRowId)
+        }
+      })
   }, [data, columns])
 
   // Actions
 
   //=== Launch modals
 
+  // === Show item
+  $('#myTable tbody').on('click', '.tableActionBtnShowItem', async function (e) {
+    e.preventDefault()
+    // const id = $(this).data('id')
+    // const response = await getItem(apiResource.show.replace(':id', id))
+  })
+  //
+
   // === Edit item
   $('#myTable tbody').on('click', '.tableActionBtnEditItem', async function (e) {
     e.preventDefault()
     setIndexAlert(null)
     setCreateAlert(null)
+    // SetDelay(25000)
     const id = $(this).data('id')
     await getItem(apiResource.show.replace(':id', id)).then((response) => {
       if (response.success) {
@@ -275,14 +375,17 @@ const Repondant = () => {
           setCreateFormAction('edit')
           createFormRef.current.setAttribute('create-data-action', 'edit')
           createFormRef.current.setAttribute('create-data-id', id)
-          $('#typerepondant').val(r.typerepondant_id)
-          $('#identifiant').val(r.repidentifiant)
-          $('input[name="sexe"][value="' + r.repsexe + '"]').prop('checked', true)
-          $('#email').val(r.repemail)
-          $('#identifiant').prop('disabled', true)
-          // $('#identifiant').css('background-color', '#e7eaee')
-          // $('#identifiant').css('cursor', 'default')
-          $('input[name="active"][value="' + r.repactive + '"]').prop('checked', true)
+          $('#anneeacademique').val(r.anneeacademique_id)
+          // $('#region').val(r.region_id)
+          // $('#province').val(r.province_id)
+          $('#code').val(r.simcode)
+          $('#numero').val(r.simnumero)
+          $('#dateactivation').val(r.simdateactivation)
+          $('#dateremise').val(r.simdateremise)
+          $('#datesuspension').val(r.simdatesuspension)
+          $('#dateretrait').val(r.simdateretrait)
+          $('input[name="perdue"][value="' + r.simperdue + '"]').prop('checked', true)
+          $('#commentaire').val(r.simcommentaire)
           createFormBtnLaunchRef.current.click()
         }
       } else {
@@ -317,7 +420,6 @@ const Repondant = () => {
         })
       }
       if (action === 'edit') {
-        formValues.identifiant = $('#identifiant').val()
         await updateItem(apiResource.update.replace(':id', id), formValues).then((response) => {
           if (response.success) {
             setIndexAlert(response)
@@ -332,14 +434,6 @@ const Repondant = () => {
     fetchGet()
   }
   // ===
-
-  // === Show item
-  $('#myTable tbody').on('click', '.tableActionBtnShowItem', async function (e) {
-    e.preventDefault()
-    // const id = $(this).data('id')
-    // const response = await getItem(apiResource.show.replace(':id', id))
-  })
-  //
 
   // === Delete item
   $('#myTable tbody').on('click', '.tableActionBtnDeleteItem', async function (e) {
@@ -386,6 +480,40 @@ const Repondant = () => {
   }
   // ===
 
+  // === Attribute to a demand
+  $('#myTable tbody').on('click', '.tableActionBtnDemandeItem', async function (e) {
+    e.preventDefault()
+    if (attributeFormRef.current && attributeFormBtnLaunchRef.current) {
+      const sim = $(this).data('sim')
+      const numero = $(this).data('numero')
+      attributeFormRef.current.setAttribute('data-sim', sim)
+      setAttribute('unique')
+      $('#attributeFormHeader').text('Attribuer la carte SIM [ ' + numero + ' ] à une demande !')
+      attributeFormBtnLaunchRef.current.click()
+    } else {
+      //
+    }
+  })
+  //
+
+  // === Dissociate to a demand
+  $('#myTable tbody').on('click', '.tableActionBtnDissocierItem', async function (e) {
+    e.preventDefault()
+    if (dissocierFormRef.current && dissocierFormBtnLaunchRef.current) {
+      const numero = $(this).data('numero')
+      const demande = $(this).data('demande')
+      const codedemande = $(this).data('codedemande')
+      dissocierFormRef.current.setAttribute('data-demande', demande)
+      $('#dissocierFormHeader').text(
+        'Dissocier la carte SIM [ ' + numero + ' ] de la demande [ ' + codedemande + ' ] !',
+      )
+      dissocierFormBtnLaunchRef.current.click()
+    } else {
+      //
+    }
+  })
+  //
+
   // === Import form
   const handleCancelImportForm = () => {
     if (importFormRef.current && importFormBtnCloseRef.current) {
@@ -421,7 +549,7 @@ const Repondant = () => {
           let columns = []
           let i = 0
           jsonData[0].map((item, index) => {
-            if (repondantColumnToImport.includes(item.toLowerCase())) {
+            if (simColumnToImport.includes(item.toLowerCase())) {
               columns.push({ key: index, name: item, value: i })
               i++
             }
@@ -436,8 +564,9 @@ const Repondant = () => {
               filterData.push(item.filter((_, index) => columnsKeys.includes(index)))
               // }
             })
-            setExcelData(filterData)
             setIndexAlert(null)
+            setCreateAlert(null)
+            setExcelData(filterData)
           } else {
             // Aucune colonne correspondante dans la liste
             setExcelData([])
@@ -460,12 +589,59 @@ const Repondant = () => {
       const formData = new FormData(importFormRef.current)
       const formValues = Object.fromEntries(formData)
       const data = excelData.filter((_, index) => index > 0)
-      await createItem('repondants/import', {
-        typerepondant: formValues.typerepondant,
+      await createItem('sims/import', {
+        anneeacademique: formValues.anneeacademique,
         columns: importColumns,
         imports: data,
       }).then((response) => {
         setCreateAlert(response)
+      })
+      fetchGet()
+    }
+  }
+  // ===
+
+  // === Attribute form
+
+  const handleAnneeacademique = (e) => {
+    const { name, value } = e.target
+    if (value) {
+      setSims(
+        data.filter(
+          (item) =>
+            item.demande_id === null &&
+            item.region_id === null &&
+            item.anneeacademique_id === parseInt(value),
+        ),
+      )
+    } else {
+      setSims(data.filter((item) => item.demande_id === null && item.region_id === null))
+    }
+  }
+
+  const handleCancelAttributeForm = () => {
+    if (importFormRef.current && importFormBtnCloseRef.current) {
+      importFormRef.current.setAttribute('form-action', '')
+      importFormRef.current.setAttribute('target-id', '')
+      setExcelData([])
+      importFormBtnResetRef.current.click()
+      importFormBtnCloseRef.current.click()
+    }
+  }
+
+  const handleSubmitAttributeForm = async (e) => {
+    e.preventDefault()
+    // récupération des données de la liste
+    if (attributeFormRef.current && attributeFormBtnCloseRef.current) {
+      const formData = new FormData(attributeFormRef.current)
+      const formValues = Object.fromEntries(formData)
+      await createItem('sims/attribuer/regions', formValues).then((response) => {
+        if (response.success) {
+          if (attributeFormRef.current && attributeFormBtnCloseRef.current) {
+            attributeFormBtnCloseRef.current.click()
+          }
+        }
+        setIndexAlert(response)
       })
       fetchGet()
     }
@@ -552,7 +728,7 @@ const Repondant = () => {
               aria-labelledby="createModal"
               aria-hidden="true"
             >
-              <div className="modal-dialog modal-dialog-scrollable">
+              <div className="modal-dialog modal-lg">
                 <div className="modal-content">
                   <div className="modal-header py-1 bg-primary">
                     <h5 className="modal-title  fw-bold text-light" id="createModalLabel">
@@ -573,126 +749,205 @@ const Repondant = () => {
                     ></button>
                   </div>
                   <div className="modal-body">
+                    {/* Alerts */}
+                    {createAlert && (
+                      <div
+                        className="card mb-2"
+                        style={{
+                          backgroundColor: colors[createAlert.type],
+                          borderColor: colors[createAlert.type],
+                        }}
+                      >
+                        <div className="card-body py-1">
+                          <CustomCreateAlert alert={createAlert} />
+                        </div>
+                      </div>
+                    )}
+                    {/* Required */}
                     <div className="d-flex pb-1">
                       <CustomRequired tagP={true} />
-                      <CustomCreateAlert alert={createAlert} />
                     </div>
-
+                    {/*  */}
                     <div className="card">
                       <div className="card-body">
-                        {/* Type repondant */}
+                        {/* Année académique */}
                         <div className="mb-2">
-                          <label htmlFor="typerepondant" className="form-label mb-0">
-                            Type de répondant
+                          <label htmlFor="anneeacademique" className="form-label mb-0">
+                            Année académique
                             <CustomRequired />
                           </label>
                           <div className="">
                             <select
                               className="form-select"
                               aria-label="Default select example"
-                              id="typerepondant"
-                              name="typerepondant"
+                              id="anneeacademique"
+                              name="anneeacademique"
                               required
-                              autoFocus
                             >
                               <option value="">Sélectionner ici !</option>
-                              {typerepondants.map((typerepondant, index) => {
-                                return (
-                                  <option
-                                    value={typerepondant.id}
-                                    key={'typerepondant-item-' + index}
-                                  >
-                                    {index + 1 + '. ' + typerepondant.tyrlibelle}
-                                  </option>
-                                )
-                              })}
+                              {anneeacademiques.map((anneeacademique, index) => (
+                                <option
+                                  value={anneeacademique.id}
+                                  key={'anneeacademique-item-' + index}
+                                >
+                                  {index + 1 + '. ' + anneeacademique.acacode}
+                                </option>
+                              ))}
                             </select>
                           </div>
                         </div>
-                        {/* Identifiant */}
+                        {/* Code & Numéro */}
+                        <div className="row">
+                          {/* Numéro */}
+                          <div className="col-md-6 mb-2">
+                            <label htmlFor="numero" className="form-label mb-0">
+                              Numéro
+                              <CustomRequired />
+                            </label>
+                            <div className="">
+                              <input
+                                type="text"
+                                className="form-control"
+                                id="numero"
+                                name="numero"
+                                required
+                              />
+                            </div>
+                          </div>
+                          {/* Code */}
+                          <div className="col-md-6 mb-2">
+                            <label htmlFor="code" className="form-label mb-0">
+                              Code
+                            </label>
+                            <div className="">
+                              <input type="text" className="form-control" id="code" name="code" />
+                            </div>
+                          </div>
+                        </div>
+                        {/* Date activation & Date remise */}
+                        <div className="row">
+                          {/* Date activation */}
+                          <div className="col-md-6 mb-2">
+                            <label htmlFor="dateactivation" className="form-label mb-0">
+                              Date activation
+                            </label>
+                            <div className="">
+                              <input
+                                type="date"
+                                className="form-control"
+                                id="dateactivation"
+                                name="dateactivation"
+                              />
+                            </div>
+                          </div>
+                          {/* Date remise */}
+                          <div className="col-md-6 mb-2">
+                            <label htmlFor="dateremise" className="form-label mb-0">
+                              Date remise
+                            </label>
+                            <div className="">
+                              <input
+                                type="date"
+                                className="form-control"
+                                id="dateremise"
+                                name="dateremise"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                        {/* Date suspension & Date retrait */}
+                        <div className="row">
+                          {/* Date suspension */}
+                          <div className="col-md-6 mb-2">
+                            <label htmlFor="datesuspension" className="form-label mb-0">
+                              Date suspension
+                            </label>
+                            <div className="">
+                              <input
+                                type="date"
+                                className="form-control"
+                                id="datesuspension"
+                                name="datesuspension"
+                              />
+                            </div>
+                          </div>
+                          {/* Date retrait */}
+                          <div className="col-md-6 mb-2">
+                            <label htmlFor="dateretrait" className="form-label mb-0">
+                              Date retrait
+                            </label>
+                            <div className="">
+                              <input
+                                type="date"
+                                className="form-control"
+                                id="dateretrait"
+                                name="dateretrait"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                        {/* Sim perdue & Déclaration perte */}
+                        <div className="row">
+                          {/* Sim perdue ? */}
+                          <div className="col-md-6 mb-2">
+                            <label htmlFor="perdue" className="form-label mb-0">
+                              Perdue
+                            </label>
+                            <div className="">
+                              {actives.map((active, index) => {
+                                return (
+                                  <div
+                                    className="form-check form-check-inline"
+                                    key={'perdue-item-' + index}
+                                  >
+                                    <input
+                                      className="form-check-input"
+                                      type="radio"
+                                      name="perdue"
+                                      id={'perdue' + index}
+                                      value={active}
+                                      // defaultChecked={
+                                      //   createFormAction === 'create' && active === 'non'
+                                      //     ? true
+                                      //     : false
+                                      // }
+                                    />
+                                    <label className="form-check-label" htmlFor={'perdue' + index}>
+                                      {active}
+                                    </label>
+                                  </div>
+                                )
+                              })}
+                            </div>
+                          </div>
+                          {/* Déclaration perte */}
+                          <div className="col-md-6 mb-2">
+                            <label htmlFor="declarationperte" className="form-label mb-0">
+                              Déclaration perte
+                            </label>
+                            <div className="">
+                              <input
+                                type="file"
+                                className="form-control"
+                                id="declarationperte"
+                                name="declarationperte"
+                                accept="application/pdf"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                        {/* Commentaire */}
                         <div className="mb-2">
-                          <label htmlFor="identifiant" className="form-label mb-0">
-                            Identifiant
-                            <CustomRequired />
+                          <label htmlFor="commentaire" className="form-label mb-0">
+                            Commentaire
                           </label>
                           <div className="">
-                            <input
-                              type="text"
+                            <textarea
                               className="form-control"
-                              id="identifiant"
-                              name="identifiant"
-                              required
-                            />
-                          </div>
-                        </div>
-                        {/* Sexe */}
-                        <div className="">
-                          <label htmlFor="sexe" className="form-label mb-0">
-                            Sexe
-                          </label>
-                          <div className="">
-                            {sexes.map((sexe, index) => {
-                              return (
-                                <div
-                                  className="form-check form-check-inline"
-                                  key={'sexe-item-' + index}
-                                >
-                                  <input
-                                    className="form-check-input"
-                                    type="radio"
-                                    name="sexe"
-                                    id={'sexe' + index}
-                                    value={sexe}
-                                  />
-                                  <label className="form-check-label" htmlFor={'sexe' + index}>
-                                    {sexe}
-                                  </label>
-                                </div>
-                              )
-                            })}
-                          </div>
-                        </div>
-                        {/* Email */}
-                        <div className="mb-2">
-                          <label htmlFor="email" className="form-label mb-0">
-                            Email
-                            <CustomRequired />
-                          </label>
-                          <div className="">
-                            <input
-                              type="email"
-                              className="form-control"
-                              id="email"
-                              name="email"
-                              required
-                            />
-                          </div>
-                        </div>
-                        {/* Est activé */}
-                        <div className="">
-                          <label htmlFor="active" className="form-label mb-0">
-                            Activé
-                          </label>
-                          <div className="">
-                            {actives.map((active, index) => {
-                              return (
-                                <div
-                                  className="form-check form-check-inline"
-                                  key={'active-item-' + index}
-                                >
-                                  <input
-                                    className="form-check-input"
-                                    type="radio"
-                                    name="active"
-                                    id={'active' + index}
-                                    value={active}
-                                  />
-                                  <label className="form-check-label" htmlFor={'active' + index}>
-                                    {active}
-                                  </label>
-                                </div>
-                              )
-                            })}
+                              rows={2}
+                              id="commentaire"
+                              name="commentaire"
+                            ></textarea>
                           </div>
                         </div>
                         {/*  */}
@@ -700,10 +955,7 @@ const Repondant = () => {
                     </div>
                   </div>
                   <div className="modal-footer border-0 py-0">
-                    <button
-                      type="submit"
-                      className="btn custom-btn-success text-white createModalBtnSave"
-                    >
+                    <button type="submit" className="btn custom-btn-success createModalBtnSave">
                       <i className="fa fa-check me-1" aria-hidden="true"></i>
                       Valider
                     </button>
@@ -786,7 +1038,7 @@ const Repondant = () => {
                       <i className="fa fa-close me-1" aria-hidden="true"></i>
                       Annuler
                     </button>
-                    <button type="submit" className="btn custom-btn-success">
+                    <button type="submit" className="btn custom-btn-danger">
                       <i className="fa fa-trash me-1" aria-hidden="true"></i>
                       Supprimer
                     </button>
@@ -795,7 +1047,6 @@ const Repondant = () => {
               </div>
             </div>
           </form>
-          {/*  */}
           {/* Import form */}
           <form
             ref={importFormRef}
@@ -824,7 +1075,7 @@ const Repondant = () => {
               aria-labelledby="importModal"
               aria-hidden="true"
             >
-              <div className="modal-dialog modal-lg">
+              <div className="modal-dialog modal-lg modal-dialog-scrollable">
                 <div className="modal-content">
                   <div className="modal-header py-1 bg-primary">
                     <h5 className="modal-title  fw-bold text-light" id="importModalLabel">
@@ -861,29 +1112,28 @@ const Repondant = () => {
 
                     <div className="card">
                       <div className="card-body">
-                        {/* Type de répondant */}
+                        {/* Année académique */}
                         <div className="mb-2">
-                          <label htmlFor="typerepondant" className="form-label mb-0">
-                            Type de répondant
+                          <label htmlFor="anneeacademique" className="form-label mb-0">
+                            Année académique
                             <CustomRequired />
                           </label>
                           <div className="">
                             <select
                               className="form-select"
                               aria-label="Default select example"
-                              id="typerepondant"
-                              name="typerepondant"
+                              id="anneeacademique"
+                              name="anneeacademique"
                               required
                               autoFocus
                             >
                               <option value="">Sélectionner ici !</option>
-
-                              {typerepondants.map((typerepondant, index) => (
+                              {anneeacademiques.map((anneeacademique, index) => (
                                 <option
-                                  value={typerepondant.id}
-                                  key={'typerepondant-item-' + index}
+                                  value={anneeacademique.id}
+                                  key={'anneeacademique-item-' + index}
                                 >
-                                  {index + 1 + '. ' + typerepondant.tyrlibelle}
+                                  {index + 1 + '. ' + anneeacademique.acacode}
                                 </option>
                               ))}
                             </select>
@@ -919,7 +1169,7 @@ const Repondant = () => {
                             style={{ backgroundColor: colors['success'] }}
                           >
                             <i className="fa fa-check me-1" aria-hidden="true"></i>
-                            {excelData.length - 1 + ' répondant(s) trouvé(s) !'}
+                            {excelData.length - 1 + ' SIM trouvé(s) !'}
                           </div>
                         )}
 
@@ -964,15 +1214,11 @@ const Repondant = () => {
                             </table>
                           </div>
                         )}
-                        {/*  */}
                       </div>
                     </div>
                   </div>
                   <div className="modal-footer border-0 py-0">
-                    <button
-                      type="submit"
-                      className="btn custom-btn-success text-white importModalBtnSave"
-                    >
+                    <button type="submit" className="btn custom-btn-success importModalBtnSave">
                       <i className="fa fa-check me-1" aria-hidden="true"></i>
                       Valider
                     </button>
@@ -993,6 +1239,185 @@ const Repondant = () => {
               </div>
             </div>
           </form>
+          {/* Attribute form */}
+          <form
+            ref={attributeFormRef}
+            onSubmit={handleSubmitAttributeForm}
+            method="POST"
+            encType=""
+          >
+            <button
+              ref={attributeFormBtnLaunchRef}
+              type="button"
+              className="btn btn-primary d-none"
+              data-bs-toggle="modal"
+              data-bs-target="#attributeModal"
+            >
+              <i className="fa fa-plus me-2" aria-hidden="true"></i>Launch demo static modal
+            </button>
+            {/* <!-- Modal --> */}
+            <div
+              className="modal fade"
+              id="attributeModal"
+              data-bs-backdrop="static"
+              data-bs-keyboard="false"
+              tabIndex="-1"
+              aria-labelledby="attributeModal"
+              aria-hidden="true"
+            >
+              <div className="modal-dialog modal-lg modal-dialog-scrollable">
+                <div className="modal-content">
+                  <div className="modal-header py-1 bg-primary">
+                    <h5 className="modal-title  fw-bold text-light" id="attributeModalLabel">
+                      <i className="fa fa-paper-plane me-1" aria-hidden="true"></i>Attribuer une
+                      carte SIM
+                    </h5>
+                    <button
+                      ref={attributeFormBtnCloseRef}
+                      type="button"
+                      className="btn-close d-none"
+                      data-bs-dismiss="modal"
+                      aria-label="Close"
+                    ></button>
+                  </div>
+                  <div className="modal-body">
+                    {/* Alerts */}
+                    {createAlert && (
+                      <div
+                        className="card mb-2"
+                        style={{
+                          backgroundColor: colors[createAlert.type],
+                          borderColor: colors[createAlert.type],
+                        }}
+                      >
+                        <div className="card-body py-1">
+                          <CustomCreateAlert alert={createAlert} />
+                        </div>
+                      </div>
+                    )}
+                    {/*  */}
+                    <div className="d-flex pb-1">
+                      <CustomRequired tagP={true} />
+                    </div>
+
+                    <div className="card">
+                      <div className="card-body">
+                        {/* Total */}
+                        <div
+                          className="card mb-2"
+                          style={{ backgroundColor: '#056709', borderColor: '#056709' }}
+                        >
+                          <div className="card-body py-1 text-light text-center">
+                            {sims && sims.length + ' carte(s) sim concernée(s)'}
+                          </div>
+                        </div>
+                        {/*  */}
+
+                        {/* Année académique */}
+                        <div className="mb-2">
+                          <label htmlFor="anneeacademique" className="form-label mb-0">
+                            Année académique
+                            <CustomRequired />
+                          </label>
+                          <div className="">
+                            <select
+                              className="form-select"
+                              aria-label="Default select example"
+                              id="anneeacademique"
+                              name="anneeacademique"
+                              required
+                              autoFocus
+                              onChange={handleAnneeacademique}
+                            >
+                              <option value="">Sélectionner ici !</option>
+                              {anneeacademiques.map((anneeacademique, index) => (
+                                <option
+                                  value={anneeacademique.id}
+                                  key={'anneeacademique-item-' + index}
+                                >
+                                  {index + 1 + '. ' + anneeacademique.acacode}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        </div>
+                        {/* Région */}
+                        <div className="mb-2">
+                          <label htmlFor="region" className="form-label mb-0">
+                            Région
+                            <CustomRequired />
+                          </label>
+                          <div className="">
+                            {regions.map((region, index) => (
+                              <div
+                                className="form-check form-check-inline"
+                                key={'region-item-' + index}
+                              >
+                                <input
+                                  className="form-check-input"
+                                  type="radio"
+                                  id={'region-' + region.id}
+                                  name="region"
+                                  value={region.id}
+                                />
+                                <label className="form-check-label" htmlFor={'region-' + region.id}>
+                                  {index +
+                                    1 +
+                                    '. ' +
+                                    region.rgnnom +
+                                    ' (' +
+                                    region.rgncheflieu +
+                                    ')'}
+                                </label>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        {/* Nombre */}
+                        <div className="mb-2">
+                          <label htmlFor="nombre" className="form-label mb-0">
+                            Nombre
+                            <CustomRequired />
+                          </label>
+                          <div className="">
+                            <input
+                              className="form-control"
+                              type="text"
+                              id="nombre"
+                              name="nombre"
+                              required
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="modal-footer border-0 py-0">
+                    <button type="submit" className="btn custom-btn-success attributeModalBtnSave">
+                      <i className="fa fa-check me-1" aria-hidden="true"></i>
+                      Valider
+                    </button>
+                    <button
+                      type="button"
+                      className="btn custom-btn-secondary attributeModalBtnCancel"
+                      data-bs-dismiss="modal"
+                      onClick={handleCancelAttributeForm}
+                    >
+                      <i className="fa fa-close me-1" aria-hidden="true"></i>Fermer
+                    </button>
+                    <button
+                      ref={attributeFormBtnResetRef}
+                      type="reset"
+                      className="btn btn-secondary d-none"
+                    >
+                      <i className="fa fa-refresh me-1" aria-hidden="true"></i>
+                      Reset
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
           {/*  */}
         </div>
       </div>
@@ -1000,4 +1425,4 @@ const Repondant = () => {
   )
 }
 
-export default Repondant
+export default Sim

@@ -1,11 +1,9 @@
-import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { AppContent, AppSidebar, AppHeader } from '../components/index'
 // import myBackground from '../assets/images/background.jpg'
 
 const DefaultLayout = () => {
   return (
-    <div className="defaultLayout-main-container">
+    <div className="defaultLayout-main-container" style={{ backgroundColor: '#fff' }}>
       <AppSidebar />
       <div className="wrapper d-flex flex-column min-vh-100">
         <AppHeader />

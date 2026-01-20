@@ -14,91 +14,148 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 
+// const auth = JSON.parse(localStorage.getItem('cartesim.auth'))
+// const roles = auth ? auth.roles : null
+
 const _nav = [
   {
     component: CNavItem,
     name: 'Tableau de bord',
     to: '/dashboard',
-    user: '*',
+    role: '*',
     icon: <FontAwesomeIcon icon={faPieChart} className="me-1" />,
+  },
+  {
+    component: CNavItem,
+    name: <hr className="my-0" />,
+  },
+  {
+    component: CNavItem,
+    name: 'Années académiques',
+    to: '/anneeacademiques',
+    role: 'administrateur',
+    icon: <FontAwesomeIcon icon={faUsers} className="me-1" />,
+  },
+  {
+    component: CNavItem,
+    name: <hr className="my-0" />,
   },
   {
     component: CNavItem,
     name: 'Types Répondants',
     to: '/typerepondants',
-    user: '*',
+    role: 'administrateur',
     icon: <FontAwesomeIcon icon={faUsers} className="me-1" />,
-  },
-  {
-    component: CNavItem,
-    name: 'Thématiques',
-    to: '/thematiques',
-    user: '*',
-    icon: <FontAwesomeIcon icon={faObjectGroup} className="me-1" />,
-  },
-  {
-    component: CNavItem,
-    name: 'Dimensions',
-    to: '/dimensions',
-    user: '*',
-    icon: <FontAwesomeIcon icon={faPaperPlane} className="me-1" />,
-  },
-  {
-    component: CNavItem,
-    name: 'Variables',
-    to: '/variables',
-    user: '*',
-    icon: <FontAwesomeIcon icon={faCogs} className="me-1" />,
-  },
-  {
-    component: CNavItem,
-    name: 'Questions',
-    to: '/questions',
-    user: '*',
-    icon: <FontAwesomeIcon icon={faHashtag} className="me-1" />,
-  },
-  {
-    component: CNavItem,
-    name: 'Indicateurs',
-    to: '/indicateurs',
-    user: '*',
-    icon: <FontAwesomeIcon icon={faPooStorm} className="me-1" />,
-  },
-  {
-    component: CNavItem,
-    name: 'Questionnaires',
-    to: '/questionnaires',
-    user: '*',
-    icon: <FontAwesomeIcon icon={faTasks} className="me-1" />,
-  },
-  // {
-  //   component: CNavItem,
-  //   name: 'Formulaire',
-  //   to: '/formulaire',
-  //   user: '*',
-  //   icon: <FontAwesomeIcon icon={faFile} className="me-1" />,
-  // },
-  {
-    component: CNavItem,
-    name: 'Résultats',
-    to: '/resultats',
-    user: '*',
-    icon: <FontAwesomeIcon icon={faCubes} className="me-1" />,
-  },
-  {
-    component: CNavItem,
-    name: 'Analyses',
-    to: '/analyses',
-    user: '*',
-    icon: <FontAwesomeIcon icon={faNewspaper} className="me-1" />,
   },
   {
     component: CNavItem,
     name: 'Répondants',
     to: '/repondants',
-    user: '*',
+    role: 'administrateur',
     icon: <FontAwesomeIcon icon={faUsers} className="me-1" />,
   },
+  {
+    component: CNavItem,
+    name: <hr className="my-0" />,
+  },
+  {
+    component: CNavItem,
+    name: 'Régions',
+    to: '/regions',
+    role: 'administrateur',
+    icon: <FontAwesomeIcon icon={faObjectGroup} className="me-1" />,
+  },
+  {
+    component: CNavItem,
+    name: 'Provinces',
+    to: '/provinces',
+    role: 'administrateur',
+    icon: <FontAwesomeIcon icon={faObjectGroup} className="me-1" />,
+  },
+  {
+    component: CNavItem,
+    name: 'Sites',
+    to: '/sites',
+    role: 'administrateur,bcmp,agent-bcmp,point focal',
+    icon: <FontAwesomeIcon icon={faObjectGroup} className="me-1" />,
+  },
+  {
+    component: CNavItem,
+    name: <hr className="my-0" />,
+  },
+  {
+    component: CNavItem,
+    name: 'Sims',
+    to: '/sims',
+    role: 'administrateur,bcmp,daf,agent-bcmp,agent-daf,point-focal',
+    icon: <FontAwesomeIcon icon={faPaperPlane} className="me-1" />,
+  },
+  {
+    component: CNavItem,
+    name: <hr className="my-0" />,
+  },
+  {
+    component: CNavItem,
+    name: 'Sessions demandes',
+    to: '/sessiondemandes',
+    role: 'administrateur,bcmp,daf,agent-bcmp,agent-daf,point-focal',
+    icon: <FontAwesomeIcon icon={faCogs} className="me-1" />,
+  },
+  {
+    component: CNavItem,
+    name: 'Sessions remises',
+    to: '/sessionremises',
+    role: 'administrateur,bcmp,daf,agent-bcmp,agent-daf,point-focal',
+    icon: <FontAwesomeIcon icon={faCogs} className="me-1" />,
+  },
+  {
+    component: CNavItem,
+    name: <hr className="my-0" />,
+  },
+  {
+    component: CNavItem,
+    name: 'Demandes',
+    to: '/demandes',
+    role: 'administrateur,bcmp,daf,agent-bcmp,agent-daf,point-focal',
+    icon: <FontAwesomeIcon icon={faHashtag} className="me-1" />,
+  },
+  {
+    component: CNavItem,
+    name: <hr className="my-0" />,
+  },
+  {
+    component: CNavItem,
+    name: 'Remises',
+    to: '/remises',
+    role: 'administrateur,bcmp,agent-bcmp,point-focal,chargé de remise',
+    icon: <FontAwesomeIcon icon={faHashtag} className="me-1" />,
+  },
+  {
+    component: CNavItem,
+    name: <hr className="my-0" />,
+  },
+  {
+    component: CNavItem,
+    name: 'Rôles',
+    to: '/roles',
+    role: 'administrateur',
+    icon: <FontAwesomeIcon icon={faCubes} className="me-1" />,
+  },
+  {
+    component: CNavItem,
+    name: 'Utilisateurs',
+    to: '/utilisateurs',
+    role: 'administrateur',
+    icon: <FontAwesomeIcon icon={faCubes} className="me-1" />,
+  },
+  /*
+  {
+    component: CNavItem,
+    name: 'Permissions',
+    to: '/permissions',
+    user: '*',
+    icon: <FontAwesomeIcon icon={faCubes} className="me-1" />,
+  },*/
 ]
 
 export default _nav

@@ -23,9 +23,10 @@ import { CustomIndexAlert } from '../../components/CustomIndexAlert'
 import { CustomCreateAlert } from '../../components/CustomCreateAlert'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus, faEdit } from '@fortawesome/free-solid-svg-icons'
-import { actives, colors } from '../../constants'
-
-const Typerepondant = () => {
+import { colors } from '../../constants'
+import { isEmpty } from 'validator'
+//
+const Demande = () => {
   const tableRef = useRef()
   const createFormRef = useRef()
   const deleteFormRef = useRef()
@@ -35,54 +36,66 @@ const Typerepondant = () => {
   const showModalBtnLaunchRef = useRef()
   const deleteFormBtnLaunchRef = useRef()
   const deleteFormBtnCloseRef = useRef()
-
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
-
   const [indexAlert, setIndexAlert] = useState(null)
   const [createAlert, setCreateAlert] = useState(null)
   const [createFormAction, setCreateFormAction] = useState(null)
+  const [sessiondemandes, setSessiondemandes] = useState([])
+  const [sites, setSites] = useState([])
+  const [regions, setRegions] = useState([])
 
   const apiResource = {
-    get: 'typerepondants',
-    show: 'typerepondants/:id',
-    create: 'typerepondants',
-    update: 'typerepondants/:id',
-    delete: 'typerepondants/:id',
+    get: 'demandes',
+    show: 'demandes/:id',
+    create: 'demandes',
+    update: 'demandes/:id',
+    delete: 'demandes/:id',
   }
 
   const columns = [
     { title: 'ID', data: 'id' },
-    { title: 'CODE', data: 'tyrcode' },
-    { title: 'LIBELLE', data: 'tyrlibelle' },
-
-    {
-      title: 'SESSIONS DEMANDES',
-      data: null,
-      render: (data, type, row) => {
-        return row.sessiondemandes && row.sessiondemandes.length
-      },
-    },
-    {
-      title: 'SESSIONS REMISES',
-      data: null,
-      render: (data, type, row) => {
-        return row.sessionremises && row.sessionremises.length
-      },
-    },
+    { title: 'CODE', data: 'dmdcode' },
     {
       title: 'REPONDANT',
       data: null,
       render: (data, type, row) => {
-        return row.repondants && row.repondants.length
+        const btnShow = `<a class="btn btn-outline-secondary me-1 table-btn tableBtnShowRelationship" href="#" data-id="${row.id}" data-relation="repondants">${row.repondant.repidentifiant}</a>`
+        return `<div class="d-flex align-content-center justify-content-center">${btnShow}</div>`
       },
     },
     {
-      title: 'ACTIVE',
+      title: 'SESSION DEMANDE',
       data: null,
       render: (data, type, row) => {
-        return `<div class="d-flex justify-content-center align-content-center ${row.tyractive === 'oui' ? 'text-success' : 'text-danger'}"><i class="fa fa-circle " aria-hidden="true"></i></div>`
+        const btnShow = `<a class="btn btn-outline-secondary me-1 table-btn tableBtnShowRelationship" href="#" data-id="${row.id}" data-relation="sessiondemandes" title="${'du ' + row.sessiondemande.seddatedebut + ' au ' + row.sessiondemande.seddatefin}">${row.sessiondemande.id}</a>`
+        return `<div class="d-flex align-content-center justify-content-center">${btnShow}</div>`
+      },
+    },
+    {
+      title: 'SESSION REMISE',
+      data: null,
+      render: (data, type, row) => {
+        if (row.sessionremise !== null) {
+          const btnShow = `<a class="btn btn-outline-secondary me-1 table-btn tableBtnShowRelationship" href="#" data-id="${row.id}" data-relation="sessionremises" title="${'du ' + row.sessionremise.serdatedebut + ' au ' + row.sessionremise.serdatefin}">${row.sessionremise.id}</a>`
+          return `<div class="d-flex align-content-center justify-content-center">${btnShow}</div>`
+        }
+        return ''
+      },
+    },
+    {
+      title: 'SITE',
+      data: null,
+      render: (data, type, row) => {
+        return `<div class="d-flex align-content-center justify-content-center ${row.site ? 'text-success' : 'text-danger'}"><i class="fa fa-circle " aria-hidden="true"></i></div>`
+      },
+    },
+    {
+      title: 'SIM',
+      data: null,
+      render: (data, type, row) => {
+        return `<div class="d-flex align-content-center justify-content-center ${row.sim ? 'text-success' : 'text-danger'}"><i class="fa fa-circle " aria-hidden="true"></i></div>`
       },
     },
     {
@@ -90,10 +103,10 @@ const Typerepondant = () => {
       data: null,
       render: (data, type, row) => {
         // Détails, Edit, Delete
-        // const btnShow = `<a class="btn btn-outline-warning me-1 table-btn tableActionBtnShowItem" href="#" data-id="${row.id}"><i class="fa fa-eye" aria-hidden="true"></i></a>`
-        const btnEdit = `<a class="btn btn-outline-info me-1 table-btn tableActionBtnEditItem" href="#" data-id="${row.id}"><i class="fa fa-edit" aria-hidden="true"></i></a>`
+        // const btnShow = `<a class="btn btn-outline-warning me-1 tableActionBtn tableActionBtnShowItem" href="#" data-id="${row.id}"><i class="fa fa-eye" aria-hidden="true"></i></a>`
+        const btnEdit = `<a class="btn btn-outline-info me-1 tableActionBtn tableActionBtnEditItem" href="#" data-id="${row.id}"><i class="fa fa-edit" aria-hidden="true"></i></a>`
         const btnDelete = `<a class="btn btn-outline-danger tableActionBtn tableActionBtnDeleteItem" href="#" data-id="${row.id}"><i class="fa fa-trash" aria-hidden="true"></i></a>`
-        return `<div class="d-flex justify-content-center">${btnEdit + btnDelete}</div>`
+        return `<div class="d-flex align-content-center justify-content-center">${btnEdit + btnDelete}</div>`
       },
     },
   ]
@@ -109,13 +122,31 @@ const Typerepondant = () => {
     }
   }
 
+  const fetchGetSessiondemande = async () => {
+    await getData('sessiondemandes')
+      .then((response) => {
+        setSessiondemandes(response)
+      })
+      .catch((err) => console.log(err))
+  }
+
+  const fetchGetRegion = async () => {
+    await getItem('regions_getactive')
+      .then((response) => {
+        setRegions(response.data)
+      })
+      .catch((err) => console.log(err))
+  }
+
   useEffect(() => {
-    let timerId = setInterval(() => {
-      fetchGet()
-    }, 2000)
-    return () => {
-      clearInterval(timerId)
-    }
+    // let timerId = setInterval(() => {
+    fetchGet()
+    fetchGetSessiondemande()
+    fetchGetRegion()
+    // }, 2000)
+    // return () => {
+    //   clearInterval(timerId)
+    // }
   }, [])
 
   useEffect(() => {
@@ -140,9 +171,8 @@ const Typerepondant = () => {
             buttons: [
               {
                 text: '<i class="fa fa-plus me-1" aria-hidden="true"></i>Ajouter',
-                // titleAttr: "Ajouter",
                 className: 'dt-btn datatable-button rounded dt-btnCreate btnCreate',
-                enabled: true,
+                enabled: sessiondemandes && sites ? true : false,
                 action: () => {
                   if (createFormRef.current && createFormBtnLaunchRef.current) {
                     setCreateAlert(null)
@@ -156,7 +186,7 @@ const Typerepondant = () => {
               {
                 text: '<i class="fa fa-trash me-1" aria-hidden="true"></i>Tout supprimer',
                 className: 'dt-btn datatable-button rounded dt-btnCreate btnDeleteAll ms-2',
-                enabled: data && data.length > 0 ? true : false,
+                enabled: data.length > 0 ? true : false,
                 action: () => {
                   if (deleteFormRef.current && deleteFormBtnLaunchRef.current) {
                     setIndexAlert(null)
@@ -240,6 +270,10 @@ const Typerepondant = () => {
       })
   }, [data, columns])
 
+  // Actions
+
+  //=== Launch modals
+
   // === Show item
   $('#myTable tbody').on('click', '.tableActionBtnShowItem', async function (e) {
     e.preventDefault()
@@ -261,13 +295,12 @@ const Typerepondant = () => {
           setCreateFormAction('edit')
           createFormRef.current.setAttribute('create-data-action', 'edit')
           createFormRef.current.setAttribute('create-data-id', id)
-          $('#code').val(r.tyrcode)
-          $('#libelle').val(r.tyrlibelle)
-          $('input[name="active"][value="' + r.tyractive + '"]').prop('checked', true)
+          $('#site').val(r.site_id)
+          // $('#libelle').val(response.libelle)
+          // $('input[name="active"][value="' + response.estactive + '"]').prop('checked', true)
           createFormBtnLaunchRef.current.click()
         }
       } else {
-        //
       }
     })
   })
@@ -355,6 +388,32 @@ const Typerepondant = () => {
       }
     }
     fetchGet()
+  }
+  //
+  // Filter sites by regions
+  const handleRegion = async (e) => {
+    const { name, value } = e.target
+    if (!isEmpty(value)) {
+      await getItem('regions/:id'.replace(':id', value)).then((response) => {
+        const r = response.data
+        const obj = $('#site')
+        if (r) {
+          if (r.provinces.length > 0) {
+            let s = r.provinces[0].sites
+            setSites(s)
+            if (s.length > 0) {
+              obj.prop('disabled', false)
+            } else {
+              obj.prop('disabled', true)
+            }
+          } else {
+            obj.prop('disabled', true)
+          }
+        } else {
+          obj.prop('disabled', true)
+        }
+      })
+    }
   }
   // ===
 
@@ -477,68 +536,134 @@ const Typerepondant = () => {
                     <div className="d-flex pb-1">
                       <CustomRequired tagP={true} />
                     </div>
-                    {/*  */}{' '}
+                    {/*  */}
                     <div className="card">
                       <div className="card-body">
-                        {/* Code */}
+                        {/* Sessions de demande */}
                         <div className="mb-2">
-                          <label htmlFor="code" className="form-label mb-0">
-                            Code
+                          <label htmlFor="sessiondemande" className="form-label mb-0">
+                            Session de demande
                             <CustomRequired />
                           </label>
                           <div className="">
-                            <input
-                              type="text"
-                              className="form-control"
-                              id="code"
-                              name="code"
+                            <select
+                              className="form-select"
+                              aria-label="Default select example"
+                              id="sessiondemande"
+                              name="sessiondemande"
                               required
-                              autoFocus
-                            />
-                          </div>
-                        </div>
-                        {/* Libelle */}
-                        <div className="mb-2">
-                          <label htmlFor="libelle" className="form-label mb-0">
-                            Libellé
-                            <CustomRequired />
-                          </label>
-                          <div className="">
-                            <input
-                              type="text"
-                              className="form-control"
-                              id="libelle"
-                              name="libelle"
-                              required
-                            />
-                          </div>
-                        </div>
-                        {/* Est activé */}
-                        <div className="">
-                          <label htmlFor="active" className="form-label mb-0">
-                            Activé
-                          </label>
-                          <div className="">
-                            {actives.map((active, index) => {
-                              return (
-                                <div
-                                  className="form-check form-check-inline"
-                                  key={'active-item-' + index}
+                            >
+                              <option value="">Sélectionner ici !</option>
+                              {sessiondemandes.map((sessiondemande, index) => (
+                                <option
+                                  value={sessiondemande.id}
+                                  key={'sessiondemande-item-' + index}
                                 >
-                                  <input
-                                    className="form-check-input"
-                                    type="radio"
-                                    name="active"
-                                    id={'active' + index}
-                                    value={active}
-                                    // defaultChecked={estActive === 'non' ? true : false}
-                                  />
-                                  <label className="form-check-label" htmlFor={'active' + index}>
-                                    {active}
-                                  </label>
-                                </div>
-                              )
-                            })}
+                                  {index +
+                                    1 +
+                                    '. du ' +
+                                    sessiondemande.seddatedebut +
+                                    ' au ' +
+                                    sessiondemande.seddatefin}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        </div>
+                        {/* Région du site désiré pour la remise */}
+                        <div className="my-2">
+                          <label htmlFor="region" className="form-label mb-0 fw-bolder">
+                            Région du site désiré pour la remise
+                            <CustomRequired />
+                          </label>
+                          <div className="">
+                            <select
+                              className="form-select"
+                              aria-label="Default select example"
+                              id="region"
+                              name="region"
+                              required
+                              onChange={handleRegion}
+                            >
+                              <option value="">Sélectionner ici !</option>
+                              {regions.map((region, index) => (
+                                <option value={region.id} key={'region-item-' + index}>
+                                  {index + 1 + '. ' + region.rgnnom + ', ' + region.rgncheflieu}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        </div>
+                        {/* Site */}
+                        <div className="mb-2">
+                          <label htmlFor="site" className="form-label mb-0">
+                            Site désiré pour la remise
+                            <CustomRequired />
+                          </label>
+                          <div className="">
+                            <select
+                              className="form-select"
+                              aria-label="Default select example"
+                              id="site"
+                              name="site"
+                              required
+                            >
+                              <option value="">Sélectionner ici !</option>
+                              {sites.map((site, index) => (
+                                <option value={site.id} key={'site-item-' + index}>
+                                  {index + 1 + '. ' + site.sitlibelle}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        </div>
+                        {/* Identifiant & Date */}
+                        <div className="row mb-2">
+                          {/* Identifiant */}
+                          <div className="col-md-6 mb-2">
+                            <label htmlFor="identifiant" className="form-label mb-0">
+                              Identifiant
+                              <CustomRequired />
+                            </label>
+                            <div className="">
+                              <input
+                                type="text"
+                                className="form-control"
+                                id="identifiant"
+                                name="identifiant"
+                                required
+                              />
+                            </div>
+                          </div>
+                          {/* Date */}
+                          <div className="col-md-6 mb-2">
+                            <label htmlFor="date" className="form-label mb-0">
+                              Date
+                              <CustomRequired />
+                            </label>
+                            <div className="">
+                              <input
+                                type="date"
+                                className="form-control"
+                                id="date"
+                                name="date"
+                                required
+                              />
+                            </div>
+                          </div>
+                        </div>
+                        {/* Commentaire */}
+                        <div className="mb-2">
+                          <label htmlFor="commentaire" className="form-label mb-0">
+                            Commentaire
+                          </label>
+                          <div className="">
+                            <textarea
+                              className="form-control"
+                              rows={2}
+                              id="commentaire"
+                              name="commentaire"
+                            ></textarea>
                           </div>
                         </div>
                         {/*  */}
@@ -546,10 +671,7 @@ const Typerepondant = () => {
                     </div>
                   </div>
                   <div className="modal-footer border-0 py-0">
-                    <button
-                      type="submit"
-                      className="btn custom-btn-success text-white createModalBtnSave"
-                    >
+                    <button type="submit" className="btn custom-btn-success createModalBtnSave">
                       <i className="fa fa-check me-1" aria-hidden="true"></i>
                       Valider
                     </button>
@@ -648,4 +770,4 @@ const Typerepondant = () => {
   )
 }
 
-export default Typerepondant
+export default Demande
