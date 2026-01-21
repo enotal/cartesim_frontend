@@ -25,7 +25,7 @@ import { actives, sexes, colors } from '../../constants'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus, faEdit, faKey } from '@fortawesome/free-solid-svg-icons'
 
-const Utilisateur = () => {
+const Utilisateur = ({ auth }) => {
   const tableRef = useRef()
   const createFormRef = useRef()
   const deleteFormRef = useRef()
@@ -35,11 +35,9 @@ const Utilisateur = () => {
   const showModalBtnLaunchRef = useRef()
   const deleteFormBtnLaunchRef = useRef()
   const deleteFormBtnCloseRef = useRef()
-
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
-
   const [indexAlert, setIndexAlert] = useState(null)
   const [createAlert, setCreateAlert] = useState(null)
   const [createFormAction, setCreateFormAction] = useState(null)
@@ -49,7 +47,6 @@ const Utilisateur = () => {
   const [selectedRoles, setSelectedRoles] = useState([])
   const [sessiondemandes, setSessiondemandes] = useState([])
   const [sites, setSites] = useState([])
-
   const indexAlertBg = {
     success: '#056709',
     danger: '#970000',
@@ -395,6 +392,11 @@ const Utilisateur = () => {
       if (action === 'edit') {
         await updateItem(apiResource.update.replace(':id', id), formValues).then((response) => {
           if (response.success) {
+            // Mise à jour du cookie de l'utilisateur
+            let _auth = response.data  
+            _auth.token = auth.token
+            localStorage.setItem('cartesim.auth', JSON.stringify(_auth))
+            //
             setIndexAlert(response)
             createFormBtnResetRef.current.click()
             createFormBtnCloseRef.current.click()

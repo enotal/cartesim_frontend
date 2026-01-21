@@ -26,8 +26,10 @@ import { faPlus, faEdit } from '@fortawesome/free-solid-svg-icons'
 import { colors } from '../../constants'
 import { isEmpty } from 'validator'
 //
-const Demande = () => {
+const Demande = ({ auth }) => {
   const tableRef = useRef()
+  const unlinksimFormRef = useRef()
+  const linksimtodemandeFormRef = useRef()
   const createFormRef = useRef()
   const deleteFormRef = useRef()
   const createFormBtnLaunchRef = useRef()
@@ -36,15 +38,21 @@ const Demande = () => {
   const showModalBtnLaunchRef = useRef()
   const deleteFormBtnLaunchRef = useRef()
   const deleteFormBtnCloseRef = useRef()
+  const unlinksimFormBtnLaunchRef = useRef()
+  const unlinksimFormBtnCloseRef = useRef()
+  const linksimtodemandeFormBtnLaunchRef = useRef()
+  const linksimtodemandeFormBtnCloseRef = useRef()
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [indexAlert, setIndexAlert] = useState(null)
   const [createAlert, setCreateAlert] = useState(null)
+  const [linkAlert, setLinkAlert] = useState(null)
   const [createFormAction, setCreateFormAction] = useState(null)
   const [sessiondemandes, setSessiondemandes] = useState([])
   const [sites, setSites] = useState([])
   const [regions, setRegions] = useState([])
+  const [sims, setSims] = useState([])
 
   const apiResource = {
     get: 'demandes',
@@ -61,16 +69,16 @@ const Demande = () => {
       title: 'REPONDANT',
       data: null,
       render: (data, type, row) => {
-        const btnShow = `<a class="btn btn-outline-secondary me-1 table-btn tableBtnShowRelationship" href="#" data-id="${row.id}" data-relation="repondants">${row.repondant.repidentifiant}</a>`
-        return `<div class="d-flex align-content-center justify-content-center">${btnShow}</div>`
+        return row.repondant.repidentifiant
       },
     },
     {
       title: 'SESSION DEMANDE',
       data: null,
       render: (data, type, row) => {
-        const btnShow = `<a class="btn btn-outline-secondary me-1 table-btn tableBtnShowRelationship" href="#" data-id="${row.id}" data-relation="sessiondemandes" title="${'du ' + row.sessiondemande.seddatedebut + ' au ' + row.sessiondemande.seddatefin}">${row.sessiondemande.id}</a>`
-        return `<div class="d-flex align-content-center justify-content-center">${btnShow}</div>`
+        const dd = new Date(row.sessiondemande.seddatedebut)
+        const df = new Date(row.sessiondemande.seddatefin)
+        return dd.toLocaleDateString() + ' au ' + df.toLocaleDateString()
       },
     },
     {
@@ -78,8 +86,9 @@ const Demande = () => {
       data: null,
       render: (data, type, row) => {
         if (row.sessionremise !== null) {
-          const btnShow = `<a class="btn btn-outline-secondary me-1 table-btn tableBtnShowRelationship" href="#" data-id="${row.id}" data-relation="sessionremises" title="${'du ' + row.sessionremise.serdatedebut + ' au ' + row.sessionremise.serdatefin}">${row.sessionremise.id}</a>`
-          return `<div class="d-flex align-content-center justify-content-center">${btnShow}</div>`
+          const dd = new Date(row.sessionremise.seddatedebut)
+          const df = new Date(row.sessionremise.seddatefin)
+          return dd.toLocaleDateString() + ' au ' + df.toLocaleDateString()
         }
         return ''
       },
@@ -95,18 +104,28 @@ const Demande = () => {
       title: 'SIM',
       data: null,
       render: (data, type, row) => {
-        return `<div class="d-flex align-content-center justify-content-center ${row.sim ? 'text-success' : 'text-danger'}"><i class="fa fa-circle " aria-hidden="true"></i></div>`
+        return row.sim ? row.sim.simcode : ''
       },
     },
     {
       title: 'ACTIONS',
       data: null,
       render: (data, type, row) => {
-        // Détails, Edit, Delete
-        // const btnShow = `<a class="btn btn-outline-warning me-1 tableActionBtn tableActionBtnShowItem" href="#" data-id="${row.id}"><i class="fa fa-eye" aria-hidden="true"></i></a>`
-        const btnEdit = `<a class="btn btn-outline-info me-1 tableActionBtn tableActionBtnEditItem" href="#" data-id="${row.id}"><i class="fa fa-edit" aria-hidden="true"></i></a>`
-        const btnDelete = `<a class="btn btn-outline-danger tableActionBtn tableActionBtnDeleteItem" href="#" data-id="${row.id}"><i class="fa fa-trash" aria-hidden="true"></i></a>`
-        return `<div class="d-flex align-content-center justify-content-center">${btnEdit + btnDelete}</div>`
+        const ns = sims
+        // console.log(ns)
+        // const btnLinkSimToProvince =
+        //   pr.length > 0 && ns.length > 0
+        //     ? `<a class="btn btn-outline-warning me-1 table-btn tableActionBtnLinkSimToProvinceItem" data-id="${row.id}" data-nbr="${ns.length}" data-prv="${pr.length}" title="Répartir les cartes SIM entre les provinces"><i class="fa fa-paper-plane" aria-hidden="true"></i></a>`
+        //     : ''
+        // const btnUnlinkSim =
+        //   ns.length > 0
+        //     ? `<a class="btn btn-outline-warning me-1 table-btn tableActionBtnUnlinkSimItem" data-id="${row.id}" data-nbr="${ns.length}" title="Dissocier les cartes SIM"><i class="fa fa-close" aria-hidden="true"></i></a>`
+        //     : ''
+
+        const btnLinkToDemande = `<a class="btn btn-outline-warning me-1 tableActionBtn tableActionBtnLinkSimToDemandeItem" data-id="${row.id}" title="Associer une carte SIM"><i class="fa fa-paper-plane" aria-hidden="true"></i></a>`
+        const btnEdit = `<a class="btn btn-outline-info me-1 tableActionBtn tableActionBtnEditItem" data-id="${row.id}" title="Editer"><i class="fa fa-edit" aria-hidden="true"></i></a>`
+        const btnDelete = `<a class="btn btn-outline-danger tableActionBtn tableActionBtnDeleteItem" data-id="${row.id}" title="Supprimer"><i class="fa fa-trash" aria-hidden="true"></i></a>`
+        return `<div class="d-flex align-content-center justify-content-center">${btnLinkToDemande + btnEdit + btnDelete}</div>`
       },
     },
   ]
@@ -114,7 +133,27 @@ const Demande = () => {
   const fetchGet = async () => {
     try {
       const data = await getData(apiResource.get)
-      setData(data)
+      console.log(auth.province)
+      const r = auth.roles.includes('administrateur')
+        ? data
+        : auth.region !== null
+          ? data.filter(
+              (item) => item.site.province && item.site.province.region_id === auth.region.id,
+            )
+          : data
+      console.log(r)
+      setData(
+        auth.roles.includes('administrateur')
+          ? data
+          : auth.region !== null
+            ? data.filter(
+                (item) =>
+                  item.site &&
+                  item.site.province &&
+                  item.site.province.region_id === auth.region.id,
+              )
+            : data,
+      )
     } catch (err) {
       setError(err)
     } finally {
@@ -133,7 +172,19 @@ const Demande = () => {
   const fetchGetRegion = async () => {
     await getItem('regions_getactive')
       .then((response) => {
-        setRegions(response.data)
+        const r = response.data
+        const rgn = auth.region !== null ? r.filter((item) => item.id === auth.region) : r
+        // Sim de la région
+        const s = []
+        rgn.map((item, index) => {
+          if (item.sims) {
+            let m = item.sims.filter((sim) => sim.demande_id === null)
+            if (m.length > 0) {
+              s.push(m)
+            }
+          }
+        })
+        setSims(s)
       })
       .catch((err) => console.log(err))
   }
@@ -272,7 +323,32 @@ const Demande = () => {
 
   // Actions
 
-  //=== Launch modals
+  // === Link sim to region provinces
+  $('#myTable tbody').on('click', '.tableActionBtnLinkSimToDemandeItem', async function (e) {
+    e.preventDefault()
+    setIndexAlert(null)
+    setCreateAlert(null)
+    const id = $(this).data('id')
+    if (linksimtodemandeFormRef.current && linksimtodemandeFormBtnLaunchRef.current) {
+      linksimtodemandeFormRef.current.setAttribute('data-iddemande', id)
+      linksimtodemandeFormBtnLaunchRef.current.click()
+    }
+    /*await getItem(apiResource.show.replace(':id', id)).then((response) => {
+      if (response.success) {
+        setRegionProvinces(response.data.provinces)
+        setRegionSims(response.data.sims.filter((item) => item.province_id === null))
+        setSims(response.data.sims.filter((item) => item.province_id === null))
+        if (linksimtoprovinceFormRef.current && linksimtoprovinceFormBtnLaunchRef.current) {
+          linksimtoprovinceFormRef.current.setAttribute('data-id', id)
+          linksimtoprovinceFormRef.current.setAttribute('data-nbr', nbr)
+          linksimtoprovinceFormRef.current.setAttribute('data-prv', prv)
+          linksimtoprovinceFormBtnLaunchRef.current.click()
+        }
+      } else {
+        setIndexAlert(response)
+      }
+    })*/
+  })
 
   // === Show item
   $('#myTable tbody').on('click', '.tableActionBtnShowItem', async function (e) {
@@ -327,6 +403,7 @@ const Demande = () => {
           if (response.success) {
             createFormBtnResetRef.current.click()
           }
+          console.log(response)
           setCreateAlert(response)
         })
       }
@@ -415,6 +492,32 @@ const Demande = () => {
       })
     }
   }
+  // ===
+
+  // === Link sims to region provinces
+
+  const handleCancelLinksimtodemandeForm = () => {
+    setIndexAlert(null)
+    setCreateAlert(null)
+    setLinkAlert(null)
+  }
+
+  const handleSubmitLinksimtodemandeForm = async (e) => {
+    e.preventDefault()
+    // récupération des données du formulaire
+    const iddemande = e.target.getAttribute('data-iddemande')
+    const idsim = e.target.getAttribute('data-idsim')
+    if (linksimtodemandeFormRef.current && linksimtodemandeFormBtnCloseRef.current) {
+      /*await createItem('sims/demandes/associer', data).then((response) => {
+        if (response.success) {
+          // linksimtoprovinceFormBtnCloseRef.current.click()
+        }
+        setLinkAlert(response)
+      })*/
+    }
+    fetchGet()
+  }
+
   // ===
 
   // Datatable loading...
@@ -757,6 +860,117 @@ const Demande = () => {
                     <button type="submit" className="btn custom-btn-danger">
                       <i className="fa fa-trash me-1" aria-hidden="true"></i>
                       Supprimer
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+          {/* Link SIM to province form */}
+          <form
+            ref={linksimtodemandeFormRef}
+            onSubmit={handleSubmitLinksimtodemandeForm}
+            method="POST"
+            encType=""
+            data-iddemande=""
+            data-idsim=""
+          >
+            <button
+              ref={linksimtodemandeFormBtnLaunchRef}
+              type="button"
+              className="btn btn-primary d-none"
+              data-bs-toggle="modal"
+              data-bs-target="#linksimtodemandeModal"
+            >
+              <i className="fa fa-trash me-2" aria-hidden="true"></i>Launch static backdrop modal
+            </button>
+            {/* <!-- Modal --> */}
+            <div
+              className="modal fade"
+              id="linksimtodemandeModal"
+              data-bs-backdrop="static"
+              data-bs-keyboard="false"
+              tabIndex="-1"
+              aria-labelledby="linksimtodemandeModalLabel"
+              aria-hidden="true"
+            >
+              <div className="modal-dialog">
+                <div className="modal-content">
+                  <div className="modal-header py-1 bg-primary">
+                    <h5 className="modal-title fw-bold text-light" id="linksimtodemandeModalLabel">
+                      <i className="fa fa-paper-plane me-1" aria-hidden="true"></i>Associer à la
+                      demande
+                    </h5>
+                    <button
+                      ref={linksimtodemandeFormBtnCloseRef}
+                      type="button"
+                      className="btn-close d-none"
+                      data-bs-dismiss="modal"
+                      aria-label="Close"
+                    ></button>
+                  </div>
+                  <div className="modal-body pb-0">
+                    {/* Total */}
+                    <div
+                      className="card mb-2"
+                      style={{ backgroundColor: '#056709', borderColor: '#056709' }}
+                    >
+                      <div className="card-body py-1 text-light text-center">
+                        {'Associer une des ' + sims.length + ' carte(s) sim à la demande'}
+                      </div>
+                    </div>
+                    {/*  */}
+                    {/* Alerts */}
+                    {linkAlert && (
+                      <div
+                        className="card mb-2"
+                        style={{
+                          backgroundColor: colors[linkAlert.type],
+                          borderColor: colors[linkAlert.type],
+                        }}
+                      >
+                        <div className="card-body py-1">
+                          <CustomCreateAlert alert={linkAlert} />
+                        </div>
+                      </div>
+                    )}
+                    {/*  */}
+                    {/* List of sim cards */}
+                    <div className="table-responsive table-responsive-sm">
+                      <table className="table table-sm table-striped">
+                        <thead>
+                          <tr className="text-start">
+                            <td scope="col">ID</td>
+                            <td scope="col">NUMERO</td>
+                            <td scope="col">CODE</td>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {sims.map((sim, index) => (
+                            <tr key={'sim-item-' + index} className="text-start">
+                              <th scope="row">{sim.id}</th>
+                              <td>{sim.simnumero}</td>
+                              <td>{sim.simcode}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    {/*  */}
+                  </div>
+                  <div className="modal-footer border-0 py-1">
+                    <button
+                      type="button"
+                      className="btn custom-btn-secondary btn-submit"
+                      data-bs-dismiss="modal"
+                      onClick={handleCancelLinksimtodemandeForm}
+                    >
+                      <i className="fa fa-close me-1" aria-hidden="true"></i>
+                      Fermer
+                    </button>
+                    <button type="submit" className="btn custom-btn-success">
+                      <i className="fa fa-check me-1" aria-hidden="true"></i>
+                      Valider
                     </button>
                   </div>
                 </div>

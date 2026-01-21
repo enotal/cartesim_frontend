@@ -27,7 +27,7 @@ import { actives, colors } from '../../constants'
 import * as XLSX from 'xlsx'
 import { setintervaldelay } from '../setintervaldelay'
 
-const Region = () => {
+const Region = ({ auth }) => {
   const tableRef = useRef()
   const createFormRef = useRef()
   const deleteFormRef = useRef()
@@ -105,14 +105,14 @@ const Region = () => {
         const sp = ns.filter((item) => item.province_id === null)
         const btnLinkSimToProvince =
           pr.length > 0 && ns.length > 0
-            ? `<a class="btn btn-outline-primary me-1 table-btn tableActionBtnLinkSimToProvinceItem" href="#" data-id="${row.id}" data-nbr="${ns.length}" data-prv="${pr.length}" title="Répartir les cartes SIM entre les provinces"><i class="fa fa-paper-plane" aria-hidden="true"></i></a>`
+            ? `<a class="btn btn-outline-warning me-1 table-btn tableActionBtnLinkSimToProvinceItem" data-id="${row.id}" data-nbr="${ns.length}" data-prv="${pr.length}" title="Répartir les cartes SIM entre les provinces"><i class="fa fa-paper-plane" aria-hidden="true"></i></a>`
             : ''
         const btnUnlinkSim =
           ns.length > 0
-            ? `<a class="btn btn-outline-secondary me-1 table-btn tableActionBtnUnlinkSimItem" href="#" data-id="${row.id}" data-nbr="${ns.length}" title="Dissocier les cartes SIM"><i class="fa fa-close" aria-hidden="true"></i></a>`
+            ? `<a class="btn btn-outline-warning me-1 table-btn tableActionBtnUnlinkSimItem" data-id="${row.id}" data-nbr="${ns.length}" title="Dissocier les cartes SIM"><i class="fa fa-close" aria-hidden="true"></i></a>`
             : ''
-        const btnEdit = `<a class="btn btn-outline-info me-1 table-btn tableActionBtnEditItem" href="#" data-id="${row.id}"><i class="fa fa-edit" aria-hidden="true"></i></a>`
-        const btnDelete = `<a class="btn btn-outline-danger tableActionBtn tableActionBtnDeleteItem" href="#" data-id="${row.id}"><i class="fa fa-trash" aria-hidden="true"></i></a>`
+        const btnEdit = `<a class="btn btn-outline-info me-1 table-btn tableActionBtnEditItem" data-id="${row.id}"><i class="fa fa-edit" aria-hidden="true"></i></a>`
+        const btnDelete = `<a class="btn btn-outline-danger tableActionBtn tableActionBtnDeleteItem" data-id="${row.id}"><i class="fa fa-trash" aria-hidden="true"></i></a>`
         return `<div class="d-flex justify-content-end">${btnLinkSimToProvince + btnUnlinkSim + btnEdit + btnDelete}</div>`
       },
     },
@@ -121,14 +121,13 @@ const Region = () => {
   const fetchGet = async () => {
     try {
       const data = await getData(apiResource.get)
-      setData(data)
+      setData(auth.region !== null ? data.filter((item) => item.id === auth.region.id) : data)
     } catch (err) {
       setError(err)
     } finally {
       setLoading(false)
     }
   }
-
   const fetchGetAnneeacademique = async () => {
     await getData('anneeacademiques')
       .then((response) => {

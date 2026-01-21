@@ -27,7 +27,7 @@ import {
 } from '@coreui/icons'
 import { AppHeaderDropdown } from './header/index'
 
-const AppHeader = () => {
+const AppHeader = ({ auth }) => {
   const headerRef = useRef()
   const { colorMode, setColorMode } = useColorModes('coreui-free-react-admin-template-theme')
 
@@ -70,7 +70,7 @@ const AppHeader = () => {
           </CNavItem>
         </CHeaderNav>
         <CHeaderNav>
-          <AppHeaderDropdown />
+          <AppHeaderDropdown auth={auth} />
         </CHeaderNav>
       </CContainer>
     </CHeader>

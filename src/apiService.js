@@ -4,6 +4,8 @@ import axios from 'axios'
 export const API_BASE_URL = 'http://localhost:8000/api/'
 // export const API_BASE_URL = 'http://192.168.11.195:8000/api/'
 
+const auth = JSON.parse(localStorage.getItem('cartesim.auth'))
+
 // login
 export const login = async (resourceData) => {
   try {
@@ -17,9 +19,13 @@ export const login = async (resourceData) => {
 }
 
 // logout
-export const logout = async (resource) => {
+export const logout = async () => {
   try {
-    const response = await axios.post(API_BASE_URL + 'logout/' + resource)
+    const response = await axios.get(API_BASE_URL + 'logout', {
+      headers: {
+        Authorization: `Bearer ${auth.token}`,
+      },
+    })
     return response.data
   } catch (error) {
     return error.response
@@ -31,7 +37,11 @@ export const logout = async (resource) => {
 // List
 export const getData = async (apiResource) => {
   try {
-    const response = await axios.get(API_BASE_URL + apiResource)
+    const response = await axios.get(API_BASE_URL + apiResource, {
+      headers: {
+        Authorization: `Bearer ${auth.token}`,
+      },
+    })
     return response.data.data
   } catch (error) {
     return error.response
@@ -43,7 +53,11 @@ export const getData = async (apiResource) => {
 // Show
 export const getItem = async (apiResource) => {
   try {
-    const response = await axios.get(API_BASE_URL + apiResource)
+    const response = await axios.get(API_BASE_URL + apiResource, {
+      headers: {
+        Authorization: `Bearer ${auth.token}`,
+      },
+    })
     return response.data
   } catch (error) {
     return error.response
@@ -55,7 +69,11 @@ export const getItem = async (apiResource) => {
 // get by
 export const getItemBy = async (apiResource, resourceData) => {
   try {
-    const response = await axios.post(API_BASE_URL + apiResource, resourceData)
+    const response = await axios.post(API_BASE_URL + apiResource, resourceData, {
+      headers: {
+        Authorization: `Bearer ${auth.token}`,
+      },
+    })
     return response.data
   } catch (error) {
     return error.response
@@ -67,7 +85,11 @@ export const getItemBy = async (apiResource, resourceData) => {
 // Store
 export const createItem = async (apiResource, resourceData) => {
   try {
-    const response = await axios.post(API_BASE_URL + apiResource, resourceData)
+    const response = await axios.post(API_BASE_URL + apiResource, resourceData, {
+      headers: {
+        Authorization: `Bearer ${auth.token}`,
+      },
+    })
     return response.data
   } catch (error) {
     return error.response
@@ -79,7 +101,11 @@ export const createItem = async (apiResource, resourceData) => {
 // Update
 export const updateItem = async (apiResource, resourceData) => {
   try {
-    const response = await axios.patch(API_BASE_URL + apiResource, resourceData)
+    const response = await axios.patch(API_BASE_URL + apiResource, resourceData, {
+      headers: {
+        Authorization: `Bearer ${auth.token}`,
+      },
+    })
     return response.data
   } catch (error) {
     return error.response
@@ -91,7 +117,11 @@ export const updateItem = async (apiResource, resourceData) => {
 // Delete
 export const deleteItem = async (apiResource) => {
   try {
-    const response = await axios.delete(API_BASE_URL + apiResource)
+    const response = await axios.delete(API_BASE_URL + apiResource, {
+      headers: {
+        Authorization: `Bearer ${auth.token}`,
+      },
+    })
     return response.data
   } catch (error) {
     return error.response

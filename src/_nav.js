@@ -87,7 +87,7 @@ const _nav = [
     component: CNavItem,
     name: 'Sims',
     to: '/sims',
-    role: 'administrateur,bcmp,daf,agent-bcmp,agent-daf,point-focal',
+    role: 'administrateur,bcmp,daf,agent-bcmp,agent-daf,point focal',
     icon: <FontAwesomeIcon icon={faPaperPlane} className="me-1" />,
   },
   {
@@ -98,14 +98,14 @@ const _nav = [
     component: CNavItem,
     name: 'Sessions demandes',
     to: '/sessiondemandes',
-    role: 'administrateur,bcmp,daf,agent-bcmp,agent-daf,point-focal',
+    role: 'administrateur,bcmp,daf,agent-bcmp,agent-daf,point focal',
     icon: <FontAwesomeIcon icon={faCogs} className="me-1" />,
   },
   {
     component: CNavItem,
     name: 'Sessions remises',
     to: '/sessionremises',
-    role: 'administrateur,bcmp,daf,agent-bcmp,agent-daf,point-focal',
+    role: 'administrateur,bcmp,daf,agent-bcmp,agent-daf,point focal',
     icon: <FontAwesomeIcon icon={faCogs} className="me-1" />,
   },
   {
@@ -116,7 +116,7 @@ const _nav = [
     component: CNavItem,
     name: 'Demandes',
     to: '/demandes',
-    role: 'administrateur,bcmp,daf,agent-bcmp,agent-daf,point-focal',
+    role: 'administrateur,bcmp,daf,agent-bcmp,agent-daf,point focal',
     icon: <FontAwesomeIcon icon={faHashtag} className="me-1" />,
   },
   {

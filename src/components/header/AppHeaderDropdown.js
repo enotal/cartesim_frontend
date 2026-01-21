@@ -25,27 +25,33 @@ import CIcon from '@coreui/icons-react'
 import { logout } from '../../apiService'
 import { AvatarFemme, AvatarHomme } from '../../assets/images/avatars/avatars'
 
-const AppHeaderDropdown = () => {
+const AppHeaderDropdown = ({ auth }) => {
   const navigate = useNavigate()
-  const auth = JSON.parse(localStorage.getItem('cartesim.auth'))
-
+  // Logout
   const handleLogout = async () => {
-    const response = await logout(auth.id)
-    localStorage.removeItem('cartesim.auth')
-    navigate('/', { replace: true })
+    await logout().then((response) => {
+      localStorage.removeItem('cartesim.auth')
+      navigate('/', { replace: true })
+    })
   }
+  //
   return (
     <CDropdown variant="nav-item">
-      <CDropdownToggle
-        placement="bottom-end"
-        className="py-0 pe-0 text-light"
-        // caret={isAuthenticated ? true : false}
-      >
-        <CAvatar
-          src={auth ? (auth.sexe === 'Masculin' ? AvatarHomme : AvatarFemme) : ''}
-          size="md"
-        />
-      </CDropdownToggle>
+      <div className="text-light">
+        <CDropdownToggle
+          placement="bottom-end"
+          className="py-0 pe-0 text-light"
+          title={auth.lastname + ' ' + auth.name}
+          // caret={isAuthenticated ? true : false}
+        >
+          <CAvatar
+            src={auth ? (auth.sexe === 'Masculin' ? AvatarHomme : AvatarFemme) : ''}
+            size="md"
+          />
+          <span className="">{auth.lastname.substring(0, 1) + auth.name.substring(0, 1)}</span>
+        </CDropdownToggle>
+        <div className="">{auth.roles[0]}</div>
+      </div>
       <CDropdownMenu className="pt-0" placement="bottom-end">
         {/* <CDropdownItem href="#">
           <CIcon icon={cilUser} className="me-2" />

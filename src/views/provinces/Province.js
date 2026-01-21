@@ -26,7 +26,7 @@ import { faPlus, faEdit } from '@fortawesome/free-solid-svg-icons'
 import { actives, colors } from '../../constants'
 import * as XLSX from 'xlsx'
 
-const Province = () => {
+const Province = ({ auth }) => {
   const tableRef = useRef()
   const createFormRef = useRef()
   const deleteFormRef = useRef()
@@ -101,7 +101,7 @@ const Province = () => {
   const fetchGet = async () => {
     try {
       const data = await getData(apiResource.get)
-      setData(data)
+      setData(auth.province !== null ? data.filter((item) => item.id === auth.province.id) : data)
     } catch (err) {
       setError(err)
     } finally {

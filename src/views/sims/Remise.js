@@ -25,7 +25,7 @@ import { CustomCreateAlert } from '../../components/CustomCreateAlert'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus, faEdit } from '@fortawesome/free-solid-svg-icons'
 
-const Remise = () => {
+const Remise = ({ auth }) => {
   const tableRef = useRef()
   const tableDemandeRef = useRef()
   const createFormRef = useRef()
@@ -33,38 +33,28 @@ const Remise = () => {
   const createFormBtnLaunchRef = useRef()
   const createFormBtnCloseRef = useRef()
   const createFormBtnResetRef = useRef()
-
-  // const showModalBtnLaunchRef = useRef()
-
   const deleteFormBtnLaunchRef = useRef()
   const deleteFormBtnCloseRef = useRef()
-
   const importFormRef = useRef()
   const importFormBtnLaunchRef = useRef()
   const importFormBtnCloseRef = useRef()
   const importFormBtnResetRef = useRef()
-
   const attributeFormRef = useRef()
   const attributeFormBtnLaunchRef = useRef()
   const attributeFormBtnCloseRef = useRef()
   const attributeFormBtnResetRef = useRef()
-
   const dissocierFormRef = useRef()
   const dissocierFormBtnLaunchRef = useRef()
   const dissocierFormBtnCloseRef = useRef()
-
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
-
   const [indexAlert, setIndexAlert] = useState(null)
   const [createAlert, setCreateAlert] = useState(null)
   const [createFormAction, setCreateFormAction] = useState(null)
-
   const [sims, setSims] = useState([])
   const [demandes, setDemandes] = useState([])
   const [regions, setRegions] = useState([])
-
   const [delay, SetDelay] = useState(2000)
 
   const columns = [
@@ -100,7 +90,7 @@ const Remise = () => {
   ]
 
   const fetchGet = async () => {
-    await getData('sims/remises')
+    await getData('sims_remises')
       .then((response) => {
         setData(response)
       })

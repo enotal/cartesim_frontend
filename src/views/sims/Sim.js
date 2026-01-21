@@ -25,9 +25,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus, faEdit } from '@fortawesome/free-solid-svg-icons'
 import { actives, colors, simColumnToImport } from '../../constants'
 import * as XLSX from 'xlsx'
-import { isEmpty } from 'validator'
+// import { isEmpty } from 'validator'
 
-const Sim = () => {
+const Sim = ({ auth }) => {
   const tableRef = useRef()
   const tableDemandeRef = useRef()
   const createFormRef = useRef()
@@ -134,8 +134,10 @@ const Sim = () => {
   const fetchGet = async () => {
     try {
       const response = await getData(apiResource.get)
-      setData(response)
-      setSims(response.filter((item) => item.demande_id === null && item.region_id === null))
+      const r =
+        auth.region !== null ? response.filter((item) => item.region_id === auth.region) : response
+      setData(r)
+      setSims(r.filter((item) => item.demande_id === null && item.region_id === null))
     } catch (err) {
       setError(err)
     } finally {
@@ -192,7 +194,7 @@ const Sim = () => {
             buttons: [
               {
                 text: '<i class="fa fa-plus me-1" aria-hidden="true"></i>Ajouter',
-                className: 'dt-btn datatable-button rounded dt-btnCreate btnCreate',
+                className: 'dt-btn datatable-button rounded dt-btnCreate btnCreate my-1',
                 enabled: true,
                 action: () => {
                   if (createFormRef.current && createFormBtnLaunchRef.current) {
@@ -206,7 +208,7 @@ const Sim = () => {
               },
               {
                 text: '<i class="fa fa-trash me-1" aria-hidden="true"></i>Tout supprimer',
-                className: 'dt-btn datatable-button rounded dt-btnCreate btnDeleteAll ms-2',
+                className: 'dt-btn datatable-button rounded dt-btnCreate btnDeleteAll ms-2 my-1',
                 enabled: data && data.length > 0 ? true : false,
                 action: () => {
                   if (deleteFormRef.current && deleteFormBtnLaunchRef.current) {
@@ -224,7 +226,7 @@ const Sim = () => {
               },
               {
                 text: '<i class="fa fa-file-import me-1" aria-hidden="true"></i>Importer',
-                className: 'dt-btn datatable-button rounded dt-btnImport btnImport ms-2',
+                className: 'dt-btn datatable-button rounded dt-btnImport btnImport ms-2 my-1',
                 enabled: true,
                 action: () => {
                   if (importFormRef.current && importFormBtnLaunchRef.current) {
@@ -239,7 +241,7 @@ const Sim = () => {
               },
               {
                 text: '<i class="fa fa-paper-plane me-1" aria-hidden="true"></i>Attribuer aux régions',
-                className: 'dt-btn datatable-button rounded dt-btnAttribute btnAttribute ms-2',
+                className: 'dt-btn datatable-button rounded dt-btnAttribute btnAttribute ms-2 my-1',
                 enabled: regions && sims && regions.length > 0 && sims.length > 0 ? true : false,
                 action: () => {
                   if (attributeFormRef.current && attributeFormBtnLaunchRef.current) {

@@ -101,8 +101,8 @@ const Dashboard = () => {
     await getData('repondants')
       .then((response) => {
         const s = response
-        const adm = s.filter((item) => item.demandes.length > 0 && item.demandes.sim.length === 0)
-        const ben = s.filter((item) => item.demandes.length > 0 && item.demandes.sim.length > 0)
+        const adm = s.filter((item) => item.demandes.length > 0 && item.demandes.sim && item.demandes.sim.length === 0)
+        const ben = s.filter((item) => item.demandes.length > 0 && item.demandes.sim && item.demandes.sim.length > 0)
         const res = s.filter((item) => item.demandes.length === 0)
         setRepondants([
           { title: 'Répondants', value: s.length },

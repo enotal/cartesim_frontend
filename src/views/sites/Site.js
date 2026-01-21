@@ -25,7 +25,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus, faEdit } from '@fortawesome/free-solid-svg-icons'
 import { actives, colors } from '../../constants'
 
-const Site = () => {
+const Site = ({ auth }) => {
   const tableRef = useRef()
   const createFormRef = useRef()
   const deleteFormRef = useRef()
@@ -101,7 +101,9 @@ const Site = () => {
   const fetchGet = async () => {
     try {
       const data = await getData(apiResource.get)
-      setData(data)
+      setData(
+        auth.province !== null ? data.filter((item) => item.province_id === auth.province) : data,
+      )
     } catch (err) {
       setError(err)
     } finally {

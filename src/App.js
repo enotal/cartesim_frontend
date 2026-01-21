@@ -25,6 +25,7 @@ const DefaultLayout = React.lazy(() => import('./layout/DefaultLayout'))
 const App = () => {
   const { isColorModeSet, setColorMode } = useColorModes('coreui-free-react-admin-template-theme')
   const storedTheme = useSelector((state) => state.theme)
+  const [auth, setAuth] = useState(null)
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.href.split('?')[1])
@@ -39,6 +40,11 @@ const App = () => {
 
     setColorMode(storedTheme)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    const auth = JSON.parse(localStorage.getItem('cartesim.auth'))
+    setAuth(auth)
+  }, [])
 
   return (
     <HashRouter>
@@ -69,7 +75,7 @@ const App = () => {
           />
           {/* Protected Routes */}
           <Route element={<ProtectedRoute />}>
-            <Route path="*" name="Dashboard" element={<DefaultLayout />} />
+            <Route path="*" name="Dashboard" element={<DefaultLayout auth={auth} />} />
           </Route>
           {/*  */}
         </Routes>
