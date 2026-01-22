@@ -11,16 +11,14 @@ import {
   VerticalCartesimLink,
 } from './assets/images/images'
 import { colors } from './constants'
+import { useCookies } from 'react-cookie'
+import { cookieItems } from './constants'
 
 const Home = () => {
   const navigate = useNavigate()
   const formRef = useRef()
-
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [token, setToken] = useState(null)
-
-  const [data, setData] = useState([])
   const [alert, setAlert] = useState(null)
+  const [cookies, setCookie] = useCookies(cookieItems)
 
   useEffect(() => {
     //
@@ -51,7 +49,8 @@ const Home = () => {
     // Soumission
     await login(formValues).then((response) => {
       if (response.success) {
-        localStorage.setItem('cartesim.auth', JSON.stringify(response.data))
+        // localStorage.setItem('cartesim.auth', JSON.stringify(response.data))
+        setCookie(cookieItems[0], JSON.stringify(response.data), { path: '/' })
         navigate('/dashboard', { replace: true })
       } else {
         setAlert(response)

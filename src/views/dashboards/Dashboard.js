@@ -101,8 +101,12 @@ const Dashboard = () => {
     await getData('repondants')
       .then((response) => {
         const s = response
-        const adm = s.filter((item) => item.demandes.length > 0 && item.demandes.sim && item.demandes.sim.length === 0)
-        const ben = s.filter((item) => item.demandes.length > 0 && item.demandes.sim && item.demandes.sim.length > 0)
+        const adm = s.filter(
+          (item) => item.demandes.length > 0 && item.demandes.sim && item.demandes.sim.length === 0,
+        )
+        const ben = s.filter(
+          (item) => item.demandes.length > 0 && item.demandes.sim && item.demandes.sim.length > 0,
+        )
         const res = s.filter((item) => item.demandes.length === 0)
         setRepondants([
           { title: 'Répondants', value: s.length },
@@ -113,11 +117,12 @@ const Dashboard = () => {
       })
       .catch((err) => console.log(err))
   }
-  
+
   // Sites
   const fetchGetSite = async () => {
     await getData('sites')
       .then((response) => {
+        console.log(response)
         const al = response
         const ac = al.filter((item) => item.sitactive === 'oui')
         setSites([
@@ -144,7 +149,7 @@ const Dashboard = () => {
       fetchGetRepondant()
       fetchGetSite()
       // fetchGetRemise()
-    }, 2000)
+    }, 10000)
     return () => {
       clearInterval(timerId)
     }

@@ -1,3 +1,4 @@
+export const cookieItems = ['cartesim.auth']
 export const actives = ['non', 'oui']
 export const sexes = ['Féminin', 'Masculin']
 export const colors = {

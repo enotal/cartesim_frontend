@@ -22,6 +22,7 @@ export const login = async (resourceData) => {
 export const logout = async () => {
   try {
     const response = await axios.get(API_BASE_URL + 'logout', {
+      // withCredentials: true, // For cookies,
       headers: {
         Authorization: `Bearer ${auth.token}`,
       },
@@ -38,6 +39,7 @@ export const logout = async () => {
 export const getData = async (apiResource) => {
   try {
     const response = await axios.get(API_BASE_URL + apiResource, {
+      // withCredentials: true, // For cookies,
       headers: {
         Authorization: `Bearer ${auth.token}`,
       },
@@ -54,6 +56,7 @@ export const getData = async (apiResource) => {
 export const getItem = async (apiResource) => {
   try {
     const response = await axios.get(API_BASE_URL + apiResource, {
+      // withCredentials: true, // For cookies,
       headers: {
         Authorization: `Bearer ${auth.token}`,
       },
@@ -70,6 +73,7 @@ export const getItem = async (apiResource) => {
 export const getItemBy = async (apiResource, resourceData) => {
   try {
     const response = await axios.post(API_BASE_URL + apiResource, resourceData, {
+      // withCredentials: true, // For cookies,
       headers: {
         Authorization: `Bearer ${auth.token}`,
       },
@@ -86,6 +90,7 @@ export const getItemBy = async (apiResource, resourceData) => {
 export const createItem = async (apiResource, resourceData) => {
   try {
     const response = await axios.post(API_BASE_URL + apiResource, resourceData, {
+      // withCredentials: true, // For cookies,
       headers: {
         Authorization: `Bearer ${auth.token}`,
       },
@@ -102,6 +107,7 @@ export const createItem = async (apiResource, resourceData) => {
 export const updateItem = async (apiResource, resourceData) => {
   try {
     const response = await axios.patch(API_BASE_URL + apiResource, resourceData, {
+      // withCredentials: true, // For cookies,
       headers: {
         Authorization: `Bearer ${auth.token}`,
       },
@@ -118,6 +124,7 @@ export const updateItem = async (apiResource, resourceData) => {
 export const deleteItem = async (apiResource) => {
   try {
     const response = await axios.delete(API_BASE_URL + apiResource, {
+      // withCredentials: true, // For cookies,
       headers: {
         Authorization: `Bearer ${auth.token}`,
       },

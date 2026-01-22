@@ -15,6 +15,9 @@ import './scss/style.scss'
 import './scss/examples.scss'
 import './styles.css'
 
+import { Cookies, useCookies } from 'react-cookie'
+import { cookieItems } from './constants'
+
 // Containers
 const Home = React.lazy(() => import('./Home'))
 const DemandeGuestSoumettre = React.lazy(() => import('./views/demandes/DemandeGuestSoumettre'))
@@ -25,7 +28,7 @@ const DefaultLayout = React.lazy(() => import('./layout/DefaultLayout'))
 const App = () => {
   const { isColorModeSet, setColorMode } = useColorModes('coreui-free-react-admin-template-theme')
   const storedTheme = useSelector((state) => state.theme)
-  const [auth, setAuth] = useState(null)
+  const [cookies, setCookie] = useCookies(cookieItems[0])
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.href.split('?')[1])
@@ -41,10 +44,8 @@ const App = () => {
     setColorMode(storedTheme)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  useEffect(() => {
-    const auth = JSON.parse(localStorage.getItem('cartesim.auth'))
-    setAuth(auth)
-  }, [])
+  const userData = cookies[cookieItems[0]] ? cookies[cookieItems[0]] : null
+  // console.log(userData)
 
   return (
     <HashRouter>
@@ -75,7 +76,7 @@ const App = () => {
           />
           {/* Protected Routes */}
           <Route element={<ProtectedRoute />}>
-            <Route path="*" name="Dashboard" element={<DefaultLayout auth={auth} />} />
+            <Route path="*" name="Dashboard" element={<DefaultLayout auth={userData} />} />
           </Route>
           {/*  */}
         </Routes>
