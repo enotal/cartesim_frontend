@@ -266,6 +266,7 @@ const Sim = ({ auth }) => {
                 text: '<i class="fa fa-file-text" aria-hidden="true"></i>',
                 titleAttr: 'CSV',
                 className: 'dt-btn datatable-export-button rounded',
+                enabled: data && data.length > 0 ? true : false,
                 filename: exportConstants.title,
                 exportOptions: {
                   columns: exportConstants.columns,
@@ -276,6 +277,7 @@ const Sim = ({ auth }) => {
                 text: '<i class="fa fa-file-excel" aria-hidden="true"></i>',
                 titleAttr: 'Excel',
                 className: 'datatable-export-button rounded ms-1',
+                enabled: data && data.length > 0 ? true : false,
                 filename: exportConstants.title,
                 exportOptions: {
                   columns: exportConstants.columns,
@@ -286,6 +288,7 @@ const Sim = ({ auth }) => {
                 text: '<i class="fa fa-file-pdf" aria-hidden="true"></i>',
                 titleAttr: 'PDF',
                 className: 'dt-btn datatable-export-button ms-1 rounded',
+                enabled: data && data.length > 0 ? true : false,
                 filename: exportConstants.title,
                 download: 'open',
                 exportOptions: {
@@ -300,6 +303,7 @@ const Sim = ({ auth }) => {
                 text: '<i class="fa fa-print" aria-hidden="true"></i>',
                 titleAttr: 'Imprimer',
                 className: 'dt-btn datatable-export-button mx-1 rounded',
+                enabled: data && data.length > 0 ? true : false,
                 filename: exportConstants.title,
                 exportOptions: {
                   columns: exportConstants.columns,
