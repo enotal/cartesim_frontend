@@ -35,16 +35,15 @@ const Role = () => {
   const showModalBtnLaunchRef = useRef()
   const deleteFormBtnLaunchRef = useRef()
   const deleteFormBtnCloseRef = useRef()
-
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
-
   const [indexAlert, setIndexAlert] = useState(null)
   const [createAlert, setCreateAlert] = useState(null)
   const [createFormAction, setCreateFormAction] = useState(null)
   const [sessiondemandes, setSessiondemandes] = useState([])
   const [sites, setSites] = useState([])
+   const exportConstants = { title: "Liste des rôles d'utilisateurs", columns: [1, 2, 3] }
 
   const apiResource = {
     get: 'roles',
@@ -69,7 +68,7 @@ const Role = () => {
       title: 'ACTIVE',
       data: null,
       render: (data, type, row) => {
-        return `<div class="d-flex justify-content-center align-content-center ${row.rleactive === 'oui' ? 'text-success' : 'text-danger'}"><i class="fa fa-circle " aria-hidden="true"></i></div>`
+        return `<div class="d-flex justify-content-center align-content-center ${row.rleactive === 'oui' ? 'text-success' : 'text-danger'}"><i class="fa fa-circle " aria-hidden="true"></i><span class="d-none">${row.rleactive}</span></div>`
       },
     },
     // {
@@ -166,25 +165,30 @@ const Role = () => {
                 text: '<i class="fa fa-file-text" aria-hidden="true"></i>',
                 titleAttr: 'CSV',
                 className: 'dt-btn datatable-export-button rounded',
-                // filename: tableTitle,
-                exportOptions: {},
+                filename: exportConstants.title,
+                exportOptions: {
+                  columns: exportConstants.columns,
+                },
               },
-              // {
-              //   extend: "excel",
-              //   text: '<i class="fa fa-file-text" aria-hidden="true"></i>',
-              //   titleAttr: "Excel",
-              //   className: "datatable-export-button rounded",
-              //   // filename: tableTitle,
-              //   exportOptions: {},
-              // },
+              {
+                extend: 'excel',
+                text: '<i class="fa fa-file-excel" aria-hidden="true"></i>',
+                titleAttr: 'Excel',
+                className: 'datatable-export-button rounded ms-1',
+                filename: exportConstants.title,
+                exportOptions: {
+                  columns: exportConstants.columns,
+                },
+              },
               {
                 extend: 'pdf',
                 text: '<i class="fa fa-file-pdf" aria-hidden="true"></i>',
                 titleAttr: 'PDF',
                 className: 'dt-btn datatable-export-button ms-1 rounded',
-                // filename: tableTitle,
+                filename: exportConstants.title,
                 download: 'open',
                 exportOptions: {
+                  columns: exportConstants.columns,
                   modifier: {
                     page: 'current',
                   },
@@ -195,17 +199,13 @@ const Role = () => {
                 text: '<i class="fa fa-print" aria-hidden="true"></i>',
                 titleAttr: 'Imprimer',
                 className: 'dt-btn datatable-export-button mx-1 rounded',
-                // filename: tableTitle,
-                exportOptions: {},
-              },
-              {
-                extend: 'colvis',
-                text: 'Filtrer par colonne',
-                className: 'dt-btn datatable-export-button rounded',
-                align: 'button-right',
-                columns: `:visible :not(:first-child)`,
-                // exclude: [0],
-                exportOptions: {},
+                filename: exportConstants.title,
+                exportOptions: {
+                  columns: exportConstants.columns,
+                  modifier: {
+                    page: 'current',
+                  },
+                },
               },
             ],
           },
