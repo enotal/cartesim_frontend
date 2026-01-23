@@ -8,3 +8,14 @@ export const colors = {
 }
 export const repondantColumnToImport = ['ine', 'matricule', 'sexe', 'email']
 export const simColumnToImport = ['numero', 'code']
+/*export const administrateur = {
+  id: null,
+  email: 'cartesim',
+  name: '',
+  lastname: '',
+  sexe: '',
+  roles: ["administrateur"],
+  province: null,
+  region: null,
+  token:null,
+}*/

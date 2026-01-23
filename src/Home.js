@@ -47,15 +47,15 @@ const Home = () => {
     const formData = new FormData(formRef.current)
     const formValues = Object.fromEntries(formData)
     // Soumission
-    await login(formValues).then((response) => {
-      if (response.success) {
-        // localStorage.setItem('cartesim.auth', JSON.stringify(response.data))
-        setCookie(cookieItems[0], JSON.stringify(response.data), { path: '/' })
-        navigate('/dashboard', { replace: true })
-      } else {
-        setAlert(response)
-      }
-    })
+    const response = await login(formValues)
+    if (response.success) {
+      console.log(response.data)
+      // localStorage.setItem('cartesim.auth', JSON.stringify(response.data))
+      // setCookie(cookieItems[0], JSON.stringify(response.data), { path: '/' })
+      // navigate('/dashboard', { replace: true })
+    } else {
+      setAlert(response)
+    }
   }
 
   return (
