@@ -1,7 +1,7 @@
 import React, { Suspense, useEffect, useState } from 'react'
 import { HashRouter, Route, Routes } from 'react-router-dom'
 import { useSelector } from 'react-redux'
-import ProtectedRoute from './ProtectedRoute'
+import { PrivateRoutes, PublicRoutes } from './ProtectedRoute'
 
 // Bootstrap
 import 'bootstrap/dist/css/bootstrap.min.css'
@@ -28,7 +28,6 @@ const DefaultLayout = React.lazy(() => import('./layout/DefaultLayout'))
 const App = () => {
   const { isColorModeSet, setColorMode } = useColorModes('coreui-free-react-admin-template-theme')
   const storedTheme = useSelector((state) => state.theme)
-  const [cookies, setCookie] = useCookies(cookieItems[0])
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.href.split('?')[1])
@@ -44,9 +43,6 @@ const App = () => {
     setColorMode(storedTheme)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const userData = cookies[cookieItems[0]] ? cookies[cookieItems[0]] : null
-  // console.log(userData)
-
   return (
     <HashRouter>
       <Suspense
@@ -57,7 +53,8 @@ const App = () => {
         }
       >
         <Routes>
-          {/* Public Routes */}
+          {/* Public Routes (for guests only) */}
+          {/* <Route element={<PublicRoutes />}> */}
           <Route exact path="/" name="Accueil" element={<Home />} />
           <Route
             path="/demandes/soumettre"
@@ -74,9 +71,16 @@ const App = () => {
             name="SimDeclarerPerte"
             element={<SimDeclarerPerte />}
           />
+<<<<<<< HEAD
           {/* Protected Routes */}
           <Route element={<ProtectedRoute />}>
             <Route path="*" name="Dashboard" element={<DefaultLayout auth={userData} />} />
+=======
+          {/* </Route> */}
+          {/* Protected Routes (for authenticated users only) */}
+          <Route element={<PrivateRoutes />}>
+            <Route path="*" name="Dashboard" element={<DefaultLayout />} />
+>>>>>>> tone
           </Route>
           {/*  */}
         </Routes>

@@ -1,15 +1,21 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import PropTypes from 'prop-types'
-
 import SimpleBar from 'simplebar-react'
 import 'simplebar-react/dist/simplebar.min.css'
-
 import { CBadge, CNavLink, CSidebarNav } from '@coreui/react'
+import { cookieItems } from '../constants'
 
 export const AppSidebarNav = ({ items }) => {
-  const auth = JSON.parse(localStorage.getItem('cartesim.auth'))
-  const roles = auth ? auth.roles : null
+  const [roles, setRoles] = useState([])
+
+  useEffect(() => {
+    const json = localStorage.getItem(cookieItems[0])
+    if (json !== null) {
+      let auth = JSON.parse(json)
+      setRoles(auth.roles)
+    }
+  }, [])
 
   const navLink = (name, icon, badge, indent = false) => {
     return (

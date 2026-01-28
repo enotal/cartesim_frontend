@@ -22,24 +22,17 @@ import {
   cilUser,
 } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
-import { logout } from '../../apiService'
 import { AvatarFemme, AvatarHomme } from '../../assets/images/avatars/avatars'
-import { useCookies } from 'react-cookie'
 import { cookieItems } from '../../constants'
+import { logout } from '../../apiService'
 
 const AppHeaderDropdown = ({ auth }) => {
   const navigate = useNavigate()
-  const [cookies, removeCookie] = useCookies(cookieItems)
-  const userData = cookies[cookieItems[0]] ? cookies[cookieItems[0]] : null
-  // Logout
   const handleLogout = async () => {
-    await logout().then((response) => {
-      // localStorage.removeItem('cartesim.auth')
-      removeCookie(cookieItems[0])
-      navigate('/', { replace: true })
-    })
+    const response = await logout(auth)
+    localStorage.setItem(cookieItems[0], null)
+    navigate('/', { replace: true })
   }
-  //
   return (
     <CDropdown variant="nav-item">
       <div className="text-light">

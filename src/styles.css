@@ -18,15 +18,17 @@
 
 /* 08012026 */
 .homeTitle {
-  background-color: #056709;
-  border-color: #056709;
+  background-color: '#fff';
+  border-color: #fff;
   font-weight: bolder;
-  font-size: 1.5em;
-  color: #fff;
+  font-size: 1.7em;
+  color: #056709;
+  border-bottom: 5px solid #056709;
 }
 
 .home-description {
-  text-align: justify;
+  text-align: justify; 
+  font-size: 1.2em;
 }
 
 .home-login-form .card {
@@ -143,9 +145,9 @@ table .show-table-value {
   color: #00407d;
 }
 
-.statisticCard{
-background-color: #f3f4f7; 
-border: 1px solid #056709;
+.statisticCard {
+  background-color: #f3f4f7;
+  border: 1px solid #056709;
 }
 .statisticCardTitle {
   font-size: 1.2em;

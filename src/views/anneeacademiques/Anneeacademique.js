@@ -43,7 +43,7 @@ const Anneeacademique = () => {
   const [indexAlert, setIndexAlert] = useState(null)
   const [createAlert, setCreateAlert] = useState(null)
   const [createFormAction, setCreateFormAction] = useState(null)
-  const exportConstants = { title: 'Liste des années académiques', columns: [1, 2, 3, 4, 5, 6] }
+  const exportConstants = { title: 'Liste des années académiques', columns: [1, 2, 3, 4, 5, 6, 7] }
 
   const apiResource = {
     get: 'anneeacademiques',
@@ -100,7 +100,7 @@ const Anneeacademique = () => {
       title: 'ACTIVE',
       data: null,
       render: (data, type, row) => {
-        return `<div class="d-flex justify-content-center align-content-center ${row.acaactive === 'oui' ? 'text-success' : 'text-danger'}"><i class="fa fa-circle " aria-hidden="true"></i></div>`
+        return `<div class="d-flex justify-content-center align-content-center ${row.acaactive === 'oui' ? 'text-success' : 'text-danger'}"><i class="fa fa-circle " aria-hidden="true"></i><span class="d-none">${row.acaactive}</span></div>`
       },
     },
     {
@@ -205,6 +205,7 @@ const Anneeacademique = () => {
                 text: '<i class="fa fa-file-text" aria-hidden="true"></i>',
                 titleAttr: 'CSV',
                 className: 'dt-btn datatable-export-button rounded',
+                enabled: data && data.length > 0 ? true : false,
                 filename: exportConstants.title,
                 exportOptions: {
                   columns: exportConstants.columns,
@@ -212,9 +213,10 @@ const Anneeacademique = () => {
               },
               {
                 extend: 'excel',
-                text: '<i class="fa fa-file-excel" aria-hidden="true"></i>', 
+                text: '<i class="fa fa-file-excel" aria-hidden="true"></i>',
                 titleAttr: 'Excel',
                 className: 'datatable-export-button rounded ms-1',
+                enabled: data && data.length > 0 ? true : false,
                 filename: exportConstants.title,
                 exportOptions: {
                   columns: exportConstants.columns,
@@ -225,6 +227,7 @@ const Anneeacademique = () => {
                 text: '<i class="fa fa-file-pdf" aria-hidden="true"></i>',
                 titleAttr: 'PDF',
                 className: 'dt-btn datatable-export-button ms-1 rounded',
+                enabled: data && data.length > 0 ? true : false,
                 filename: exportConstants.title,
                 download: 'open',
                 exportOptions: {
@@ -239,6 +242,7 @@ const Anneeacademique = () => {
                 text: '<i class="fa fa-print" aria-hidden="true"></i>',
                 titleAttr: 'Imprimer',
                 className: 'dt-btn datatable-export-button mx-1 rounded',
+                enabled: data && data.length > 0 ? true : false,
                 filename: exportConstants.title,
                 exportOptions: {
                   columns: exportConstants.columns,
@@ -247,13 +251,6 @@ const Anneeacademique = () => {
                   },
                 },
               },
-              /*{
-                extend: 'colvis',
-                text: 'Filtrer par colonne',
-                className: 'dt-btn datatable-export-button rounded',
-                align: 'button-right',
-                columns: `:visible :not(:first-child)`,
-              },*/
             ],
           },
         },

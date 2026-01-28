@@ -2,11 +2,12 @@ import React, { useEffect, useState, useRef } from 'react'
 // Datatables
 import 'jquery'
 import $ from 'jquery'
-import 'datatables.net-bs5'
+import DataTable from 'datatables.net-bs5' // Required for .xlsx
 import 'datatables.net-select'
 import 'datatables.net-buttons'
 import 'datatables.net-buttons-bs5'
-import 'datatables.net-buttons/js/buttons.html5.min.js'
+import 'datatables.net-buttons/js/buttons.html5.js'
+import JSZip from 'jszip' // Required for .xlsx
 import 'datatables.net-buttons/js/buttons.print.min.js'
 import 'datatables.net-buttons/js/buttons.colVis.min.js'
 import 'pdfmake'
@@ -16,6 +17,7 @@ import 'datatables.net-buttons-bs5/css/buttons.bootstrap5.css'
 import 'datatables.net-buttons-bs5/js/buttons.bootstrap5.js'
 import 'datatables.net-bs5/css/dataTables.bootstrap5.css'
 import 'datatables.net-bs5/js/dataTables.bootstrap5.js'
+DataTable.Buttons.jszip(JSZip)
 //
 import { getData, getItem, createItem, updateItem, deleteItem, getItemBy } from '../../apiService'
 import { CustomRequired } from '../../components/CustomRequired'
@@ -63,6 +65,7 @@ const Sim = ({ auth }) => {
   const [regions, setRegions] = useState([])
   const [provinces, setProvinces] = useState([])
   const [delay, SetDelay] = useState(2000)
+  const exportConstants = { title: 'Liste des cartes SIM', columns: [1, 2, 3, 4, 5, 6, 7] }
 
   const apiResource = {
     get: 'sims',
@@ -263,25 +266,33 @@ const Sim = ({ auth }) => {
                 text: '<i class="fa fa-file-text" aria-hidden="true"></i>',
                 titleAttr: 'CSV',
                 className: 'dt-btn datatable-export-button rounded',
-                // filename: tableTitle,
-                exportOptions: {},
+                enabled: data && data.length > 0 ? true : false,
+                filename: exportConstants.title,
+                exportOptions: {
+                  columns: exportConstants.columns,
+                },
               },
-              // {
-              //   extend: "excel",
-              //   text: '<i class="fa fa-file-text" aria-hidden="true"></i>',
-              //   titleAttr: "Excel",
-              //   className: "datatable-export-button rounded",
-              //   // filename: tableTitle,
-              //   exportOptions: {},
-              // },
+              {
+                extend: 'excel',
+                text: '<i class="fa fa-file-excel" aria-hidden="true"></i>',
+                titleAttr: 'Excel',
+                className: 'datatable-export-button rounded ms-1',
+                enabled: data && data.length > 0 ? true : false,
+                filename: exportConstants.title,
+                exportOptions: {
+                  columns: exportConstants.columns,
+                },
+              },
               {
                 extend: 'pdf',
                 text: '<i class="fa fa-file-pdf" aria-hidden="true"></i>',
                 titleAttr: 'PDF',
                 className: 'dt-btn datatable-export-button ms-1 rounded',
-                // filename: tableTitle,
+                enabled: data && data.length > 0 ? true : false,
+                filename: exportConstants.title,
                 download: 'open',
                 exportOptions: {
+                  columns: exportConstants.columns,
                   modifier: {
                     page: 'current',
                   },
@@ -292,17 +303,14 @@ const Sim = ({ auth }) => {
                 text: '<i class="fa fa-print" aria-hidden="true"></i>',
                 titleAttr: 'Imprimer',
                 className: 'dt-btn datatable-export-button mx-1 rounded',
-                // filename: tableTitle,
-                exportOptions: {},
-              },
-              {
-                extend: 'colvis',
-                text: 'Filtrer par colonne',
-                className: 'dt-btn datatable-export-button rounded',
-                align: 'button-right',
-                columns: `:visible :not(:first-child)`,
-                // exclude: [0],
-                exportOptions: {},
+                enabled: data && data.length > 0 ? true : false,
+                filename: exportConstants.title,
+                exportOptions: {
+                  columns: exportConstants.columns,
+                  modifier: {
+                    page: 'current',
+                  },
+                },
               },
             ],
           },

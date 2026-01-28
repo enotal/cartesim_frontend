@@ -53,6 +53,7 @@ const Demande = ({ auth }) => {
   const [sites, setSites] = useState([])
   const [regions, setRegions] = useState([])
   const [sims, setSims] = useState([])
+  const exportConstants = { title: 'Liste des demandes', columns: [1, 2, 3, 4, 5, 6] }
 
   const apiResource = {
     get: 'demandes',
@@ -133,7 +134,6 @@ const Demande = ({ auth }) => {
   const fetchGet = async () => {
     try {
       const data = await getData(apiResource.get)
-      console.log(auth.province)
       const r = auth.roles.includes('administrateur')
         ? data
         : auth.region !== null
@@ -141,7 +141,6 @@ const Demande = ({ auth }) => {
               (item) => item.site.province && item.site.province.region_id === auth.region.id,
             )
           : data
-      console.log(r)
       setData(
         auth.roles.includes('administrateur')
           ? data
@@ -261,25 +260,33 @@ const Demande = ({ auth }) => {
                 text: '<i class="fa fa-file-text" aria-hidden="true"></i>',
                 titleAttr: 'CSV',
                 className: 'dt-btn datatable-export-button rounded',
-                // filename: tableTitle,
-                exportOptions: {},
+                enabled: data && data.length > 0 ? true : false,
+                filename: exportConstants.title,
+                exportOptions: {
+                  columns: exportConstants.columns,
+                },
               },
-              // {
-              //   extend: "excel",
-              //   text: '<i class="fa fa-file-text" aria-hidden="true"></i>',
-              //   titleAttr: "Excel",
-              //   className: "datatable-export-button rounded",
-              //   // filename: tableTitle,
-              //   exportOptions: {},
-              // },
+              {
+                extend: 'excel',
+                text: '<i class="fa fa-file-excel" aria-hidden="true"></i>',
+                titleAttr: 'Excel',
+                className: 'datatable-export-button rounded ms-1',
+                enabled: data && data.length > 0 ? true : false,
+                filename: exportConstants.title,
+                exportOptions: {
+                  columns: exportConstants.columns,
+                },
+              },
               {
                 extend: 'pdf',
                 text: '<i class="fa fa-file-pdf" aria-hidden="true"></i>',
                 titleAttr: 'PDF',
                 className: 'dt-btn datatable-export-button ms-1 rounded',
-                // filename: tableTitle,
+                enabled: data && data.length > 0 ? true : false,
+                filename: exportConstants.title,
                 download: 'open',
                 exportOptions: {
+                  columns: exportConstants.columns,
                   modifier: {
                     page: 'current',
                   },
@@ -290,17 +297,14 @@ const Demande = ({ auth }) => {
                 text: '<i class="fa fa-print" aria-hidden="true"></i>',
                 titleAttr: 'Imprimer',
                 className: 'dt-btn datatable-export-button mx-1 rounded',
-                // filename: tableTitle,
-                exportOptions: {},
-              },
-              {
-                extend: 'colvis',
-                text: 'Filtrer par colonne',
-                className: 'dt-btn datatable-export-button rounded',
-                align: 'button-right',
-                columns: `:visible :not(:first-child)`,
-                // exclude: [0],
-                exportOptions: {},
+                enabled: data && data.length > 0 ? true : false,
+                filename: exportConstants.title,
+                exportOptions: {
+                  columns: exportConstants.columns,
+                  modifier: {
+                    page: 'current',
+                  },
+                },
               },
             ],
           },
