@@ -1,2 +1,16 @@
+<<<<<<< HEAD
 # Enforce Unix newlines
 * text=auto eol=lf
+=======
+* text=auto eol=lf
+
+*.blade.php diff=html
+*.css diff=css
+*.html diff=html
+*.md diff=markdown
+*.php diff=php
+
+/.github export-ignore
+CHANGELOG.md export-ignore
+.styleci.yml export-ignore
+>>>>>>> 0e76a0632f198cc30e91c68233552db90bda707f

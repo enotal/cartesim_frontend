@@ -1,14 +1,31 @@
+<<<<<<< HEAD
 # Editor configuration, see http://editorconfig.org
+=======
+>>>>>>> 0e76a0632f198cc30e91c68233552db90bda707f
 root = true
 
 [*]
 charset = utf-8
 end_of_line = lf
+<<<<<<< HEAD
 indent_size = 2
+=======
+indent_size = 4
+>>>>>>> 0e76a0632f198cc30e91c68233552db90bda707f
 indent_style = space
 insert_final_newline = true
 trim_trailing_whitespace = true
 
 [*.md]
+<<<<<<< HEAD
 max_line_length = off
 trim_trailing_whitespace = false
+=======
+trim_trailing_whitespace = false
+
+[*.{yml,yaml}]
+indent_size = 2
+
+[docker-compose.yml]
+indent_size = 4
+>>>>>>> 0e76a0632f198cc30e91c68233552db90bda707f
