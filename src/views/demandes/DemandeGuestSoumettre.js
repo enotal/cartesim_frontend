@@ -23,38 +23,36 @@ const DemandeGuestSoumettre = () => {
   const [show, setShow] = useState(false)
 
   const fetchGetSessiondemande = async () => {
-    await getItem('sessiondemandes_getactive')
-      .then((response) => {
-        setSessiondemande(response.data)
-        if (response.success) {
-          const dd = response.data.seddatedebut !== null ? new Date(response.data.seddatedebut) : ''
-          const df = response.data.seddatefin !== null ? new Date(response.data.seddatefin) : ''
-          setDates({
-            datedebut: dd !== null ? dd.toLocaleDateString() : '',
-            datefin: df !== null ? df.toLocaleDateString() : '',
-          })
-        }
-        setShow(response.success)
+    const response = await getItem('sessiondemandes_getactive')
+    if (response.success) {
+      setSessiondemande(response.data)
+      const dd = response.data.seddatedebut !== null ? new Date(response.data.seddatedebut) : ''
+      const df = response.data.seddatefin !== null ? new Date(response.data.seddatefin) : ''
+      setDates({
+        datedebut: dd !== null ? dd.toLocaleDateString() : '',
+        datefin: df !== null ? df.toLocaleDateString() : '',
       })
-      .catch((err) => console.log(err))
+      setShow(response.success)
+    } else {
+      //
+    }
   }
 
   const fetchGetRegion = async () => {
-    await getItem('regions_getactive')
-      .then((response) => {
-        setRegions(response.data)
-      })
-      .catch((err) => console.log(err))
+    const response = await getItem('regions_getactive')
+    if (response.success) {
+      setRegions(response.data)
+    }
   }
 
   useEffect(() => {
-    // let timerId = setInterval(() => {
-    fetchGetSessiondemande()
-    fetchGetRegion()
-    // }, 2000)
-    // return () => {
-    //   clearInterval(timerId)
-    // }
+    let timerId = setInterval(() => {
+      fetchGetSessiondemande()
+      fetchGetRegion()
+    }, 2000)
+    return () => {
+      clearInterval(timerId)
+    }
   }, [])
 
   // Redirection vers la page d'accueil

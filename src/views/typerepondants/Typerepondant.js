@@ -45,7 +45,6 @@ const Typerepondant = () => {
   const [createFormAction, setCreateFormAction] = useState(null)
   const exportConstants = { title: 'Liste des types de répondants', columns: [1, 2, 3, 4, 5, 6] }
 
-
   const apiResource = {
     get: 'typerepondants',
     show: 'typerepondants/:id',
@@ -112,12 +111,13 @@ const Typerepondant = () => {
   }
 
   useEffect(() => {
-    let timerId = setInterval(() => {
+    // fetchGet()
+    // let timerId = setInterval(() => {
       fetchGet()
-    }, 2000)
-    return () => {
-      clearInterval(timerId)
-    }
+    // }, 2000)
+    // return () => {
+    //   clearInterval(timerId)
+    // }
   }, [])
 
   useEffect(() => {
@@ -422,7 +422,7 @@ const Typerepondant = () => {
             ref={createFormRef}
             onSubmit={handleSubmitCreateForm}
             method="POST"
-            encType="multipart/form-data"
+            encType=""
             create-data-action="create"
             create-data-id=""
           >
