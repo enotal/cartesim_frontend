@@ -1,4 +1,4 @@
-export const cookieItems = ['cartesim.auth']
+export const cookieItems = ['cartesim_auth']
 export const actives = ['non', 'oui']
 export const sexes = ['Féminin', 'Masculin']
 export const colors = {
@@ -19,3 +19,4 @@ export const simColumnToImport = ['numero', 'code']
   region: null,
   token:null,
 }*/
+export const intervalDelays = [10000, 3000000]

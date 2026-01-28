@@ -18,10 +18,6 @@ const Home = () => {
   const formRef = useRef()
   const [alert, setAlert] = useState(null)
 
-  useEffect(() => {
-    //
-  }, [])
-
   // Redirection vers soumettre, suivre et déclarer
   const handleHome = (e) => {
     const name = e.target.name
@@ -45,7 +41,6 @@ const Home = () => {
     // Soumission
     const response = await login(formValues)
     if (response.success) {
-      console.log(response.data)
       localStorage.setItem(cookieItems[0], JSON.stringify(response.data))
       navigate('/dashboard', { replace: true })
     } else {

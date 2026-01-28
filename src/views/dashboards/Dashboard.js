@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { getData } from '../../apiService'
+import { intervalDelays } from '../../constants'
 
-const Dashboard = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(null)
+const Dashboard = ({ auth }) => {
   const [anneeacademique, setAnneeacademique] = useState([])
   const [repondants, setRepondants] = useState([
     { title: 'Répondants', value: 0 },
@@ -41,63 +41,60 @@ const Dashboard = () => {
 
   // Année académique en cours
   const fetchGetAnneeacademique = async () => {
-    await getData('anneeacademiques_getcurrent/:resource')
-      .then((response) => {
-        setAnneeacademique(response)
-        if (response !== null) {
-          const dd = response.acadatedebut !== null ? new Date(response.acadatedebut) : ''
-          const df = response.acadatefin !== null ? new Date(response.acadatefin) : ''
-          setDates({
-            datedebut: dd !== null ? dd.toLocaleDateString() : dd,
-            datefin: df !== null ? df.toLocaleDateString() : df,
-          })
-          // Sessions de demandes
-          if (response.sesssiondemandes) {
-            const d = response.sessiondemandes
-            const ac = d.filter((item) => item.sedactive === 'oui')
-            setSessiondemandes([
-              { title: 'Session de demandes', value: d.length },
-              { title: 'actives', value: ac.length },
-              { title: 'inactives', value: d.length - ac.length },
-            ])
-          }
-          // Sessions de remise
-          if (response.sesssionremises) {
-            const d = response.sessionremises
-            const ac = d.filter((item) => item.seractive === 'oui')
-            setSessionremises([
-              { title: 'Session de remises', value: d.length },
-              { title: 'actives', value: ac.length },
-              { title: 'inactives', value: d.length - ac.length },
-            ])
-          }
-          // Demandes
-          if (response.sessiondemandes.demandes) {
-            const d = response.sessiondemandes.demandes
-            const tr = d.filter((item) => item.sim !== null)
-            setDemandes([
-              { title: 'Demandes', value: d.length },
-              { title: 'traitées', value: tr.length },
-              { title: 'en cours', value: d.length - tr.length },
-            ])
-          }
-          if (response.sims) {
-            const s = response.sims
-            const ass = s.filter((item) => item.region_id !== null || item.province_id !== null)
-            const att = s.filter((item) => item.demande_id !== null)
-            const lib = s.length - att.length
-            setSims([
-              { title: 'Sims', value: s.length },
-              { title: 'associées', value: ass.length },
-              { title: 'attribuées', value: att.length },
-              { title: 'libres', value: lib },
-            ])
-          }
-        } else {
-          //
-        }
+    const response = await getData('anneeacademiques_getcurrent/:resource')
+    if (response) {
+      setAnneeacademique(response)
+      const dd = response.acadatedebut !== null ? new Date(response.acadatedebut) : ''
+      const df = response.acadatefin !== null ? new Date(response.acadatefin) : ''
+      setDates({
+        datedebut: dd !== null ? dd.toLocaleDateString() : dd,
+        datefin: df !== null ? df.toLocaleDateString() : df,
       })
-      .catch((err) => console.log(err))
+      // Sessions de demandes
+      if (response.sesssiondemandes) {
+        const d = response.sessiondemandes
+        const ac = d.filter((item) => item.sedactive === 'oui')
+        setSessiondemandes([
+          { title: 'Session de demandes', value: d.length },
+          { title: 'actives', value: ac.length },
+          { title: 'inactives', value: d.length - ac.length },
+        ])
+      }
+      // Sessions de remise
+      if (response.sesssionremises) {
+        const d = response.sessionremises
+        const ac = d.filter((item) => item.seractive === 'oui')
+        setSessionremises([
+          { title: 'Session de remises', value: d.length },
+          { title: 'actives', value: ac.length },
+          { title: 'inactives', value: d.length - ac.length },
+        ])
+      }
+      // Demandes
+      if (response.sessiondemandes.demandes) {
+        const d = response.sessiondemandes.demandes
+        const tr = d.filter((item) => item.sim !== null)
+        setDemandes([
+          { title: 'Demandes', value: d.length },
+          { title: 'traitées', value: tr.length },
+          { title: 'en cours', value: d.length - tr.length },
+        ])
+      }
+      if (response.sims) {
+        const s = response.sims
+        const ass = s.filter((item) => item.region_id !== null || item.province_id !== null)
+        const att = s.filter((item) => item.demande_id !== null)
+        const lib = s.length - att.length
+        setSims([
+          { title: 'Sims', value: s.length },
+          { title: 'associées', value: ass.length },
+          { title: 'attribuées', value: att.length },
+          { title: 'libres', value: lib },
+        ])
+      }
+    } else {
+      //
+    }
   }
 
   // Répondants
@@ -105,19 +102,24 @@ const Dashboard = () => {
     await getData('repondants')
       .then((response) => {
         const s = response
-        const adm = s.filter(
-          (item) => item.demandes.length > 0 && item.demandes.sim && item.demandes.sim.length === 0,
-        )
-        const ben = s.filter(
-          (item) => item.demandes.length > 0 && item.demandes.sim && item.demandes.sim.length > 0,
-        )
-        const res = s.filter((item) => item.demandes.length === 0)
-        setRepondants([
-          { title: 'Répondants', value: s.length },
-          { title: 'admissibles', value: adm.length },
-          { title: 'bénéficiaires', value: ben.length },
-          { title: 'restants', value: res.length },
-        ])
+        if (s) {
+          const adm = s.filter(
+            (item) =>
+              item.demandes.length > 0 && item.demandes.sim && item.demandes.sim.length === 0,
+          )
+          const ben = s.filter(
+            (item) => item.demandes.length > 0 && item.demandes.sim && item.demandes.sim.length > 0,
+          )
+          const res = s.filter((item) => item.demandes.length === 0)
+          setRepondants([
+            { title: 'Répondants', value: s.length },
+            { title: 'admissibles', value: adm.length },
+            { title: 'bénéficiaires', value: ben.length },
+            { title: 'restants', value: res.length },
+          ])
+        } else {
+          //
+        }
       })
       .catch((err) => console.log(err))
   }
@@ -152,7 +154,7 @@ const Dashboard = () => {
       fetchGetRepondant()
       fetchGetSite()
       // fetchGetRemise()
-    }, 2000)
+    }, intervalDelays[0])
     return () => {
       clearInterval(timerId)
     }

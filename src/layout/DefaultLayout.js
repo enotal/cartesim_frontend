@@ -1,10 +1,13 @@
+import { useEffect, useState } from 'react'
 import { AppContent, AppSidebar, AppHeader } from '../components/index'
-// import myBackground from '../assets/images/background.jpg'
+import { isAuthenticated } from '../Auth'
 
-const DefaultLayout = ({ auth }) => {
+const DefaultLayout = () => {
+  const auth = isAuthenticated()
+
   return (
     <div className="defaultLayout-main-container" style={{ backgroundColor: '#fff' }}>
-      <AppSidebar />
+      <AppSidebar auth={auth} />
       <div className="wrapper d-flex flex-column min-vh-100">
         <AppHeader auth={auth} />
         <div className="body flex-grow-1">

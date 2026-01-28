@@ -1,6 +1,5 @@
 import React from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-
 import {
   CCloseButton,
   CSidebar,
@@ -13,11 +12,10 @@ import {
 import CIcon from '@coreui/icons-react'
 import { AppSidebarNav } from './AppSidebarNav'
 import { LogoUvbfAccueil } from '../assets/brand/logo'
-
 // sidebar nav config
 import navigation from '../_nav'
 
-const AppSidebar = () => {
+const AppSidebar = ({ auth }) => {
   const dispatch = useDispatch()
   const sidebarShow = useSelector((state) => state.sidebarShow)
   const unfoldable = useSelector((state) => state.sidebarUnfoldable)
