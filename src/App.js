@@ -15,9 +15,6 @@ import './scss/style.scss'
 import './scss/examples.scss'
 import './styles.css'
 
-import { Cookies, useCookies } from 'react-cookie'
-import { cookieItems } from './constants'
-
 // Containers
 const Home = React.lazy(() => import('./Home'))
 const DemandeGuestSoumettre = React.lazy(() => import('./views/demandes/DemandeGuestSoumettre'))
@@ -71,16 +68,10 @@ const App = () => {
             name="SimDeclarerPerte"
             element={<SimDeclarerPerte />}
           />
-<<<<<<< HEAD
-          {/* Protected Routes */}
-          <Route element={<ProtectedRoute />}>
-            <Route path="*" name="Dashboard" element={<DefaultLayout auth={userData} />} />
-=======
           {/* </Route> */}
           {/* Protected Routes (for authenticated users only) */}
           <Route element={<PrivateRoutes />}>
             <Route path="*" name="Dashboard" element={<DefaultLayout />} />
->>>>>>> tone
           </Route>
           {/*  */}
         </Routes>

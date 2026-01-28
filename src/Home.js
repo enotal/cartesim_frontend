@@ -11,17 +11,12 @@ import {
   VerticalCartesimLink,
 } from './assets/images/images'
 import { colors } from './constants'
-<<<<<<< HEAD
-import { useCookies } from 'react-cookie'
-=======
->>>>>>> tone
 import { cookieItems } from './constants'
 
 const Home = () => {
   const navigate = useNavigate()
   const formRef = useRef()
   const [alert, setAlert] = useState(null)
-  const [cookies, setCookie] = useCookies(cookieItems)
 
   // Redirection vers soumettre, suivre et déclarer
   const handleHome = (e) => {
