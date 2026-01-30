@@ -6,16 +6,16 @@ import 'datatables.net-bs5'
 import 'datatables.net-select'
 import 'datatables.net-buttons'
 import 'datatables.net-buttons-bs5'
-import 'datatables.net-buttons/js/buttons.html5.min.js'
-import 'datatables.net-buttons/js/buttons.print.min.js'
-import 'datatables.net-buttons/js/buttons.colVis.min.js'
+// import 'datatables.net-buttons/js/buttons.html5.min.js'
+// import 'datatables.net-buttons/js/buttons.print.min.js'
+// import 'datatables.net-buttons/js/buttons.colVis.min.js'
 import 'pdfmake'
 import 'pdfmake/build/vfs_fonts'
 import language from 'datatables.net-plugins/i18n/fr-FR.json'
-import 'datatables.net-buttons-bs5/css/buttons.bootstrap5.css'
-import 'datatables.net-buttons-bs5/js/buttons.bootstrap5.js'
-import 'datatables.net-bs5/css/dataTables.bootstrap5.css'
-import 'datatables.net-bs5/js/dataTables.bootstrap5.js'
+// import 'datatables.net-buttons-bs5/css/buttons.bootstrap5.css'
+// import 'datatables.net-buttons-bs5/js/buttons.bootstrap5.js'
+// import 'datatables.net-bs5/css/dataTables.bootstrap5.css'
+// import 'datatables.net-bs5/js/dataTables.bootstrap5.js'
 //
 import { getData, getItem, createItem, updateItem, deleteItem } from '../../apiService'
 import { CustomRequired } from '../../components/CustomRequired'
@@ -292,7 +292,7 @@ const Demande = ({ auth }) => {
                   },
                 },
               },
-              {
+              /*{
                 extend: 'print',
                 text: '<i class="fa fa-print" aria-hidden="true"></i>',
                 titleAttr: 'Imprimer',
@@ -305,7 +305,7 @@ const Demande = ({ auth }) => {
                     page: 'current',
                   },
                 },
-              },
+              },*/
             ],
           },
         },
