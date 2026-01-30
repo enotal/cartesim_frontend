@@ -46,7 +46,6 @@ const Utilisateur = ({ auth }) => {
   const [roles, setRoles] = useState([])
   const [regions, setRegions] = useState([])
   const [provinces, setProvinces] = useState([])
-  const [selectedRoles, setSelectedRoles] = useState([])
   const [sessiondemandes, setSessiondemandes] = useState([])
   const [sites, setSites] = useState([])
   const exportConstants = { title: 'Liste des utilisateurs', columns: [1, 2, 3, 4, 5, 6, 7, 8] }
@@ -118,8 +117,8 @@ const Utilisateur = ({ auth }) => {
         // const btnShow = `<a class="btn btn-outline-warning me-1 tableActionBtn tableActionBtnShowItem" href="#" data-id="${row.id}" title="Voir les détails"><i class="fa fa-eye" aria-hidden="true"></i></a>`
         const btnEdit = `<a class="btn btn-outline-info me-1 tableActionBtn tableActionBtnEditItem" href="#" data-id="${row.id}" title="Editer"><i class="fa fa-edit" aria-hidden="true"></i></a>`
         const btnDelete = `<a class="btn btn-outline-danger me-1 tableActionBtn tableActionBtnDeleteItem" href="#" data-id="${row.id}" title="Supprimer"><i class="fa fa-trash" aria-hidden="true"></i></a>`
-        const btnPassword = `<a class="btn btn-outline-secondary tableActionBtn tableActionBtnPasswordItem" href="#" data-id="${row.id}" title="Générer un nouveau mot de passe"><i class="fa fa-key" aria-hidden="true"></i></a>`
-        return `<div class="d-flex align-content-center justify-content-center">${btnEdit + btnDelete + btnPassword}</div>`
+        //const btnPassword = `<a class="btn btn-outline-secondary tableActionBtn tableActionBtnPasswordItem" href="#" data-id="${row.id}" title="Générer un nouveau mot de passe"><i class="fa fa-key" aria-hidden="true"></i></a>`
+        return `<div class="d-flex align-content-center justify-content-center">${btnEdit + btnDelete}</div>`
       },
     },
   ]
@@ -324,17 +323,8 @@ const Utilisateur = ({ auth }) => {
           // Iterate over all checkboxes with the name 'choices[]'
           $('input[name="role"]').each(function () {
             var checkboxValue = $(this).val()
-            // Check if the current checkbox value is in the 'selectedValues' array
             const rleIds = r.roles.map((role) => role.id)
-            if (rleIds.toString().includes(checkboxValue)) {
-              // If it is, set the 'checked' property to true
-              $(this).prop('checked', true)
-              selectedRoles.push($(this).val())
-            } else {
-              // Optional: uncheck the box if it's not in the array
-              selectedRoles.pop($(this).val())
-              $(this).prop('checked', false)
-            }
+            $(this).prop('checked', rleIds.toString().includes(checkboxValue) ? true : false)
           })
           $('input[name="region"][value="' + r.region_id + '"]').prop('checked', true)
           $('input[name="province"][value="' + r.province_id + '"]').prop('checked', true)
@@ -362,20 +352,6 @@ const Utilisateur = ({ auth }) => {
   }
   //
 
-  const handleRole = (event) => {
-    const { value, checked } = event.target
-    // Use a functional state update to ensure the latest state is used
-    setSelectedRoles((prevSelectedItems) => {
-      if (checked) {
-        // If checked, add the value to the array
-        return [...prevSelectedItems, value]
-      } else {
-        // If unchecked, remove the value from the array using filter
-        return prevSelectedItems.filter((item) => item !== value)
-      }
-    })
-  }
-
   const handleSubmitCreateForm = async (e) => {
     e.preventDefault()
     // récupération des données du formulaire
@@ -384,7 +360,15 @@ const Utilisateur = ({ auth }) => {
     if (createFormRef.current && createFormBtnCloseRef.current) {
       const formData = new FormData(createFormRef.current)
       const formValues = Object.fromEntries(formData)
+      // Récupération des rôles
+      let selectedRoles = []
+      $('input[name="role"]').each(function () {
+        if ($(this).prop('checked')) {
+          selectedRoles.push($(this).val())
+        }
+      })
       formValues.role = selectedRoles
+      //
       if (action === 'create') {
         await createItem(apiResource.create, formValues).then((response) => {
           if (response.success) {
@@ -396,11 +380,6 @@ const Utilisateur = ({ auth }) => {
       if (action === 'edit') {
         await updateItem(apiResource.update.replace(':id', id), formValues).then((response) => {
           if (response.success) {
-            // Mise à jour du cookie de l'utilisateur
-            let _auth = response.data
-            _auth.token = auth.token
-            localStorage.setItem('cartesim.auth', JSON.stringify(_auth))
-            //
             setIndexAlert(response)
             createFormBtnResetRef.current.click()
             createFormBtnCloseRef.current.click()
@@ -617,7 +596,6 @@ const Utilisateur = ({ auth }) => {
                                   id={'role-' + role.id}
                                   name="role"
                                   value={role.id}
-                                  onChange={handleRole}
                                 />
                                 <label className="form-check-label" htmlFor={'role-' + role.id}>
                                   {index + 1 + '. ' + role.rlelibelle}
@@ -714,21 +692,38 @@ const Utilisateur = ({ auth }) => {
                           </div>
                         </div>
 
-                        {/* Email */}
-                        <div className="mb-2">
-                          <label htmlFor="email" className="form-label mb-0 fw-bolder">
-                            Email
-                            <CustomRequired />
-                          </label>
-                          <div className="">
-                            <input
-                              type="email"
-                              className="form-control"
-                              id="email"
-                              name="email"
-                              placeholder="Votre email professionnel ou autre."
-                              required
-                            />
+                        {/* Email, Password */}
+                        <div className="row mb-2">
+                          <div className="col-md-6 mb-2">
+                            <label htmlFor="email" className="form-label mb-0 fw-bolder">
+                              Email
+                              <CustomRequired />
+                            </label>
+                            <div className="">
+                              <input
+                                type="email"
+                                className="form-control"
+                                id="email"
+                                name="email"
+                                placeholder="Votre email professionnel ou autre."
+                                required
+                              />
+                            </div>
+                          </div>
+                          <div className="col-md-6 mb-2">
+                            <label htmlFor="password" className="form-label mb-0 fw-bolder">
+                              Mot de passe
+                            </label>
+                            <div className="">
+                              <input
+                                type="password"
+                                className="form-control"
+                                id="password"
+                                name="password"
+                                placeholder=""
+                                disabled={createFormAction === 'edit' ? false : true}
+                              />
+                            </div>
                           </div>
                         </div>
 
