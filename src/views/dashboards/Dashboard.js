@@ -128,7 +128,6 @@ const Dashboard = ({ auth }) => {
   const fetchGetSite = async () => {
     await getData('sites')
       .then((response) => {
-        console.log(response)
         const al = response
         const ac = al.filter((item) => item.sitactive === 'oui')
         setSites([

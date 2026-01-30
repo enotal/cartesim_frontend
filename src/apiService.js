@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { isAuthenticated } from './Auth'
 
+// const API_BASE_URL = 'http://api.cartesim.net/api/'
 const API_BASE_URL = 'http://localhost:8000/api/'
 
 // login

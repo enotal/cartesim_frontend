@@ -45,10 +45,18 @@ const DemandeGuestSoumettre = () => {
     }
   }
 
+  const fetchGetSite = async () => {
+    const response = await getItem('sites_getactive')
+    if (response.success) {
+      setSites(response.data)
+    }
+  }
+
   useEffect(() => {
     let timerId = setInterval(() => {
       fetchGetSessiondemande()
-      fetchGetRegion()
+      // fetchGetRegion()
+      fetchGetSite()
     }, 2000)
     return () => {
       clearInterval(timerId)
@@ -176,7 +184,7 @@ const DemandeGuestSoumettre = () => {
                       </div>
                     </div>
                     {/* Région du site désiré pour la remise */}
-                    <div className="my-2">
+                    <div className="my-2 d-none">
                       <label htmlFor="region" className="form-label mb-0 fw-bolder">
                         Région du site désiré pour la remise
                         <CustomRequired />
@@ -213,7 +221,6 @@ const DemandeGuestSoumettre = () => {
                           id="site"
                           name="site"
                           required
-                          disabled
                         >
                           <option value="">Sélectionner ici !</option>
                           {sites.map((site, index) => (
