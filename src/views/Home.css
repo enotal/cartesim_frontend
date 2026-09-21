@@ -1,0 +1,87 @@
+/*  */
+.page-content {
+  justify-content: center !important; 
+  align-items: center !important;
+  width: 80%;
+}
+
+.page-content .card {
+  max-width: 100%;
+  max-height: max-content;
+}
+
+.card {
+  flex: 1;
+  overflow-y: auto;
+  text-align: justify;
+  /* background-image: url('./assets/backgrounds/uv-bf.jpeg');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  background-attachment: fixed; */
+}
+
+.card-title {
+  font-weight: 800;
+  color: #970000;
+  margin: 15px 0 5px 0;
+}
+
+.card-text {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+li {
+  margin-top: 5px;
+}
+
+.list-item-title {
+  font-weight: 800;
+  margin-right: 5px;
+  color: #056709;
+}
+
+.about-buttons {
+  width: 100%;
+  display: flex;
+  gap: 5px;
+  margin-top: 15px;
+}
+
+.about-buttons button {
+  flex: 1;
+  text-align: center;
+  background-color: #056709;
+  color: #c7c7c7;
+}
+
+.about-buttons button {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 2px;
+}
+
+@media screen and (max-width: 650px) {
+  .main-container {
+    padding: 0;
+  }
+
+  .page-content {
+    width: 100%;
+    padding: 5px 10px 5px 5px;
+    gap: 5px;
+  }
+
+  .page-content .card {
+    max-width: 100%;
+    max-height: max-content;
+  }
+
+  .about-buttons button {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+}
