@@ -40,13 +40,13 @@ const _nav = [
     component: CNavItem,
     name: <hr className="my-0" />,
   },
-  {
+  /*{
     component: CNavItem,
     name: 'Types Répondants',
     to: '/typerepondants',
     role: 'administrateur',
     icon: <FontAwesomeIcon icon={faUsers} className="me-1" />,
-  },
+  },*/
   {
     component: CNavItem,
     name: 'Répondants',

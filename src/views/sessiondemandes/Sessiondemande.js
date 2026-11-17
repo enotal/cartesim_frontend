@@ -19,7 +19,8 @@ import { CustomIndexAlert } from '../../components/CustomIndexAlert'
 import { CustomCreateAlert } from '../../components/CustomCreateAlert'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus, faEdit } from '@fortawesome/free-solid-svg-icons'
-import { actives, colors } from '../../constants'
+import axios from 'axios'
+import { actives, colors, APIBASEURL } from '../../constants'
 
 const Sessiondemande = ({ auth }) => {
   const tableRef = useRef()
@@ -34,12 +35,11 @@ const Sessiondemande = ({ auth }) => {
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
-  const [indexAlert, setIndexAlert] = useState(null)
-  const [createAlert, setCreateAlert] = useState(null)
+  const [alert, setAlert] = useState()
   const [createFormAction, setCreateFormAction] = useState(null)
   const [anneeacademiques, setAnneeacademiques] = useState([])
-  const [typerepondants, setTyperepondants] = useState([])
   const exportConstants = { title: 'Liste des sessions de demandes', columns: [1, 2, 3, 4, 5, 6] }
+  const [refresh, setRefresh] = useState()
 
   const apiResource = {
     get: 'sessiondemandes',
@@ -51,45 +51,30 @@ const Sessiondemande = ({ auth }) => {
 
   const columns = [
     { title: 'ID', data: 'id' },
-    { title: 'ANNEE ACADEMIQUE', data: 'anneeacademique.acacode' },
+    //{ title: 'ANNEE', data: 'anneeacademique.acacode' },
     {
-      title: 'DATE DEBUT',
+      title: 'DATE_DEBUT',
       data: null,
       render: (data, type, row) => {
-	if (row.seddatedebut !== null) {
-          const r = new Date(row.seddatedebut)
-          return `<div class="text-center">${r.toLocaleDateString()}</div>`
-	}
-	return ''
+	return row.seddatedebut !== null ? new Date(row.seddatedebut).toLocaleDateString() : ''
       },
     },
     {
-      title: 'DATE FIN',
+      title: 'DATE_FIN',
       data: null,
       render: (data, type, row) => {
-	if (row.seddatefin !== null) {
-          const r = new Date(row.seddatefin)
-          return `<div class="text-center">${r.toLocaleDateString()}</div>` 
-	}
-	return ''
+	return row.seddatefin !== null ? new Date(row.seddatefin).toLocaleDateString() : ''
       },
     },
-    { title: 'TYPE REPONDANT', data: 'typerepondant.tyrlibelle' },
+    { title: 'REGIME', data: 'sedregime' },
     {
       title: 'DEMANDES',
       data: null,
       render: (data, type, row) => {
-        const r = row.demandes && row.demandes.length
-	return `<div class="text-center">${r}</div>`
+        return row.demandes && row.demandes.length
       },
     },
-    {
-      title: 'ACTIVE',
-      data: null,
-      render: (data, type, row) => {
-        return `<div class="d-flex justify-content-center align-content-center ${row.sedactive === 'oui' ? 'text-success' : 'text-danger'}"><i class="fa fa-circle " aria-hidden="true"></i><span class="d-none">${row.sedactive}</span></div>`
-      },
-    },
+    { title: 'STATUT', data: 'sedactive' },
     {
       title: 'ACTIONS',
       data: null,
@@ -103,41 +88,41 @@ const Sessiondemande = ({ auth }) => {
     },
   ]
 
-  const fetchGet = async () => {
-    try {
-      const data = await getData(apiResource.get)
-      setData(data)
-    } catch (err) {
-      setError(err)
-    } finally {
-      setLoading(false)
-    }
-  }
+  useEffect(() =>  {
+  	const controller = new AbortController()
+  	const signal = controller.signal
 
-  const fetchGetAnneeacademique = async () => {
-    const response = await getData('anneeacademiques')
-    if (response) {
-      setAnneeacademiques(response)
-    }
-  }
+	const fetchData = async () => {
+    		try {
+      			// 1. Lancement des requêtes en parallèle
+			// Exemple avec allSettled pour isoler les erreurs
+			const results = await Promise.allSettled([
+				fetch(APIBASEURL+'sessiondemandes', {headers:{Authorization:`Bearer ${auth.token}`}}, {signal}).then((res) => res.json()), 
+				fetch(APIBASEURL+'anneeacademiques',{headers:{Authorization:`Bearer ${auth.token}`}}, {signal}).then((res) => res.json()),
+			])/*, {	headers:{
+					Authorization: `Bearer ${auth.token}`,
+				}
+			})*/
+			
+			// 2. Récupération des réponses HTTP 
+			const resData = results[0].status === 'fulfilled' ? results[0].value: [] 
+			const resAnnee = results[1].status === 'fulfilled' ? results[1].value : []
 
-  const fetchGetTyperepondant = async () => {
-    const response = await getData('typerepondants')
-    if (response) {
-      setTyperepondants(response)
-    }
-  }
-
-  useEffect(() => {
-    // let timerId = setInterval(() => {
-    fetchGet()
-    fetchGetAnneeacademique()
-    fetchGetTyperepondant()
-    // }, 2000)
-    // return () => {
-    //   clearInterval(timerId)
-    // }
-  }, [])
+			// 3. Mise à jour des états 
+			setData(resData)
+			setAnneeacademiques(resAnnee)
+		} catch (err) {
+			if (err.name !== 'AbortError') {
+				setError(err.message)
+			}
+		} finally {
+			setLoading(false) 
+		}
+	}
+	
+	fetchData()
+	return () => controller.abort() // Annulation automatique au démontage 
+  }, [refresh])
 
   useEffect(() => {
     //=== Retrieve saved page from localStorage
@@ -170,7 +155,7 @@ const Sessiondemande = ({ auth }) => {
                 enabled: auth.roles.includes('administrateur') || auth.roles.includes('agent-cpm') ? true : false,
                 action: () => {
                   if (createFormRef.current && createFormBtnLaunchRef.current) {
-                    setCreateAlert(null)
+                    setAlert()
                     setCreateFormAction('create')
                     createFormRef.current.setAttribute('create-data-action', 'create')
                     createFormRef.current.setAttribute('create-data-id', '')
@@ -185,7 +170,6 @@ const Sessiondemande = ({ auth }) => {
 		enabled: false,
                 action: () => {
                   if (deleteFormRef.current && deleteFormBtnLaunchRef.current) {
-                    setIndexAlert(null)
                     $('#deleteQuestion').text(
                       'Voulez-vous vraiment supprimer tous les enregistrements (' +
                         data.length +
@@ -238,20 +222,6 @@ const Sessiondemande = ({ auth }) => {
                   },
                 },
               },
-              /*{
-                extend: 'print',
-                text: '<i class="fa fa-print" aria-hidden="true"></i>',
-                titleAttr: 'Imprimer',
-                className: 'dt-btn datatable-export-button mx-1 rounded',
-                enabled: data && data.length > 0 ? true : false,
-                filename: exportConstants.title,
-                exportOptions: {
-                  columns: exportConstants.columns,
-                  modifier: {
-                    page: 'current',
-                  },
-                },
-              },*/
             ],
           },
         },
@@ -302,36 +272,44 @@ const Sessiondemande = ({ auth }) => {
   // === Edit item
   $('#myTable tbody').on('click', '.tableActionBtnEditItem', async function (e) {
     e.preventDefault()
-    setIndexAlert(null)
-    setCreateAlert(null)
+    setAlert()
     const id = $(this).data('id')
-    await getItem(apiResource.show.replace(':id', id)).then((response) => {
-      if (response.success) {
-        if (createFormRef.current && createFormBtnLaunchRef.current) {
-          const r = response.data
-          setCreateFormAction('edit')
-          createFormRef.current.setAttribute('create-data-action', 'edit')
-          createFormRef.current.setAttribute('create-data-id', id)
-          $('#anneeacademique').val(r.anneeacademique_id)
-          $('#typerepondant').val(r.typerepondant_id)
-          $('#datedebut').val(r.seddatedebut)
-          $('#datefin').val(r.seddatefin)
-          $('input[name="active"][value="' + r.sedactive + '"]').prop('checked', true)
-          $('#commentaire').val(r.sedcommentaire)
-          createFormBtnLaunchRef.current.click()
-        }
-      } else {
-        //
-      }
-    })
+    await axios.get(APIBASEURL+apiResource.show.replace(':id', id), {headers:{Authorization:`Bearer ${auth.token}`}})
+	.then((response) => { 
+      		if (response.status === 200) {
+        		if (createFormRef.current && createFormBtnLaunchRef.current) {
+          			const r = response.data
+          			setCreateFormAction('edit')
+          			createFormRef.current.setAttribute('create-data-action', 'edit')
+          			createFormRef.current.setAttribute('create-data-id', id)
+          			$('#anneeacademique').val(r.anneeacademique_id)
+          			$('#datedebut').val(r.seddatedebut)
+          			$('#datefin').val(r.seddatefin)
+          			$('input[name="active"][value="' + r.sedactive + '"]').prop('checked', true)
+          			$('#commentaire').val(r.sedcommentaire)
+          			createFormBtnLaunchRef.current.click()
+        		} else {
+				//
+			}
+      		} else {
+        		//
+      		}
+    	})
+	.catch((err) =>  {
+		console.log(err.message)
+	})
+	.finally(() => {
+		console.log('Request completed')
+	})
   })
   //
   const handleCancelCreateForm = () => {
     if (createFormRef.current && createFormBtnCloseRef.current) {
-      createFormRef.current.setAttribute('create-data-action', 'create')
-      createFormRef.current.setAttribute('create-data-id', '')
-      createFormBtnResetRef.current.click()
-      createFormBtnCloseRef.current.click()
+	setAlert()
+      	createFormRef.current.setAttribute('create-data-action', 'create')
+      	createFormRef.current.setAttribute('create-data-id', '')
+      	createFormBtnResetRef.current.click()
+      	createFormBtnCloseRef.current.click()
     }
   }
   //
@@ -344,53 +322,90 @@ const Sessiondemande = ({ auth }) => {
       const formData = new FormData(createFormRef.current)
       const formValues = Object.fromEntries(formData)
       if (action === 'create') {
-        await createItem(apiResource.create, formValues).then((response) => {
-          if (response.success) {
-            createFormBtnResetRef.current.click()
-          }
-          setCreateAlert(response)
+        await axios.post(APIBASEURL+apiResource.create, formValues, {headers: {Authorization:`Bearer ${auth.token}`}})
+	.then((response) => {
+            	createFormBtnResetRef.current.click()
+          	setAlert({
+			type: 'success', 
+			message: '1 enregistrement ajouté !', 
+			background: '#056409', 
+			color: '#FFFFFF'
+		})
         })
+	.catch((err) => {
+		console.log(err.message)
+		setAlert({
+			type: 'danger', 
+			message: '1 enregistrement échoué !', 
+			background: '#970000',
+			color: '#FFFFFF' 
+		})
+	})
+	.finally(() => {
+		console.log('Request completed')
+	})
       }
       if (action === 'edit') {
-        await updateItem(apiResource.update.replace(':id', id), formValues).then((response) => {
-          if (response.success) {
-            setIndexAlert(response)
-            createFormBtnResetRef.current.click()
-            createFormBtnCloseRef.current.click()
-          } else {
-            setCreateAlert(response)
-          }
+        await axios.patch(APIBASEURL+apiResource.update.replace(':id', id), formValues, {headers: {Authorization:`Bearer ${auth.token}`}})
+	.then((response) => {
+            	setAlert({
+			type: 'success', 
+			message: '1 enregistrement édité !', 
+			background: '#056409', 
+			color: '#FFFFFF'
+		})
         })
+	.catch((err) => {
+		console.log(err.message)
+		setAlert({
+			type: 'danger',
+			message: '1 enregistement échoué !', 
+			background: '#970000', 
+			color: '#FFFFFF' 
+		})
+	})
+	.finally(() => {
+		console.log('Request completed')
+	})
       }
     }
-    fetchGet()
+    setRefresh(action)
   }
   // ===
 
   // === Delete item
   $('#myTable tbody').on('click', '.tableActionBtnDeleteItem', async function (e) {
     e.preventDefault()
-    setIndexAlert(null)
-    setCreateAlert(null)
+    setAlert()
     const id = $(this).data('id')
-    await getItem(apiResource.show.replace(':id', id)).then((response) => {
-      if (deleteFormRef.current && deleteFormBtnLaunchRef.current) {
-        if (response.success) {
-          deleteFormRef.current.setAttribute('delete-data-action', 'delete')
-          deleteFormRef.current.setAttribute('delete-data-id', id)
-          deleteFormBtnLaunchRef.current.click()
-        } else {
-          //
-        }
-      }
-    })
+    await axios.get(APIBASEURL+apiResource.show.replace(':id', id), {headers:{Authorization:`Bearer ${auth.token}`}})
+	.then((response) => {
+		if (response.status === 200) {
+      			if (deleteFormRef.current && deleteFormBtnLaunchRef.current) {
+          			deleteFormRef.current.setAttribute('delete-data-action', 'delete')
+          			deleteFormRef.current.setAttribute('delete-data-id', id)
+          			deleteFormBtnLaunchRef.current.click()
+        		} else {
+          			//
+        		}
+      		} else {
+			// 
+		}
+    	})
+	.catch((err) => {
+		console.log(err.message)
+	})
+	.finally(() => {
+		console.log('Request completed')
+	})
   })
   //
   const handleCancelDeleteForm = () => {
     if (deleteFormRef.current && deleteFormBtnCloseRef.current) {
-      deleteFormRef.current.setAttribute('delete-data-action', 'delete')
-      deleteFormRef.current.setAttribute('delete-data-id', '')
-      deleteFormBtnCloseRef.current.click()
+	setAlert()
+      	deleteFormRef.current.setAttribute('delete-data-action', 'delete')
+      	deleteFormRef.current.setAttribute('delete-data-id', '')
+      	deleteFormBtnCloseRef.current.click()
     }
   }
   //
@@ -400,15 +415,30 @@ const Sessiondemande = ({ auth }) => {
       const action = deleteFormRef.current.getAttribute('delete-data-action')
       const id = deleteFormRef.current.getAttribute('delete-data-id')
       if (action === 'delete') {
-        await deleteItem(apiResource.delete.replace(':id', id)).then((response) => {
-          if (response.success) {
-            deleteFormBtnCloseRef.current.click()
-          }
-          setIndexAlert(response)
+        await axios.delete(APIBASEURL+apiResource.delete.replace(':id', id), {headers: {Authorization:`Bearer ${auth.token}`}})
+	.then((response) => {
+		setAlert({
+			type: 'success', 
+			message: '1 enregistrement supprimé !', 
+			background: '#056409', 
+			color: '#FFFFFF'
+		})
         })
+	.catch((err) => {
+		console.log(err.message)
+		setAlert({
+			type: 'danger', 
+			message: '1 enregistrement non supprimé !', 
+			background: '#970000', 
+			color: '#FFFFFF'
+		})
+	})
+	.finally(() => {
+		console.log('Request completed')
+	})
       }
     }
-    fetchGet()
+    setRefresh('delete')
   }
   // ===
 
@@ -440,21 +470,6 @@ const Sessiondemande = ({ auth }) => {
     <div className="container">
       <div className="row">
         <div className="col-md-12 offset-md-0">
-          {/* Alerts */}
-          {indexAlert && (
-            <div
-              className="card mb-2"
-              style={{
-                backgroundColor: colors[indexAlert.type],
-                borderColor: colors[indexAlert.type],
-              }}
-            >
-              <div className="card-body py-1">
-                <CustomIndexAlert alert={indexAlert} />
-              </div>
-            </div>
-          )}
-          {/*  */}
           {/* List */}
           <div className="table-responsive p-2">
             <table
@@ -513,21 +528,13 @@ const Sessiondemande = ({ auth }) => {
                     ></button>
                   </div>
                   <div className="modal-body">
-                    {/* Alerts */}
-                    {createAlert && (
-                      <div
-                        className="card mb-2"
-                        style={{
-                          backgroundColor: colors[createAlert.type],
-                          borderColor: colors[createAlert.type],
-                        }}
-                      >
-                        <div className="card-body py-1">
-                          <CustomCreateAlert alert={createAlert} />
-                        </div>
-                      </div>
-                    )}
-                    {/* Required */}
+                    {/* Alert */}
+		    {alert && ( 
+                    	<div className="alert py-1 mb-2" style={{ backgroundColor: alert.background, color: alert.color }}>
+				{alert.message}
+                    	</div>
+		    )}
+		    {/* Required */}
                     <div className="d-flex pb-1">
                       <CustomRequired tagP={true} />
                     </div>
@@ -555,32 +562,6 @@ const Sessiondemande = ({ auth }) => {
                                   key={'anneeacademique-item-' + index}
                                 >
                                   {index + 1 + '. ' + anneeacademique.acacode}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
-                        </div>
-                        {/* Types de répondants */}
-                        <div className="mb-2">
-                          <label htmlFor="typerepondant" className="form-label mb-0">
-                            Type répondant
-                            <CustomRequired />
-                          </label>
-                          <div className="">
-                            <select
-                              className="form-select"
-                              aria-label="Default select example"
-                              id="typerepondant"
-                              name="typerepondant"
-                              required
-                            >
-                              <option value="">Sélectionner ici !</option>
-                              {typerepondants.map((typerepondant, index) => (
-                                <option
-                                  value={typerepondant.id}
-                                  key={'typerepondant-item-' + index}
-                                >
-                                  {index + 1 + '. ' + typerepondant.tyrlibelle}
                                 </option>
                               ))}
                             </select>
@@ -732,15 +713,17 @@ const Sessiondemande = ({ auth }) => {
                     ></button>
                   </div>
                   <div className="modal-body text-center">
-                    <i
-                      className="fa fa-exclamation-triangle me-1 text-danger fw-bolder"
-                      aria-hidden="true"
-                    ></i>
-                    <span id="deleteQuestion">
-                      Voulez-vous vraiment supprimer cet enregistrement ?
-                    </span>
+		  	{alert && (
+				<div className="alert py-1" style={{ backgroundColor: alert.background, color: alert.color }}>
+					{alert.message}
+				</div>
+			)} 
+			<div className="d-flex justify-content-center align-items-center" style={{ display: alert && 'none' }}>
+                    		<i  className="fa fa-exclamation-triangle me-1 text-danger fw-bolder" aria-hidden="true" ></i>
+                    		<span id="deleteQuestion">Voulez-vous vraiment supprimer cet enregistrement ?</span>
+			</div>
                   </div>
-                  <div className="modal-footer border-0 py-1">
+                  <div className="modal-footer py-1">
                     <button
                       type="button"
                       className="btn custom-btn-secondary btn-submit"

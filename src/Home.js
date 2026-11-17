@@ -115,7 +115,7 @@ const Home = () => {
               <div className="col d-flex">
                 <button
                   type="button"
-                  className="btn custom-btn-success flex-grow-1"
+                  className="btn custom-btn-success flex-grow-1 d-none"
                   name="declarer-perte"
                   onClick={handleHome}
                 >

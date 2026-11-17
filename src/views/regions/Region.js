@@ -69,33 +69,24 @@ const Region = ({ auth }) => {
       title: 'PROVINCES',
       data: null,
       render: (data, type, row) => {
-        const r = row.provinces && row.provinces.length
-        return `<div class="text-center">${r}</div>`
+        return row.provinces && row.provinces.length
       },
     },
     {
       title: 'SITES',
       data: null,
       render: (data, type, row) => {
-	const r = row.provinces ? (row.provinces.sites ? row.provinces.sites.length : 0) : 0
-        return `<div class="text-center">${r}</div>`
+	return '' //row.provinces && row.provinces.sites && row.provinces.sites.length
       },
     },
     {
       title: 'SIMS',
       data: null,
       render: (data, type, row) => {
-        const r = row.sims && row.sims.length 
-        return `<div class="text-center">${r}</div>`
+        return row.sims && row.sims.length 
       },
     },
-    {
-      title: 'ACTIVE',
-      data: null,
-      render: (data, type, row) => {
-        return `<div class="d-flex justify-content-center align-content-center ${row.rgnactive === 'oui' ? 'text-success' : 'text-danger'}"><i class="fa fa-circle" aria-hidden="true"></i><span class="d-none">${row.rgnactive}</span></div>`
-      },
-    },
+    { title: 'STATUT', data: 'rgnactive' }, 
     {
       title: 'ACTIONS',
       data: null,
@@ -144,13 +135,8 @@ const Region = ({ auth }) => {
   }
 
   useEffect(() => {
-    // let timerId = setInterval(() => {
     fetchGet()
     fetchGetAnneeacademique()
-    // }, setintervaldelay)
-    // return () => {
-    //   clearInterval(timerId)
-    // }
   }, [])
 
   useEffect(() => {
@@ -253,20 +239,6 @@ const Region = ({ auth }) => {
                   },
                 },
               },
-              /*{
-                extend: 'print',
-                text: '<i class="fa fa-print" aria-hidden="true"></i>',
-                titleAttr: 'Imprimer',
-                className: 'dt-btn datatable-export-button mx-1 rounded',
-                enabled: data && data.length > 0 ? true : false,
-                filename: exportConstants.title,
-                exportOptions: {
-                  columns: exportConstants.columns,
-                  modifier: {
-                    page: 'current',
-                  },
-                },
-              },*/
             ],
           },
         },

@@ -2,7 +2,7 @@ import React from 'react'
 
 const Dashboard = React.lazy(() => import('./views/dashboards/Dashboard'))
 const Anneeacademique = React.lazy(() => import('./views/anneeacademiques/Anneeacademique'))
-const Typerepondant = React.lazy(() => import('./views/typerepondants/Typerepondant'))
+//const Typerepondant = React.lazy(() => import('./views/typerepondants/Typerepondant'))
 const Repondant = React.lazy(() => import('./views/repondants/Repondant'))
 const Sim = React.lazy(() => import('./views/sims/Sim'))
 const Remise = React.lazy(() => import('./views/sims/Remise'))
@@ -19,7 +19,7 @@ const Utilisateur = React.lazy(() => import('./views/utilisateurs/Utilisateur'))
 const routes = [
   { path: '/dashboard', name: 'Dashboard', element: Dashboard },
   { path: '/anneeacademiques', name: 'Années académiques', element: Anneeacademique },
-  { path: '/typerepondants', name: 'Type Répondants', element: Typerepondant },
+  //{ path: '/typerepondants', name: 'Type Répondants', element: Typerepondant },
   { path: '/repondants', name: 'Répondants', element: Repondant },
   { path: '/sims', name: 'Sims', element: Sim },
   { path: '/remises', name: 'Remises', element: Remise },

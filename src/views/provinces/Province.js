@@ -62,33 +62,24 @@ const Province = ({ auth }) => {
       title: 'SITES',
       data: null,
       render: (data, type, row) => {
-        const r = row.sites && row.sites.length
-        return `<div class="text-center">${r}</div>`
+        return row.sites && row.sites.length
       },
     },
     {
       title: 'DEMANDES', 
       data: null, 
       render: (data, type, row) => {
-        const r = row.sites ? (row.sites.demandes ? row.sites.demandes.length : 0) : 0
-        return `<div class="text-center">${r}</div>`
+	return '' //row.sites && row.sites.demandes && row.sites.demandes.length
       }
     },
     {
       title: 'SIMS',
       data: null,
       render: (data, type, row) => {
-        const r = row.sims && row.sims.length
-        return `<div class="text-center">${r}</div>`
+        return row.sims && row.sims.length
       },
     },
-    {
-      title: 'ACTIVE',
-      data: null,
-      render: (data, type, row) => {
-        return `<div class="d-flex justify-content-center align-content-center ${row.prvactive === 'oui' ? 'text-success' : 'text-danger'}"><i class="fa fa-circle" aria-hidden="true"></i><span class="d-none">${row.prvactive}</span></div>`
-      },
-    },
+    { title: 'STATUT', data: 'prvactive' },
     {
       title: 'ACTIONS',
       data: null,

@@ -15,14 +15,13 @@ import language from 'datatables.net-plugins/i18n/fr-FR.json'
 //
 import { getData, getItem, createItem, updateItem, deleteItem } from '../../apiService'
 import { CustomRequired } from '../../components/CustomRequired'
-import { CustomIndexAlert } from '../../components/CustomIndexAlert'
-import { CustomCreateAlert } from '../../components/CustomCreateAlert'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus, faEdit } from '@fortawesome/free-solid-svg-icons'
-import { actives, sexes, colors, repondantColumnToImport } from '../../constants'
+import axios from 'axios'
+import { actives, sexes, colors, repondantColumnToImport, APIBASEURL } from '../../constants'
 import * as XLSX from 'xlsx'
 
-const Repondant = () => {
+const Repondant = ({ auth }) => {
   const tableRef = useRef()
   const createFormRef = useRef()
   const deleteFormRef = useRef()
@@ -38,13 +37,24 @@ const Repondant = () => {
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
-  const [indexAlert, setIndexAlert] = useState(null)
-  const [createAlert, setCreateAlert] = useState(null)
+  const [alert, setAlert] = useState()
+  const [loadexcelalert, setLoadexcelalert] = useState()
+  const [action, setAction] = useState('')
   const [createFormAction, setCreateFormAction] = useState(null)
-  const [typerepondants, setTyperepondants] = useState([])
   const [excelData, setExcelData] = useState([])
   const [importColumns, setImportColumns] = useState([])
-  const exportConstants = { title: 'Liste des répondants', columns: [1, 2, 3, 4, 5, 6] }
+  const exportConstants = { title: 'Liste des répondants', columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] }
+  const [refresh, setRefresh] = useState()
+
+  const regimes = [
+	'étudiant', 
+	'particulier', 
+	'enseignant', 
+	'personnelATOS', 
+	'personneRessource', 
+	'pointFocalRégion', 
+	'déléguéUVBF'
+  ]
 
   const apiResource = {
     get: 'repondants',
@@ -55,34 +65,21 @@ const Repondant = () => {
   }
 
   const columns = [
-    { title: 'ID', data: 'id' },
-    { title: 'IDENTIFIANT', data: 'repidentifiant' },
-    { title: 'SEXE', data: 'repsexe' },
-    { title: 'EMAIL', data: 'repemail' },
+    { title: 'Id', data: 'id' },
+    { title: 'Identifiant', data: 'repidentifiant' },
+    { title: 'Nom', data: 'repnom' },
+    { title: 'Prénom', data: 'repprenom' },  
+    { title: 'Sexe', data: 'repsexe' },
+    { title: 'Email', data: 'repemail' },
+    { title: 'Régime', data: 'repregime' },
+    { title: 'Filière', data: 'repfiliere' },
+    { title: 'Niveau', data: 'repniveau' },  
+    { title: 'Demande', data: 'dmdid' },
+    { title: 'Numéro SIM', data: 'simnumero' }, 
+    { title: 'Inscrit', data: 'repinscription' },
+    { title: 'Actif', data: 'repactive' },
     {
-      title: 'TYPE',
-      data: null,
-      render: (data, type, row) => {
-        return row.typerepondant.tyrlibelle
-      },
-    },
-    {
-      title: 'DEMANDES',
-      data: null,
-      render: (data, type, row) => {
-        const r = row.demandes && row.demandes.length 
-        return `<div class="text-center">${r}</div>`
-      },
-    },
-    {
-      title: 'ACTIVE',
-      data: null,
-      render: (data, type, row) => {
-        return `<div class="d-flex justify-content-center align-content-center ${row.repactive === 'oui' ? 'text-success' : 'text-danger'}"><i class="fa fa-circle " aria-hidden="true"></i><span class="d-none">${row.repactive}</span></div>`
-      },
-    },
-    {
-      title: 'ACTIONS',
+      title: 'Actions',
       data: null,
       render: (data, type, row) => {
         // Détails, Edit, Delete
@@ -94,33 +91,36 @@ const Repondant = () => {
     },
   ]
 
-  const fetchGet = async () => {
-    try {
-      const data = await getData(apiResource.get)
-      setData(data)
-    } catch (err) {
-      setError(err)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const fetchGetTyperepondant = async () => {
-    const response = await getData('typerepondants')
-    if (response) {
-      setTyperepondants(response)
-    }
-  }
-
   useEffect(() => {
-    // let timerId = setInterval(() => {
-    fetchGet()
-    fetchGetTyperepondant()
-    // }, 2000)
-    // return () => {
-    //   clearInterval(timerId)
-    // }
-  }, [])
+	const controller = new AbortController()
+	const signal = controller.signal 
+	//const auth_ = JSON.parse(auth)
+	const fetchData = async () => {
+		try {
+			// 1. Lancement des requêtes en parallèle 
+			// Exemple avec allSettled pour isoler les erreurs 
+			const results = await Promise.allSettled([
+				fetch(APIBASEURL+apiResource.get, {headers: {Authorization:`Bearer ${auth.token}`}}, {signal})
+				.then((res) => res.json()),
+			])
+			
+			// 2. Récupération des réponses HTTP
+			const resData = results[0].status === 'fulfilled' ? results[0].value : []
+
+			// 3. Mise à jour des états 
+			setData(resData) 
+		} catch (err) { console.log(err)
+			if (err.name !== 'AbortError') {
+				setError(err.message)
+			}
+		} finally {
+			setLoading(false)
+		}
+	}
+
+    	fetchData()
+	return () => controller.abort() // Annulation automatique au démontage
+  }, [refresh])
 
   useEffect(() => {
     //=== Retrieve saved page from localStorage
@@ -153,7 +153,9 @@ const Repondant = () => {
                 enabled: true,
                 action: () => {
                   if (createFormRef.current && createFormBtnLaunchRef.current) {
-                    setCreateFormAction('create')
+                    setAction('create')
+		    setAlert()
+		    setLoadexcelalert()
                     createFormRef.current.setAttribute('create-data-action', 'create')
                     createFormRef.current.setAttribute('create-data-id', '')
                     createFormBtnLaunchRef.current.click()
@@ -167,7 +169,9 @@ const Repondant = () => {
 		enabled: false,
                 action: () => {
                   if (deleteFormRef.current && deleteFormBtnLaunchRef.current) {
-                    setIndexAlert(null)
+		    setAction('delete')
+                    setAlert()
+		    setLoadexcelalert()
                     $('#deleteQuestion').text(
                       'Voulez-vous vraiment supprimer tous les enregistrements (' +
                         data.length +
@@ -185,12 +189,25 @@ const Repondant = () => {
                 enabled: true,
                 action: () => {
                   if (importFormRef.current && importFormBtnLaunchRef.current) {
-                    //   setCreateFormAction('create')
+		    setAction('import')
+                    setAlert()
+		    setLoadexcelalert()
                     importFormRef.current.setAttribute('form-action', 'import')
                     importFormRef.current.setAttribute('target-id', '')
                     importFormBtnLaunchRef.current.click()
                   }
                 },
+              }, 
+	      {
+  		text: '<i class="fa fa-xmark me-1" aria-hidden="true"></i>Désinscrire',
+		className: 'dt-btn datatable-button rounded dt-btnDesinscrire btnDesinscrire ms-2', 
+		enabled: true, 
+		action: () => {
+			setAction('desinscrire')
+			setAlert()
+			setLoadexcelalert()
+			console.log('désinscrire !')
+		}, 
               },
             ],
           },
@@ -233,20 +250,6 @@ const Repondant = () => {
                   },
                 },
               },
-              /*{
-                extend: 'print',
-                text: '<i class="fa fa-print" aria-hidden="true"></i>',
-                titleAttr: 'Imprimer',
-                className: 'dt-btn datatable-export-button mx-1 rounded',
-                enabled: data && data.length > 0 ? true : false,
-                filename: exportConstants.title,
-                exportOptions: {
-                  columns: exportConstants.columns,
-                  modifier: {
-                    page: 'current',
-                  },
-                },
-              },*/
             ],
           },
         },
@@ -288,35 +291,43 @@ const Repondant = () => {
 
   // === Edit item
   $('#myTable tbody').on('click', '.tableActionBtnEditItem', async function (e) {
-    e.preventDefault()
-    setIndexAlert(null)
-    setCreateAlert(null)
-    const id = $(this).data('id')
-    await getItem(apiResource.show.replace(':id', id)).then((response) => {
-      if (response.success) {
-        if (createFormRef.current && createFormBtnLaunchRef.current) {
-          const r = response.data
-          setCreateFormAction('edit')
-          createFormRef.current.setAttribute('create-data-action', 'edit')
-          createFormRef.current.setAttribute('create-data-id', id)
-          $('#typerepondant').val(r.typerepondant_id)
-          $('#identifiant').val(r.repidentifiant)
-          $('input[name="sexe"][value="' + r.repsexe + '"]').prop('checked', true)
-          $('#email').val(r.repemail)
-          //$('#identifiant').prop('disabled', true)
-          // $('#identifiant').css('background-color', '#e7eaee')
-          // $('#identifiant').css('cursor', 'default')
-          $('input[name="active"][value="' + r.repactive + '"]').prop('checked', true)
-          createFormBtnLaunchRef.current.click()
-        }
-      } else {
-        //
-      }
-    })
+    	e.preventDefault()
+    	setAlert()
+	setLoadexcelalert()
+    	const id = $(this).data('id')
+    	await axios.get(APIBASEURL+apiResource.show.replace(':id', id), {headers:{Authorization:`Bearer ${auth.token}`}})
+	.then((response) => {
+      		if (response.data) {
+			if (response.data.success) {
+        			if (createFormRef.current && createFormBtnLaunchRef.current) {
+          				const r = response.data.data
+          				setAction('edit')
+          				createFormRef.current.setAttribute('create-data-action', 'edit')
+          				createFormRef.current.setAttribute('create-data-id', id)
+          				$('#regime').val(r.repregime)
+          				$('#identifiant').val(r.repidentifiant)
+          				$('input[name="sexe"][value="' + r.repsexe + '"]').prop('checked', true)
+          				$('#email').val(r.repemail)
+          				$('input[name="active"][value="' + r.repactive + '"]').prop('checked', true)
+          				createFormBtnLaunchRef.current.click()
+        			}
+			} else {
+				setAlert(response.data.alert)
+			}
+      		} else {
+        		//
+      		}
+    	}).catch((err) => {
+		console.log(err.message)
+	}).finally(() => {
+		console.log('Request completed')
+	})
   })
   //
   const handleCancelCreateForm = () => {
     if (createFormRef.current && createFormBtnCloseRef.current) {
+      setALert()
+      setLoadexcelalert()
       createFormRef.current.setAttribute('create-data-action', 'create')
       createFormRef.current.setAttribute('create-data-id', '')
       createFormBtnResetRef.current.click()
@@ -325,35 +336,54 @@ const Repondant = () => {
   }
   //
   const handleSubmitCreateForm = async (e) => {
-    e.preventDefault()
-    // récupération des données du formulaire
-    const action = e.target.getAttribute('create-data-action')
-    const id = e.target.getAttribute('create-data-id')
-    if (createFormRef.current && createFormBtnCloseRef.current) {
-      const formData = new FormData(createFormRef.current)
-      const formValues = Object.fromEntries(formData)
-      if (action === 'create') {
-        await createItem(apiResource.create, formValues).then((response) => {
-          if (response.success) {
-            createFormBtnResetRef.current.click()
-          }
-          setCreateAlert(response)
-        })
-      }
-      if (action === 'edit') {
-        formValues.identifiant = $('#identifiant').val()
-        await updateItem(apiResource.update.replace(':id', id), formValues).then((response) => {
-          if (response.success) {
-            setIndexAlert(response)
-            createFormBtnResetRef.current.click()
-            createFormBtnCloseRef.current.click()
-          } else {
-            setCreateAlert(response)
-          }
-        })
-      }
-    }
-    fetchGet()
+	e.preventDefault()
+    	setAlert()
+	setLoadexcelalert()
+    	// récupération des données du formulaire
+    	const action_ = e.target.getAttribute('create-data-action')
+    	const id = e.target.getAttribute('create-data-id')
+      	const formData = new FormData(createFormRef.current)
+      	const formValues = Object.fromEntries(formData)
+	//
+      	if (createFormRef.current && createFormBtnCloseRef.current) {
+		//
+      		if (action_ === 'create') {
+        		await axios.post(APIBASEURL+apiResource.create, formValues, {headers: {Authoziration:`Bearer ${auth.token}`}})
+			.then((response) => {
+				if (response.data) {
+          				if (response.data.success) {
+            					createFormBtnResetRef.current.click()
+          				}
+          				setAlert(response.data.alert)
+				}
+        		}).catch((err) => {
+				console.log(err.message)
+			}).finally(() => {
+				console.log('Request completed')
+			})
+      		}
+		//
+      		if (action_ === 'edit') {
+        		formValues.identifiant = $('#identifiant').val()
+        		await axios.patch(APIBASEURL+apiResource.update.replace(':id', id), formValues, {headers:{Authorization:`Bearer ${auth.token}`}})
+			.then((response) => {
+          			if (response.data) {
+					if (response.data.success) {
+            					createFormBtnResetRef.current.click()
+            					createFormBtnCloseRef.current.click()
+					}
+					setAlert(response.data.alert)
+          			} else {
+            				//setAlert(response)
+          			}
+       			}).catch((err) => {
+				console.log(err.message)
+			}).finally(() => {
+				console.log('Request completed')
+			})
+      		}
+    	}
+    	setRefresh(action_)
   }
   // ===
 
@@ -367,61 +397,81 @@ const Repondant = () => {
 
   // === Delete item
   $('#myTable tbody').on('click', '.tableActionBtnDeleteItem', async function (e) {
-    e.preventDefault()
-    setIndexAlert(null)
-    setCreateAlert(null)
-    const id = $(this).data('id')
-    await getItem(apiResource.show.replace(':id', id)).then((response) => {
-      if (deleteFormRef.current && deleteFormBtnLaunchRef.current) {
-        if (response.success) {
-          deleteFormRef.current.setAttribute('delete-data-action', 'delete')
-          deleteFormRef.current.setAttribute('delete-data-id', id)
-          deleteFormBtnLaunchRef.current.click()
-        } else {
-          //
-        }
-      }
-    })
+    	e.preventDefault()
+    	setAlert()
+	setLoadexcelalert()
+    	const id = $(this).data('id')
+    	await axios.get(APIBASEURL+apiResource.show.replace(':id', id), {headers:{Authorization:`Bearer ${auth.token}`}})
+	.then((response) => {
+		if (response.data) {
+			if (response.data.success) {
+      				if (deleteFormRef.current && deleteFormBtnLaunchRef.current) {
+          				deleteFormRef.current.setAttribute('delete-data-action', 'delete')
+          				deleteFormRef.current.setAttribute('delete-data-id', id)
+          				deleteFormBtnLaunchRef.current.click()
+        			}
+			} 
+     		} 
+    	}).catch((err) => {
+		console.log(err.message)
+	}).finally(() => {
+		console.log('Request completed')
+	})
   })
   //
+
   const handleCancelDeleteForm = () => {
-    if (deleteFormRef.current && deleteFormBtnCloseRef.current) {
-      deleteFormRef.current.setAttribute('delete-data-action', 'delete')
-      deleteFormRef.current.setAttribute('delete-data-id', '')
-      deleteFormBtnCloseRef.current.click()
-    }
+    	if (deleteFormRef.current && deleteFormBtnCloseRef.current) {
+		setAlert()
+		setLoadexcelalert()
+      		deleteFormRef.current.setAttribute('delete-data-action', 'delete')
+      		deleteFormRef.current.setAttribute('delete-data-id', '')
+      		deleteFormBtnCloseRef.current.click()
+    	}
   }
   //
   const handleSubmitDeleteForm = async (e) => {
-    e.preventDefault()
-    if (deleteFormRef.current && deleteFormBtnCloseRef.current) {
-      const action = deleteFormRef.current.getAttribute('delete-data-action')
-      const id = deleteFormRef.current.getAttribute('delete-data-id')
-      if (action === 'delete') {
-        await deleteItem(apiResource.delete.replace(':id', id)).then((response) => {
-          if (response.success) {
-            deleteFormBtnCloseRef.current.click()
-          }
-          setIndexAlert(response)
-        })
-      }
-    }
-    fetchGet()
+ 	e.preventDefault()
+	setAlert()
+	setLoadexcelalert()
+      	const action_ = deleteFormRef.current.getAttribute('delete-data-action')
+      	const id = deleteFormRef.current.getAttribute('delete-data-id')
+	if (deleteFormRef.current && deleteFormCloseRef.current) {
+      		if (action_ === 'delete') {
+        		await axios.delete(APIBASEURL+apiResource.delete.replace(':id', id), {headers:{Authorization:`Bearer ${auth.token}`}})
+			.then((response) => {
+          			if (response.data) {
+					if (response.data.success) {
+            					deleteFormBtnCloseRef.current.click()
+          				}
+          				setAlert(response.data.alert)
+				}
+        		})
+			.catch((err) => {
+				console.log(err.message)
+			})
+			.finally(() => {
+				console.log('Request completed')
+			})
+      		}
+    	}
+    	setRefresh(action_)
   }
   // ===
 
   // === Import form
   const handleCancelImportForm = () => {
-    if (importFormRef.current && importFormBtnCloseRef.current) {
-      importFormRef.current.setAttribute('form-action', '')
-      importFormRef.current.setAttribute('target-id', '')
-      setCreateAlert(null)
-      setIndexAlert(null)
-      setExcelData([])
-      setImportColumns([])
-      importFormBtnResetRef.current.click()
-      importFormBtnCloseRef.current.click()
-    }
+    	if (importFormRef.current && importFormBtnCloseRef.current) {
+      		importFormRef.current.setAttribute('form-action', '')
+      		importFormRef.current.setAttribute('target-id', '')
+      		setAction('')
+      		setAlert() 
+		setLoadexcelalert()
+     		setExcelData([])
+      		setImportColumns([])
+      		importFormBtnResetRef.current.click()
+      		importFormBtnCloseRef.current.click()
+    	}
   }
 
   const handleFileUpload = (e) => {
@@ -439,7 +489,8 @@ const Repondant = () => {
         // Convert the worksheet to an array of JSON objects
         const jsonOptions = { header: 1 } // Use 'header: 1' if the first row is data, omit for object keys
         const jsonData = XLSX.utils.sheet_to_json(worksheet, jsonOptions)
-
+	
+	setAction('import')
         if (jsonData.length > 0) {
           // Obtenir les index concernés.
           let columns = []
@@ -461,13 +512,20 @@ const Repondant = () => {
               // }
             })
             setExcelData(filterData)
-            setIndexAlert(null)
+            setLoadexcelalert({
+		type: "success", 
+		message: (filterData.length-1)+" enregistrement(s) trouvé(s) !", 
+		background: "#056409", 
+		color: "#FFFFFF"
+	    })
           } else {
             // Aucune colonne correspondante dans la liste
             setExcelData([])
-            setCreateAlert({
-              type: 'warning',
-              message: 'Aucune colonne correspondante dans la liste !',
+            setLoadexcelalert({
+              type: "warning",
+              message: "Aucune colonne correspondante dans la liste !", 
+	      background: "#FCD116", 
+	      color: "#FFFFFF"
             })
           }
         }
@@ -477,24 +535,38 @@ const Repondant = () => {
     }
   }
 
-  const handleSubmitImportForm = async (e) => {
-    e.preventDefault()
-    // récupération des données de la liste
-    if (importFormRef.current && importFormBtnCloseRef.current) {
-      const formData = new FormData(importFormRef.current)
-      const formValues = Object.fromEntries(formData)
-      const data = excelData.filter((_, index) => index > 0)
-      await createItem('repondants/import', {
-        typerepondant: formValues.typerepondant,
-        columns: importColumns,
-        imports: data,
-      }).then((response) => {
-        setCreateAlert(response)
-      })
-      fetchGet()
-    }
-  }
-  // ===
+ 	const handleSubmitImportForm = async (e) => {
+    		e.preventDefault() 
+    		// récupération des données de la liste
+      		const formData = new FormData(importFormRef.current)
+      		const formValues = Object.fromEntries(formData)
+      		const data = excelData.filter((_, index) => index > 0)
+		// 
+		if (importFormRef.current && importFormBtnCloseRef.current) {
+      			await axios.post(APIBASEURL+'repondants/import', 
+				{
+        				typerepondant: formValues.typerepondant,
+        				columns: importColumns,
+        				imports: data,
+      				}, 
+				{headers: {Authorization:`Bearer ${auth.token}`}},
+			).then((response) => { console.log(response) 
+				if (response.data) {
+					setAlert(response.data.alert)
+				}
+      			}).catch((err) => {
+				console.log(err)
+			}).finally(() => {
+				console.log('Request completed')
+			})
+    		}
+		setRefresh('import')
+  	}
+  	// === 
+
+	// === Désinscrire les non inscrits 
+	//$('#myTable	
+	// ===
 
   // Datatable loading...
   if (loading) {
@@ -525,23 +597,21 @@ const Repondant = () => {
       <div className="row">
         <div className="col-md-12 offset-md-0">
           {/* Alerts */}
-          {indexAlert && (
+          {alert && (
             <div
               className="card mb-2"
               style={{
-                backgroundColor: colors[indexAlert.type],
-                borderColor: colors[indexAlert.type],
+                backgroundColor: alert.background,
+                color: alert.color,
               }}
             >
-              <div className="card-body py-1">
-                <CustomIndexAlert alert={indexAlert} />
-              </div>
+		{alert.message}
             </div>
           )}
           {/*  */}
           {/* List */}
           <div className="table-responsive p-2">
-            <table
+	     <table
               ref={tableRef}
               id="myTable"
               className="display table table-sm table-striped table-hover myDatatable"
@@ -580,13 +650,13 @@ const Repondant = () => {
                 <div className="modal-content">
                   <div className="modal-header py-1 bg-primary">
                     <h5 className="modal-title fw-bold text-light" id="createModalLabel">
-                      {createFormAction && (
+                      {action && (
                         <FontAwesomeIcon
-                          icon={createFormAction === 'create' ? faPlus : faEdit}
+                          icon={action === 'create' ? faPlus : faEdit}
                           className=""
                         />
                       )}
-                      {createFormAction === 'create' ? 'Ajouter' : 'Editer'}
+                      {action === 'create' ? 'Ajouter' : 'Editer'}
                     </h5>
                     <button
                       ref={createFormBtnCloseRef}
@@ -599,34 +669,32 @@ const Repondant = () => {
                   <div className="modal-body">
                     <div className="d-flex pb-1">
                       <CustomRequired tagP={true} />
-                      <CustomCreateAlert alert={createAlert} />
+                      <div className="">{action === "edit" && alert && alert.message}</div>
                     </div>
 
                     <div className="card">
                       <div className="card-body">
-                        {/* Type repondant */}
+                        {/* Régime */}
                         <div className="mb-2">
-                          <label htmlFor="typerepondant" className="form-label mb-0">
-                            Type de répondant
-                            <CustomRequired />
+                          <label htmlFor="regime" className="form-label mb-0">
+                            Régime
                           </label>
                           <div className="">
                             <select
                               className="form-select"
                               aria-label="Default select example"
-                              id="typerepondant"
-                              name="typerepondant"
-                              required
+                              id="regime"
+                              name="regime"
                               autoFocus
                             >
                               <option value="">Sélectionner ici !</option>
-                              {typerepondants.map((typerepondant, index) => {
+                              {regimes.map((regime, index) => {
                                 return (
                                   <option
-                                    value={typerepondant.id}
-                                    key={'typerepondant-item-' + index}
+                                    value={regime}
+                                    key={'regime-' + index}
                                   >
-                                    {index + 1 + '. ' + typerepondant.tyrlibelle}
+                                    {index + 1 + '. ' + regime}
                                   </option>
                                 )
                               })}
@@ -650,6 +718,20 @@ const Repondant = () => {
                             />
                           </div>
                         </div>
+			{/* Nom */}
+			<div className="mb-2">
+			  <label htmlFor="nom" className="form-label mb-0">Nom</label>
+			  <div className="">
+			    <input type="text" className="form-control" id="nom" name="nom" autoComplete />
+			  </div>
+			</div>
+			{/* Prénoms */}
+			<div className="mb-2">
+			  <label htmlFor="prenom" className="form-label mb-0">Prénom</label>
+			  <div className="">
+			    <input type="text" className="form-control" id="nom" name="prenom" autoComplete />
+			  </div>
+			</div>
                         {/* Sexe */}
                         <div className="">
                           <span className="form-label mb-0">
@@ -866,61 +948,30 @@ const Repondant = () => {
                   </div>
                   <div className="modal-body">
                     {/* Alerts */}
-                    {createAlert && (
+                    {alert && (
                       <div
                         className="card mb-2"
                         style={{
-                          backgroundColor: colors[createAlert.type],
-                          borderColor: colors[createAlert.type],
+                          backgroundColor: alert.background,
+                          color: alert.color,
                         }}
                       >
-                        <div className="card-body py-1">
-                          <CustomCreateAlert alert={createAlert} />
-                        </div>
+                          <div className="">{alert.message}</div>
                       </div>
                     )}
                     {/*  */}
-                    <div className="d-flex pb-1">
-                      <CustomRequired tagP={true} />
-                    </div>
+		    
+		    {/* Cadre d'information sur les régimes */}
+		    <div className="card border-0">
+		      <div className="card-body">
+			
+		      </div>
+		    </div>
 
+		    {/* Cadre d'importation du fichier */}
                     <div className="card">
                       <div className="card-body">
-                        {/* Type de répondant */}
                         <div className="mb-2">
-                          <label htmlFor="typerepondant" className="form-label mb-0">
-                            Type de répondant
-                            <CustomRequired />
-                          </label>
-                          <div className="">
-                            <select
-                              className="form-select"
-                              aria-label="Default select example"
-                              id="typerepondant"
-                              name="typerepondant"
-                              required
-                              autoFocus
-                            >
-                              <option value="">Sélectionner ici !</option>
-
-                              {typerepondants.map((typerepondant, index) => (
-                                <option
-                                  value={typerepondant.id}
-                                  key={'typerepondant-item-' + index}
-                                >
-                                  {index + 1 + '. ' + typerepondant.tyrlibelle}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
-                        </div>
-                        {/* FIchier */}
-                        <div className="mb-2">
-                          <label htmlFor="fichier" className="form-label mb-0">
-                            Fichier
-                            <CustomRequired />
-                          </label>
-                          <div className="">
                             <input
                               type="file"
                               className="form-control"
@@ -934,14 +985,13 @@ const Repondant = () => {
                             <div id="fichierHelpBlock" className="form-text mt-0 fw-bold">
                               Le fichier doit être de type Excel (.xls, .xlsx) ou CSV (.csv)
                             </div>
-                          </div>
                         </div>
 
                         {/* List preview */}
-                        {excelData.length > 0 && (
+                        {excelData.length > 0 && loadexcelalert && (
                           <div
                             className="py-1 text-light fw-bolder text-center"
-                            style={{ backgroundColor: colors['success'] }}
+                            style={{ backgroundColor: loadexcelalert.background, color:loadexcelalert.color }}
                           >
                             <i className="fa fa-check me-1" aria-hidden="true"></i>
                             {excelData.length - 1 + ' répondant(s) trouvé(s) !'}
@@ -994,25 +1044,15 @@ const Repondant = () => {
                     </div>
                   </div>
                   <div className="modal-footer border-0 py-0">
-                    <button
-                      type="submit"
-                      className="btn custom-btn-success text-white importModalBtnSave"
-                    >
-                      <i className="fa fa-check me-1" aria-hidden="true"></i>
-                      Valider
-                    </button>
-                    <button
-                      type="button"
-                      className="btn custom-btn-secondary importModalBtnCancel"
-                      data-bs-dismiss="modal"
-                      onClick={handleCancelImportForm}
-                    >
-                      <i className="fa fa-close me-1" aria-hidden="true"></i>Fermer
-                    </button>
-                    <button ref={importFormBtnResetRef} type="reset" className="btn d-none">
-                      <i className="fa fa-refresh me-1" aria-hidden="true"></i>
-                      Reset
-                    </button>
+                    	<button type="submit" className="btn custom-btn-success text-white importModalBtnSave" name="btn-add-import">
+                      		<i className="fa fa-check me-1" aria-hidden="true"></i>Valider
+                    	</button>
+                    	<button type="button" className="btn custom-btn-secondary importModalBtnCancel" data-bs-dismiss="modal" onClick={handleCancelImportForm}>
+                      		<i className="fa fa-close me-1" aria-hidden="true"></i>Fermer
+                    	</button>
+                    	<button ref={importFormBtnResetRef} type="reset" className="btn d-none">
+                      		<i className="fa fa-refresh me-1" aria-hidden="true"></i>Reset
+                    	</button>
                   </div>
                 </div>
               </div>

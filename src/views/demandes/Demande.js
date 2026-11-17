@@ -19,7 +19,8 @@ import { CustomIndexAlert } from '../../components/CustomIndexAlert'
 import { CustomCreateAlert } from '../../components/CustomCreateAlert'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus, faEdit } from '@fortawesome/free-solid-svg-icons'
-import { colors, importAttributeColumnToImport } from '../../constants'
+import axios from 'axios'
+import { colors, importAttributeColumnToImport, APIBASEURL } from '../../constants'
 import * as XLSX from 'xlsx'
 //import { isEmpty } from 'validator'
 //
@@ -49,6 +50,7 @@ const Demande = ({ auth }) => {
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [alert, setAlert] = useState(null)
   const [indexAlert, setIndexAlert] = useState(null)
   const [createAlert, setCreateAlert] = useState(null)
   const [linkAlert, setLinkAlert] = useState(null)
@@ -58,9 +60,10 @@ const Demande = ({ auth }) => {
   const [regions, setRegions] = useState([])
   const [typerepondants, setTyperepondants] = useState([])
   const [sims, setSims] = useState([])
-  const exportConstants = { title: 'Liste des demandes', columns: [0, 1, 2, 3/*, 4, 5, 6*/] }
+  const exportConstants = { title: 'Liste des demandes', columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }
   const [importAttributeExcelData, setImportAttributeExcelData] = useState([])
   const [importAttributeColumns, setImportAttributeColumns] = useState([])
+  const [refresh, setRefresh] = useState()
 
   const apiResource = {
     get: 'demandes',
@@ -73,8 +76,8 @@ const Demande = ({ auth }) => {
   const columns = [
     //{ title: 'ID', data: 'id' },
     { title: 'CODE DEMANDE', data: 'id' },
-    { title: 'REPONDANT', data: 'repondant.repidentifiant' }, 
-    { title: 'TYPE_REPONDANT', data: 'repondant.typerepondant.tyrlibelle' }, 
+    { title: 'REPONDANT', data: 'repidentifiant' }, 
+    { title: 'TYPE_REPONDANT', data: 'repregime' }, 
     { 
       title: 'DATE DEMANDE', 
       data: null, 
@@ -91,8 +94,9 @@ const Demande = ({ auth }) => {
     },  
     { title: 'SESSION DEMANDE', data: 'sessiondemande_id' },
     { title: 'SESSION REMISE', data: 'sessionremise_id' },
-    { title: 'SITE DESIRE', data: 'site.sitlibelle' },
-    { title: 'SIM', data: 'sim.simnumero' }, 
+    { title: 'SITE DESIRE', data: 'sitlibelle' },
+    { title: 'SIM NUMERO', data: 'simnumero' },
+    { title: 'SIM CODE', data: 'simcode' }, 
     {
       title: 'ACTIONS',
       data: null,
@@ -108,42 +112,54 @@ const Demande = ({ auth }) => {
         const btnLinkToDemande = `<a class="btn btn-outline-warning me-1 tableActionBtn tableActionBtnLinkSimToDemandeItem" data-id="${row.id}" title="Associer une carte SIM"><i class="fa fa-paper-plane" aria-hidden="true"></i></a>`
         const btnEdit = `<a class="btn btn-outline-info me-1 tableActionBtn tableActionBtnEditItem" data-id="${row.id}" title="Editer"><i class="fa fa-edit" aria-hidden="true"></i></a>`
         const btnDelete = `<a class="btn btn-outline-danger tableActionBtn tableActionBtnDeleteItem" data-id="${row.id}" title="Supprimer"><i class="fa fa-trash" aria-hidden="true"></i></a>`
-        return auth.roles.includes('administrateur') ? `<div class="d-flex align-content-center justify-content-center">${btnLinkToDemande + btnEdit + btnDelete}</div>` : ""
+        return auth.roles.includes('administrateur') ? `<div class="d-flex align-content-center justify-content-center">${btnEdit}</div>` : ""
       },
     },
   ]
 
-  const fetchGet = async () => {
-    try {
-      const data = await getData(apiResource.get)
-      const r = auth.roles.includes('administrateur')
-        ? data
-        : auth.region !== null
-          ? data.filter(
-              (item) => item.region_id === auth.region.id,
-            )
-          : data
-      setData(r)
-    } catch (err) {
-      setError(err)
-    } finally {
-      setLoading(false)
-    }
-  }
+  useEffect(() => {
+  	const controller = new AbortController()
+	const signal = controller.signal 
 
-  const fetchGetTyperepondant = async () => {
-    const response = await getData('typerepondants')
-    if (response) {
-      setTyperepondants(response)
-    }
-  } 
- 
-  const fetchGetSessiondemande = async () => {
-    const response = await getData('sessiondemandes')
-    if (response) {
-      setSessiondemandes(response)
-    }
-  }
+	const fetchData = async () => {
+		try {
+			// 1. Lancement des requêtes en parallèle
+			// Exemple avec allSettled pour isoler les erreurs 
+			const results = await Promise.allSettled([
+				fetch(APIBASEURL+apiResource.get, {headers:{Authorization:`Bearer ${auth.token}`}}, {signal}).then((res) => res.json()),
+				fetch(APIBASEURL+'sessiondemandes', {headers:{Authorization:`Bearer ${auth.token}`}}, {signal}).then((res) => res.json()),
+				fetch(APIBASEURL+'sites', {headers:{Authorization:`Bearer ${auth.token}`}}, {signal}).then((res) => res.json()),
+			])
+
+			// 2. Récupération des réponses HTTP
+			const resData = results[0].status === 'fulfilled' ? results[0].value : []
+			const resSed = results[1].status === 'fulfilled' ? results[1].value : []
+			const resSit = results[2].status === 'fulfilled' ? results[2].value : []
+
+			// 3. Mise à jour des états
+			const r = auth.roles.includes('administrateur') 
+				? resData 
+				: auth.region !== null 
+					? resData.filter(
+						(item) => item.region_id === auth.region.id, 
+					)
+					: resData
+			setData(r)
+			setSessiondemandes(resSed)
+			setSites(resSit)
+		} catch (err) {
+			if (err.name !== 'AbortError') {
+				setError(err.message)
+			}
+		} finally {
+			setLoading(false)
+		}
+	}
+	
+	fetchData()
+	return () => controller.abort() // Annulation automatique au démontage 
+  }, [refresh])
+
 
   const fetchGetRegion = async () => {
     const response = await getItem('regions_getactive')
@@ -162,44 +178,24 @@ const Demande = ({ auth }) => {
             }
           }
 	  // Sites
-	  if (item.provinces) {
-	   let prvs = item.provinces
-	   if (prvs.length > 0) {
-	    prvs.map((item) => {
-	     if (item.sites.length > 0) {
-	       for (var i = 0 ; i < item.sites.length ; i++) {
-		sites_.push(item.sites[i])
-	       }
-	     }
-	    })
-	   }
-	  }
+	  /*if (item.provinces) {
+	   	let prvs = item.provinces
+	   	if (prvs.length > 0) {
+	   		prvs.map((item) => {
+	     			if (item.sites.length > 0) {
+	       				for (var i = 0 ; i < item.sites.length ; i++) {
+						sites_.push(item.sites[i])
+	       				}
+	     			}
+	    		})
+	   	}
+	  }*/
 	  //
         })
         setSims(sims_)
-	setSites(sites_)
+	//setSites(sites_)
       }
   }
-
-  useEffect(() => {
-    // let timerId = setInterval(() => {
-    fetchGet()
-    //fetchGetTyperepondant() 
-    //fetchGetSessiondemande()
-    //fetchGetRegion()
-    // }, 2000)
-    // return () => {
-    //   clearInterval(timerId)
-    // }
-  }, [])
- 
-  useEffect(() => {
-    fetchGetTyperepondant()
-  }, [])
-
-  useEffect(() => {
-    fetchGetSessiondemande()
-  }, [])
 
   useEffect(() => {
     fetchGetRegion()
@@ -320,20 +316,6 @@ const Demande = ({ auth }) => {
                   },
                 },
               },
-              /*{
-                extend: 'print',
-                text: '<i class="fa fa-print" aria-hidden="true"></i>',
-                titleAttr: 'Imprimer',
-                className: 'dt-btn datatable-export-button mx-1 rounded',
-                enabled: data && data.length > 0 ? true : false,
-                filename: exportConstants.title,
-                exportOptions: {
-                  columns: exportConstants.columns,
-                  modifier: {
-                    page: 'current',
-                  },
-                },
-              },*/
             ],
           },
         },
@@ -408,31 +390,41 @@ const Demande = ({ auth }) => {
 
   // === Edit item
   $('#myTable tbody').on('click', '.tableActionBtnEditItem', async function (e) {
-    e.preventDefault()
-    setIndexAlert(null)
-    setCreateAlert(null)
-    const id = $(this).data('id')
-    const response = await getItem(apiResource.show.replace(':id', id))
-    //
-    if (response.success) {
-      	const r = response.data 
-      	$('#sessiondemande').val(r.sessiondemande_id)
-      	$('#site').val(r.site_id)
-      	$('#identifiant').val(r.repondant && r.repondant.repidentifiant)
-     	$('#date').val(r.dmddate)
-	$('#commentaire').val(r.dmdcommentaire)
-        setCreateFormAction('edit')
-	if (createFormRef.current && createFormBtnLaunchRef.current) {
-          createFormRef.current.setAttribute('create-data-action', 'edit')
-          createFormRef.current.setAttribute('create-data-id', id)
-          createFormBtnLaunchRef.current.click()
-        } else {
-	  //
-	}
-     } else {
-	//
-     }
+    	e.preventDefault()
+	setAlert()
+    	setIndexAlert(null)
+    	setCreateAlert(null)
+    	const id = $(this).data('id') 
+	console.log('id:'+id)
+    	await axios.get(APIBASEURL+apiResource.show.replace(':id', id), {headers:{Authorization:`Bearer ${auth.token}`}})
+		.then((response) => { console.log(response)
+    			if (response.success) {
+				if (createFormRef.current && createFormBtnLaunchRef.current) {
+      					const r = response.data 
+      					$('#sessiondemande').val(r.sessiondemande_id)
+      					$('#site').val(r.site_id)
+      					$('#identifiant').val(r.repondant && r.repondant.repidentifiant)
+     					$('#date').val(r.dmddate)
+					$('#commentaire').val(r.dmdcommentaire)
+        				setCreateFormAction('edit')
+          				createFormRef.current.setAttribute('create-data-action', 'edit')
+          				createFormRef.current.setAttribute('create-data-id', id)
+          				createFormBtnLaunchRef.current.click()
+        			} else {
+	  				//
+				}
+     			} else {
+				//
+     			}
+  		})
+		.catch((err) => {
+			console.log(err.message)
+		})
+		.finally(() => {
+			console.log('Request completed')
+		})
   })
+
   //
   const handleCancelCreateForm = () => {
     if (createFormRef.current && createFormBtnCloseRef.current) {

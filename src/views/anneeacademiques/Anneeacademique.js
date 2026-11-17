@@ -13,16 +13,14 @@ import JSZip from 'jszip'  // Required for .xlxs
 DataTable.Buttons.jszip(JSZip)
 import language from 'datatables.net-plugins/i18n/fr-FR.json'
 //
-import { getData, getItem, createItem, updateItem, deleteItem } from '../../apiService'
+//import { getData, getItem, createItem, updateItem, deleteItem } from '../../apiService'
 import { CustomRequired } from '../../components/CustomRequired'
-import { CustomIndexAlert } from '../../components/CustomIndexAlert'
-import { CustomCreateAlert } from '../../components/CustomCreateAlert'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus, faEdit } from '@fortawesome/free-solid-svg-icons'
-import { actives } from '../../constants'
-import { colors } from '../../constants'
+import axios from 'axios'
+import { actives, colors, APIBASEURL } from '../../constants'
 
-const Anneeacademique = () => {
+const Anneeacademique = ({ auth }) => {
   const tableRef = useRef()
   const createFormRef = useRef()
   const deleteFormRef = useRef()
@@ -34,11 +32,11 @@ const Anneeacademique = () => {
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
-  const [indexAlert, setIndexAlert] = useState(null)
-  const [createAlert, setCreateAlert] = useState(null)
-  const [createFormAction, setCreateFormAction] = useState(null)
+  const [alert, setAlert] = useState()
+  const [action, setAction] = useState('')
   const exportConstants = { title: 'Liste des années académiques', columns: [1, 2, 3, 4, 5, 6, 7] }
-
+  const [refresh, setRefresh] = useState()
+  
   const apiResource = {
     get: 'anneeacademiques',
     show: 'anneeacademiques/:id',
@@ -49,54 +47,43 @@ const Anneeacademique = () => {
 
   const columns = [
     { title: 'ID', data: 'id' },
-    { title: 'CODE', data: 'acacode' },
+    //{ title: 'CODE', data: 'acacode' },
     {
-      title: 'DATE DEBUT',
+      title: 'DATE_DEBUT',
       data: null,
       render: (data, type, row) => {
-        let d = new Date(row.acadatedebut)
-        return d.toLocaleDateString()
+        return row.acadatedebut !== null ? new Date(row.acadatedebut).toLocaleDateString() : ''
       },
     },
     {
-      title: 'DATE FIN',
+      title: 'DATE_FIN',
       data: null,
       render: (data, type, row) => {
-        let d = new Date(row.acadatefin)
-        return d.toLocaleDateString()
+        return row.acaddatefin !== null ? new Date(row.acadatefin).toLocaleDateString() : ''
       },
     },
     {
-      title: 'SESSIONS DEMANDES',
+      title: 'SESSIONS_DEMANDES',
       data: null,
       render: (data, type, row) => {
-        const r = row.sessiondemandes && row.sessiondemandes.length
-        return `<div class="d-flex justify-content-center align-content-center">${r}</div>`
+        return row.sessiondemandes && row.sessiondemandes.length
       },
     },
     {
-      title: 'SESSIONS REMISES',
+      title: 'SESSIONS_REMISES',
       data: null,
       render: (data, type, row) => {
-        const r = row.sessionremises && row.sessionremises.length
-        return `<div class="d-flex justify-content-center align-content-center">${r}</div>`
+        return row.sessionremises && row.sessionremises.length
       },
     },
     {
       title: 'SIMS',
       data: null,
       render: (data, type, row) => {
-        const r = row.sims && row.sims.length
-        return `<div class="d-flex justify-content-center align-content-center">${r}</div>`
+        return row.sims && row.sims.length
       },
     },
-    {
-      title: 'ACTIVE',
-      data: null,
-      render: (data, type, row) => {
-        return `<div class="d-flex justify-content-center align-content-center ${row.acaactive === 'oui' ? 'text-success' : 'text-danger'}"><i class="fa fa-circle " aria-hidden="true"></i><span class="d-none">${row.acaactive}</span></div>`
-      },
-    },
+    { title: 'STATUT', data: 'acaactive' },
     {
       title: 'ACTIONS',
       data: null,
@@ -110,33 +97,35 @@ const Anneeacademique = () => {
     },
   ]
 
-  const fetchGet = async () => {
-    try {
-      const data = await getData(apiResource.get)
-      setData(data)
-    } catch (err) {
-      setError(err)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  //   const fetchGetAnneeacademique = async () => {
-  //     await getData('anneeacademiques')
-  //       .then((response) => {
-  //         setAnneeacademiques(response)
-  //       })
-  //       .catch((err) => console.log(err))
-  //   }
-
   useEffect(() => {
-    // let timerId = setInterval(() => {
-    fetchGet()
-    // }, 2000)
-    // return () => {
-    //   clearInterval(timerId)
-    // }
-  }, [])
+	const controller = new AbortController()
+	const signal = controller.signal 
+
+	const fetchData = async () => {
+		try {
+			// 1. Lancement des requêtes en parallèle
+			// Exemple avec allSettled pour isoler les erreurs
+			const results = await Promise.allSettled([
+				fetch(APIBASEURL+apiResource.get, {headers: {Authorization:`Bearer ${auth.token}`}}, {signal})
+				.then((res) => res.json())
+			])
+
+			// 2. Récupération des requêtes HTTP
+			const resData = results[0].status === 'fulfilled' ? results[0].value : []
+
+			// 3. Mise à jour des états
+			setData(resData)
+		} catch (err) {
+			if (err.name !== 'AbortError') {
+				setError(err.message)
+			}
+		} finally {
+			setLoading(false)
+		}
+	}
+    	fetchData()
+	return () => controller.abort() // Annulation automatique au démontage
+  }, [refresh])
 
   useEffect(() => {
     //=== Retrieve saved page from localStorage
@@ -169,8 +158,8 @@ const Anneeacademique = () => {
                 enabled: true,
                 action: () => {
                   if (createFormRef.current && createFormBtnLaunchRef.current) {
-                    setCreateAlert(null)
-                    setCreateFormAction('create')
+                    setAlert()
+                    setAction('create')
                     createFormRef.current.setAttribute('create-data-action', 'create')
                     createFormRef.current.setAttribute('create-data-id', '')
                     createFormBtnLaunchRef.current.click()
@@ -184,7 +173,8 @@ const Anneeacademique = () => {
 		enabled: false,
                 action: () => {
                   if (deleteFormRef.current && deleteFormBtnLaunchRef.current) {
-                    setIndexAlert(null)
+                    setAlerte()
+			setAction('delete')
                     $('#deleteQuestion').text(
                       'Voulez-vous vraiment supprimer tous les enregistrements (' +
                         data.length +
@@ -237,20 +227,6 @@ const Anneeacademique = () => {
                   },
                 },
               },
-              /*{
-                extend: 'print',
-                text: '<i class="fa fa-print" aria-hidden="true"></i>',
-                titleAttr: 'Imprimer',
-                className: 'dt-btn datatable-export-button mx-1 rounded',
-                enabled: data && data.length > 0 ? true : false,
-                filename: exportConstants.title,
-                exportOptions: {
-                  columns: exportConstants.columns,
-                  modifier: {
-                    page: 'current',
-                  },
-                },
-              },*/
             ],
           },
         },
@@ -285,13 +261,6 @@ const Anneeacademique = () => {
         dt.button(['.btnDelete']).enable(selectedRowsCount > 0)
       })
 
-    // Cleanup function to destroy the DataTable instance when the component unmounts
-    // return () => {
-    //   if (tableRef.current) {
-    //     tableRef.current.destroy()
-    //     tableRef.current = null
-    //   }
-    // }
   }, [data, columns])
 
   // Actions
@@ -308,112 +277,185 @@ const Anneeacademique = () => {
 
   // === Edit item
   $('#myTable tbody').on('click', '.tableActionBtnEditItem', async function (e) {
-    e.preventDefault()
-    setIndexAlert(null)
-    setCreateAlert(null)
-    const id = $(this).data('id')
-    await getItem(apiResource.show.replace(':id', id)).then((response) => {
-      if (response.success) {
-        if (createFormRef.current && createFormBtnLaunchRef.current) {
-          const r = response.data
-          setCreateFormAction('edit')
-          createFormRef.current.setAttribute('create-data-action', 'edit')
-          createFormRef.current.setAttribute('create-data-id', id)
-          $('#datedebut').val(r.acadatedebut)
-          $('#datefin').val(r.acadatefin)
-          $('input[name="active"][value="' + r.acaactive + '"]').prop('checked', true)
-          $('#commentaire').val(r.acacommentaire)
-          createFormBtnLaunchRef.current.click()
-        }
-      } else {
-        //
-      }
-    })
+    	e.preventDefault()
+    	setAlert()
+	setAction('edit')
+    	const id = $(this).data('id') 
+	await axios.get(APIBASEURL+apiResource.show.replace(':id', id), {headers:{Authorization:`Bearer ${auth.token}`}})
+	.then((response) => { 
+		if (response.data) {
+      			if (response.data.success) { 
+          			const r = response.data.data
+          			createFormRef.current.setAttribute('create-data-action', 'edit')
+          			createFormRef.current.setAttribute('create-data-id', id)
+          			$('#datedebut').val(r.acadatedebut)
+          			$('#datefin').val(r.acadatefin)
+          			$('input[name="active"][value="' + r.acaactive + '"]').prop('checked', true)
+          			$('#commentaire').val(r.acacommentaire)
+          			createFormBtnLaunchRef.current.click()
+			} else {
+				setAlert({
+					type: "warning", 
+					message: "Erreur: aucun enregistrement correspondant !", 
+					background: "#FCD116", 
+					color: "#FFFFFF"
+				})
+			}
+      		} else {
+        		setAlert({
+				type: "warning", 
+				message: "Oups: Merci de réessayer ultérieurement car un problème est survenu !",
+				background: "#FCD116", 
+				color: "#FFFFFF" 
+			})
+      		}
+    	})
+	.catch((err) => {
+		console.log(err.message)
+	})
+	.finally(() => {
+		console.log('Request completed')
+	})
   })
   //
   const handleCancelCreateForm = () => {
     if (createFormRef.current && createFormBtnCloseRef.current) {
-      createFormRef.current.setAttribute('create-data-action', 'create')
-      createFormRef.current.setAttribute('create-data-id', '')
-      createFormBtnResetRef.current.click()
-      createFormBtnCloseRef.current.click()
+	setAlert()
+	setAction('')
+      	createFormRef.current.setAttribute('create-data-action', 'create')
+      	createFormRef.current.setAttribute('create-data-id', '')
+      	createFormBtnResetRef.current.click()
+      	createFormBtnCloseRef.current.click()
     }
   }
   //
   const handleSubmitCreateForm = async (e) => {
-    e.preventDefault()
-    // récupération des données du formulaire
-    const action = e.target.getAttribute('create-data-action')
-    const id = e.target.getAttribute('create-data-id')
-    if (createFormRef.current && createFormBtnCloseRef.current) {
-      const formData = new FormData(createFormRef.current)
-      const formValues = Object.fromEntries(formData)
-      if (action === 'create') {
-        await createItem(apiResource.create, formValues).then((response) => {
-          if (response.success) {
-            createFormBtnResetRef.current.click()
-          }
-          setCreateAlert(response)
-        })
-      }
-      if (action === 'edit') {
-        await updateItem(apiResource.update.replace(':id', id), formValues).then((response) => {
-          if (response.success) {
-            setIndexAlert(response)
-            createFormBtnResetRef.current.click()
-            createFormBtnCloseRef.current.click()
-          } else {
-            setCreateAlert(response)
-          }
-        })
-      }
-    }
-    fetchGet()
+	e.preventDefault()
+	setAlert()
+    	// récupération des données du formulaire
+    	const action_ = e.target.getAttribute('create-data-action')
+    	const id = e.target.getAttribute('create-data-id')
+	// 
+	const controller = new AbortController() 
+	const signal = controller.signal 
+	//
+      	const formData = new FormData(createFormRef.current)
+      	const formValues = Object.fromEntries(formData)
+      	//
+	try {
+		if (action_ === 'create') {
+ 			const response = await axios.post(APIBASEURL+apiResource.create, formValues, {headers:{Authorization:`Bearer ${auth.token}`}})
+            		if (response.data) {	
+				if (response.data.success) {
+					createFormBtnResetRef.current.click()
+				} 
+				setAlert(response.data.alert)
+			} else {
+				setAlert({
+					type: "warning", 
+					message: "Oups: Merci de réessayer ultérieurement car un problème est survenu !", 
+					background: '#FCD116', 
+					color: '#FFFFFF'
+				})
+			}
+      		}
+
+      		if (action_ === 'edit') {
+			const response = await axios.patch(APIBASEURL+apiResource.update.replace(':id', id), formValues, {headers:{Authorization:`Bearer ${auth.token}`}})
+			if (response.data) {
+				setAlert(response.data.alert)
+			} else {
+				setAlert({
+					type: "warning", 
+					message: "Oups: Merci de réessayer utlérieurement car un problème est survenu !", 
+					background: '#FCD116', 
+					color: '#FFFFFF'
+				})
+			}
+		} 
+	} catch (err) {
+		if (err.name !== 'AbortError') {
+			setError(err.message)
+		}
+	} finally {
+		setLoading(false)
+	}
+	setRefresh(action_)
+	return () => controller.abort() // Annulation automatique au démontage
   }
   // ===
 
   // === Delete item
   $('#myTable tbody').on('click', '.tableActionBtnDeleteItem', async function (e) {
     e.preventDefault()
-    setIndexAlert(null)
-    setCreateAlert(null)
+    setAlert()
+    setAction('delete')
     const id = $(this).data('id')
-    await getItem(apiResource.show.replace(':id', id)).then((response) => {
-      if (deleteFormRef.current && deleteFormBtnLaunchRef.current) {
-        if (response.success) {
-          deleteFormRef.current.setAttribute('delete-data-action', 'delete')
-          deleteFormRef.current.setAttribute('delete-data-id', id)
-          deleteFormBtnLaunchRef.current.click()
-        } else {
-          //
-        }
-      }
-    })
+    await axios.get(APIBASEURL+apiResource.show.replace(':id', id), {headers:{Authorization:`Bearer ${auth.token}`}})
+	.then((response) => {
+        	if (response.data) {
+          		deleteFormRef.current.setAttribute('delete-data-action', 'delete')
+          		deleteFormRef.current.setAttribute('delete-data-id', id)
+          		deleteFormBtnLaunchRef.current.click()
+        	} else {
+          		setAlert({
+				type: "warning", 
+				message: "Oups: Merci de réessayer ultérieurement car un problème est survenu !", 
+				background: "#FCD116", 
+				color: "#FFFFFF"
+			})
+      		} 
+    	})
+	.catch((err) => {
+		console.log(err.message)
+	})
+	.finally(() => {
+		console.log('Request completed')
+	})
   })
   //
+
   const handleCancelDeleteForm = () => {
-    if (deleteFormRef.current && deleteFormBtnCloseRef.current) {
-      deleteFormRef.current.setAttribute('delete-data-action', 'delete')
-      deleteFormRef.current.setAttribute('delete-data-id', '')
-      deleteFormBtnCloseRef.current.click()
-    }
+   	if (deleteFormRef.current && deleteFormBtnCloseRef.current) {
+      		setAlert()
+		setAction('')
+		deleteFormRef.current.setAttribute('delete-data-action', 'delete')
+      		deleteFormRef.current.setAttribute('delete-data-id', '')
+      		deleteFormBtnCloseRef.current.click()
+    	}
   }
   //
+
   const handleSubmitDeleteForm = async (e) => {
-    e.preventDefault()
-    if (deleteFormRef.current && deleteFormBtnCloseRef.current) {
-      const action = deleteFormRef.current.getAttribute('delete-data-action')
-      const id = deleteFormRef.current.getAttribute('delete-data-id')
-      if (action === 'delete') {
-        await deleteItem(apiResource.delete.replace(':id', id)).then((response) => {
-          if (response.success) {
-            deleteFormBtnCloseRef.current.click()
-          }
-          setIndexAlert(response)
-        })
-      }
-    }
-    fetchGet()
+  	e.preventDefault()
+	setAlert()
+    	if (deleteFormRef.current && deleteFormBtnCloseRef.current) {
+      		const action_ = deleteFormRef.current.getAttribute('delete-data-action')
+      		const id = deleteFormRef.current.getAttribute('delete-data-id')
+      		if (action_ === 'delete') {
+        		await axios.delete(APIBASEURL+apiResource.delete.replace(':id', id), {headers:{Authorization:`Bearer ${auth.token}`}})
+			.then((response) => {
+				console.log(response)
+				if (response.data) { console.log(response.data)
+					setAlert(response.data.alert)
+				} else {
+					setAlert({
+						type: "warning", 
+						message: "Oups: Merci de réessayer ultérieurement car un problème est survenu !", 
+						background: "#FCD116", 
+						color: "#FFFFFF"
+					})
+				}
+			})
+			.catch((err) => {
+				console.log(err.message)
+			})
+			.finally(() => {
+				console.log('Request completed')
+			})
+          	}
+		setRefresh(action_)
+        }
   }
   // ===
 
@@ -445,21 +487,6 @@ const Anneeacademique = () => {
     <div className="container">
       <div className="row">
         <div className="col-md-12 offset-md-0">
-          {/* Alerts */}
-          {indexAlert && (
-            <div
-              className="card mb-2"
-              style={{
-                backgroundColor: colors[indexAlert.type],
-                borderColor: colors[indexAlert.type],
-              }}
-            >
-              <div className="card-body py-1">
-                <CustomIndexAlert alert={indexAlert} />
-              </div>
-            </div>
-          )}
-          {/*  */}
           {/* List */}
           <div className="table-responsive p-2">
             <table
@@ -502,13 +529,13 @@ const Anneeacademique = () => {
                 <div className="modal-content">
                   <div className="modal-header py-1 bg-primary">
                     <h5 className="modal-title  fw-bold text-light" id="createModalLabel">
-                      {createFormAction && (
+                      {action && (
                         <FontAwesomeIcon
-                          icon={createFormAction === 'create' ? faPlus : faEdit}
+                          icon={action === 'create' ? faPlus : faEdit}
                           className=""
                         />
                       )}
-                      {createFormAction === 'create' ? 'Ajouter' : 'Editer'}
+                      {action === 'create' ? 'Ajouter' : 'Editer'}
                     </h5>
                     <button
                       ref={createFormBtnCloseRef}
@@ -519,18 +546,10 @@ const Anneeacademique = () => {
                     ></button>
                   </div>
                   <div className="modal-body">
-                    {/* Alerts */}
-                    {createAlert && (
-                      <div
-                        className="card mb-2"
-                        style={{
-                          backgroundColor: colors[createAlert.type],
-                          borderColor: colors[createAlert.type],
-                        }}
-                      >
-                        <div className="card-body py-1">
-                          <CustomCreateAlert alert={createAlert} />
-                        </div>
+                    {/* Alert */}
+                    {action !== "delete" && alert && (
+                      <div className="alert py-1 mb-2" style={{ backgroundColor: alert.background, color: alert.color }}>
+                          {alert.message}
                       </div>
                     )}
                     {/* Required */}
@@ -686,13 +705,13 @@ const Anneeacademique = () => {
                     ></button>
                   </div>
                   <div className="modal-body text-center">
-                    <i
-                      className="fa fa-exclamation-triangle me-1 text-danger fw-bolder"
-                      aria-hidden="true"
-                    ></i>
-                    <span id="deleteQuestion">
-                      Voulez-vous vraiment supprimer cet enregistrement ?
-                    </span>
+			{action === "delete" && alert && (
+				<div className="alert py-1" style={{ backgroundColor: alert.background, color: alert.color }}>
+					{alert.message}
+				</div>
+			)}
+                    	<i className="fa fa-exclamation-triangle me-1 text-danger fw-bolder" aria-hidden="true"></i>
+                    	<span id="deleteQuestion">Voulez-vous vraiment supprimer cet enregistrement ?</span>
                   </div>
                   <div className="modal-footer border-0 py-1">
                     <button

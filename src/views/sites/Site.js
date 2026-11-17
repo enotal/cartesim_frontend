@@ -18,8 +18,9 @@ import { CustomRequired } from '../../components/CustomRequired'
 import { CustomIndexAlert } from '../../components/CustomIndexAlert'
 import { CustomCreateAlert } from '../../components/CustomCreateAlert'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlus, faEdit } from '@fortawesome/free-solid-svg-icons'
-import { actives, colors } from '../../constants'
+import { faPlus, faEdit } from '@fortawesome/free-solid-svg-icons' 
+import axios from 'axios'
+import { actives, colors, APIBASEURL } from '../../constants'
 
 const Site = ({ auth }) => {
   const tableRef = useRef()
@@ -33,11 +34,13 @@ const Site = ({ auth }) => {
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [alert, setAlert] = useState()
   const [indexAlert, setIndexAlert] = useState(null)
   const [createAlert, setCreateAlert] = useState(null)
   const [createFormAction, setCreateFormAction] = useState(null)
   const [provinces, setProvinces] = useState([])
   const exportConstants = { title: 'Liste des sites', columns: [0, 1, 2, 3, 4, 5, 6, 7] }
+  const [refresh, setRefresh] = useState()
 
   const apiResource = {
     get: 'sites',
@@ -54,57 +57,48 @@ const Site = ({ auth }) => {
       title: 'DEMANDES',
       data: null,
       render: (data, type, row) => {
-	const r = row.demandes && row.demandes.length
-        return `<div class="text-center fw-bold">${r}</div>`
+	return row.demandes && row.demandes.length
       },
     },
     {
-      title: 'SIMS AFFECTEES', 
+      title: 'SIMS_AFFECTEES', 
       data: null, 
       render: (data, type, row) => {
-        const r = row.province.region.sims ? row.province.region.sims.length : 0
-        return `<div class="text-center">${r}</div>`
+        return row.province.region.sims && row.province.region.sims.length 
       }, 
     }, 
     {
-      title: 'SIMS REMISES', 
+      title: 'SIMS_REMISES', 
       data: null, 
       render: (data, type, row) => {
 	const r = row.province.region.sims ? row.province.region.sims.filter((item) => item.simdateremiseeffective !== null) : ''
-        return `<div class="text-center">${r.length}</div>`
+        return r.length
       },
     }, 
     {
-      title: 'DEMANDES RESTANTES', 
+      title: 'DEMANDES_RESTANTES', 
       data: null, 
       render: (data, type, row) => {
         const dmd = row.demandes && row.demandes.length 
         const sim = row.province.region.sims ? row.province.region.sims.filter((item) => item.simdateremiseeffective !== null) : '' 
-        const r = parseInt(dmd) - parseInt(sim.length)
-	return `<div class="text-center fw-bold">${r}</div>`
+        return parseInt(dmd) - parseInt(sim.length)
       }, 
     }, 
     {
       title: 'PROVINCE',
       data: null,
       render: (data, type, row) => {
-        return row.province && row.province.prvnom + '(' + row.province.prvcheflieu + ')'
+        return row.province && row.province.prvcheflieu 
       },
     },
     {
       title: 'REGION',
       data: null,
       render: (data, type, row) => {
-        return row.province && row.province.region ? row.province.region.rgnnom + '('+ row.province.region.rgncheflieu +')' : ''
+        return row.province && row.province.region && row.province.region.rgnnom
       },
     },
-    {
-      title: 'ACTIVE',
-      data: null,
-      render: (data, type, row) => {
-        return `<div class="d-flex justify-content-center align-content-center ${row.sitactive === 'oui' ? 'text-success' : 'text-danger'}"><i class="fa fa-circle " aria-hidden="true"></i></div>`
-      },
-    }, 
+    { title: 'STATUT', data: 'sitactive' }, 
     {
       title: 'ACTIONS',
       data: null,
@@ -145,13 +139,8 @@ const Site = ({ auth }) => {
   }
 
   useEffect(() => {
-    // let timerId = setInterval(() => {
     fetchGet()
     fetchGetProvince()
-    // }, 2000)
-    // return () => {
-    //   clearInterval(timerId)
-    // }
   }, [])
 
   useEffect(() => {
@@ -182,7 +171,7 @@ const Site = ({ auth }) => {
               {
                 text: '<i class="fa fa-plus me-1" aria-hidden="true"></i>Ajouter',
                 className: 'dt-btn datatable-button rounded dt-btnCreate btnCreate',
-                enabled: auth.region !== null ? false : true,
+                enabled: auth.region !== null ? (auth.roles.includes('administrateur') ? true : false) : false,
                 action: () => {
                   if (createFormRef.current && createFormBtnLaunchRef.current) {
                     setCreateAlert(null)

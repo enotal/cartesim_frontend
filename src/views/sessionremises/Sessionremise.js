@@ -21,7 +21,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus, faEdit } from '@fortawesome/free-solid-svg-icons'
 import { actives, colors } from '../../constants'
 
-const Sessiondemande = ({ auth }) => {
+const Sessionremise = ({ auth }) => {
   const tableRef = useRef()
   const createFormRef = useRef()
   const deleteFormRef = useRef()
@@ -51,45 +51,30 @@ const Sessiondemande = ({ auth }) => {
 
   const columns = [
     { title: 'ID', data: 'id' },
-    { title: 'ANNEE ACADEMIQUE', data: 'anneeacademique.acacode' },
+    { title: 'ANNEE', data: 'anneeacademique.acacode' },
     {
-      title: 'DATE DEBUT',
+      title: 'DATE_DEBUT',
       data: null,
       render: (data, type, row) => {
-	if (row.serdatedebut !== null) {
-          const r = new Date(row.serdatedebut)
-          return `<div class="text-center">${r.toLocaleDateString()}</div>`
-	}
-	return ''
+	return row.serdatedebut !== null ? new Date(row.serdatedebut).toLocaleDateString() : ''
       },
     },
     {
-      title: 'DATE FIN',
+      title: 'DATE_FIN',
       data: null,
       render: (data, type, row) => {
-	if (row.serdatefin !== null) {
-          const r = new Date(row.serdatefin)
-          return `<div class="text-center">${r.toLocaleDateString()}</div>`
-	}
-	return ''
+	return row.serdatefin !== null ? new Date(row.serdatefin).toLocaleDateString() : ''
       },
     },
-    { title: 'TYPE REPONDANT', data: 'typerepondant.tyrlibelle' },
+    { title: 'REGIME', data: 'serregime' },
     {
       title: 'DEMANDE',
       data: null,
       render: (data, type, row) => {
-	const r = row.demandes && row.demandes.length
-	return `<div class="text-center">${r}</div>`
+	return row.demandes && row.demandes.length
       },
     },
-    {
-      title: 'ACTIVE',
-      data: null,
-      render: (data, type, row) => {
-        return `<div class="d-flex justify-content-center align-content-center ${row.seractive === 'oui' ? 'text-success' : 'text-danger'}"><i class="fa fa-circle " aria-hidden="true"></i><span class="d-none">${row.seractive}</span></div>`
-      },
-    },
+    { title: 'STATUT', data: 'seractive' },
     {
       title: 'ACTIONS',
       data: null,
@@ -121,22 +106,9 @@ const Sessiondemande = ({ auth }) => {
     }
   }
 
-  const fetchGetTyperepondant = async () => {
-    const response = await getData('typerepondants')
-    if (response) {
-      setTyperepondants(response)
-    }
-  }
-
   useEffect(() => {
-    // let timerId = setInterval(() => {
     fetchGet()
     fetchGetAnneeacademique()
-    fetchGetTyperepondant()
-    // }, 2000)
-    // return () => {
-    //   clearInterval(timerId)
-    // }
   }, [])
 
   useEffect(() => {
@@ -238,20 +210,6 @@ const Sessiondemande = ({ auth }) => {
                   },
                 },
               },
-              /*{
-                extend: 'print',
-                text: '<i class="fa fa-print" aria-hidden="true"></i>',
-                titleAttr: 'Imprimer',
-                className: 'dt-btn datatable-export-button mx-1 rounded',
-                enabled: data && data.length > 0 ? true : false,
-                filename: exportConstants.title,
-                exportOptions: {
-                  columns: exportConstants.columns,
-                  modifier: {
-                    page: 'current',
-                  },
-                },
-              },*/
             ],
           },
         },
@@ -313,7 +271,6 @@ const Sessiondemande = ({ auth }) => {
           createFormRef.current.setAttribute('create-data-action', 'edit')
           createFormRef.current.setAttribute('create-data-id', id)
           $('#anneeacademique').val(r.anneeacademique_id)
-          $('#typerepondant').val(r.typerepondant_id)
           $('#datedebut').val(r.serdatedebut)
           $('#datefin').val(r.serdatefin)
           $('input[name="active"][value="' + r.seractive + '"]').prop('checked', true)
@@ -560,32 +517,6 @@ const Sessiondemande = ({ auth }) => {
                             </select>
                           </div>
                         </div>
-                        {/* Types de répondants */}
-                        <div className="mb-2">
-                          <label htmlFor="typerepondant" className="form-label mb-0">
-                            Type répondant
-                            <CustomRequired />
-                          </label>
-                          <div className="">
-                            <select
-                              className="form-select"
-                              aria-label="Default select example"
-                              id="typerepondant"
-                              name="typerepondant"
-                              required
-                            >
-                              <option value="">Sélectionner ici !</option>
-                              {typerepondants.map((typerepondant, index) => (
-                                <option
-                                  value={typerepondant.id}
-                                  key={'typerepondant-item-' + index}
-                                >
-                                  {index + 1 + '. ' + typerepondant.tyrlibelle}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
-                        </div>
                         {/* Date début */}
                         <div className="row">
                           <div className="mb-2 col-md-6">
@@ -766,4 +697,4 @@ const Sessiondemande = ({ auth }) => {
   )
 }
 
-export default Sessiondemande
+export default Sessionremise

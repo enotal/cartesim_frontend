@@ -1,3 +1,4 @@
+export const  APIBASEURL = 'https://apicartesim.uv.bf/api/'
 export const cookieItems = ['cartesim.auth']
 export const actives = ['non', 'oui']
 export const sexes = ['Féminin', 'Masculin']
@@ -7,7 +8,7 @@ export const colors = {
   //warning: '#C7CF00', 
   warning: '#e1b505',
 }
-export const repondantColumnToImport = ['ine', 'matricule', 'sexe', 'email']
+export const repondantColumnToImport = ['ine', 'matricule', 'sexe', 'email', 'filiere', 'niveau', 'nom', 'prenom', 'regime', 'salarie']
 export const simColumnToImport = ['numero', 'code']
 export const importAttributeColumnToImport = ['ine', 'matricule', 'sexe', 'email', 'numero', 'code', 'site', 'annee']
 /*export const administrateur = {

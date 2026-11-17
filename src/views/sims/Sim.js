@@ -71,22 +71,9 @@ const Sim = ({ auth }) => {
 
   const columns = [
     { title: 'ID', data: 'id' },
-    { 
-      title: 'ANNEE ACADEMIQUE',
-      data: null, 
-      render: (data, type, row) => {
-        const r = row.anneeacademique ? row.anneeacademique.acacode : ''
-        return r 
-      }, 
-    },  
+    { title: 'ANNEE', data: 'anneeacademique.acacode' }, 
     { title: 'NUMERO', data: 'simnumero' },
-    { 
-      title: 'IMSI', 
-      data: null, 
-      render: (data, type, row) => {
-        return row.simcode
-      },  
-    },
+    { title: 'IMSI', data: 'simcode' }, 
     {
       title: 'DEMANDE',
       data: null,
@@ -95,22 +82,10 @@ const Sim = ({ auth }) => {
 	return r
       },
     },
+    { title: 'PROVINCE', data: 'province.prvnom' },
+    { title: 'REGION', data: 'region.rgnnom' },
     {
-      title: 'PROVINCE',
-      data: null,
-      render: (data, type, row) => {
-        return row.province && row.province.prvnom
-      },
-    },
-    {
-      title: 'REGION',
-      data: null,
-      render: (data, type, row) => {
-        return row.region && row.region.rgnnom
-      },
-    },
-    {
-      title: 'DATE REMISE',
+      title: 'DATE_REMISE',
       data: null,
       render: (data, type, row) => {
         const r = row.demandes ? row.demandes.map(item => { if(item.dmddateremiseeffective !== null ){ let d = new Date(item.dmddateremiseeffective); return d.toLocaleDateString(); }else{return ''}}).join(", ") : ''
@@ -140,7 +115,7 @@ const Sim = ({ auth }) => {
     try {
       const response = await getData(apiResource.get)
       const r =
-        auth.region !== null ? response.filter((item) => item.region_id === auth.region.id) : response
+        auth.region !== null && !auth.roles.includes('administrateur') ? response.filter((item) => item.region_id === auth.region.id) : response
       setData(r)
       setSims(r.filter((item) => item.demande_id === null && item.region_id === null))
     } catch (err) {
@@ -165,14 +140,9 @@ const Sim = ({ auth }) => {
   }
 
   useEffect(() => {
-    // let timerId = setInterval(() => {
     fetchGet()
     fetchGetAnneeacademique()
     fetchGetRegion()
-    // }, delay)
-    // return () => {
-    //   clearInterval(timerId)
-    // }
   }, [])
 
   useEffect(() => {
@@ -214,51 +184,12 @@ const Sim = ({ auth }) => {
                   }
                 },
               },
-              /*{
-                text: '<i class="fa fa-trash me-1" aria-hidden="true"></i>Tout supprimer',
-                className: 'dt-btn datatable-button rounded dt-btnCreate btnDeleteAll ms-2 my-1',
-                //enabled: data && data.length > 0 ? true : false,
-		enabled: false,
-                action: () => {
-                  if (deleteFormRef.current && deleteFormBtnLaunchRef.current) {
-                    setIndexAlert(null)
-                    $('#deleteQuestion').text(
-                      'Voulez-vous vraiment supprimer tous les enregistrements (' +
-                        data.length +
-                        ') ?',
-                    )
-                    deleteFormRef.current.setAttribute('delete-data-action', 'delete')
-                    deleteFormRef.current.setAttribute('delete-data-id', 'all')
-                    deleteFormBtnLaunchRef.current.click()
-                  }
-                },
-              },*/
-              /*{
-                text: '<i class="fa fa-file-import me-1" aria-hidden="true"></i>Importer',
-                className: 'dt-btn datatable-button rounded dt-btnImport btnImport ms-2 my-1',
-                enabled: auth.region !== null ? false : true,
-                action: () => {
-                  if (importFormRef.current && importFormBtnLaunchRef.current) {
-                    //   setCreateFormAction('create')
-                    setIndexAlert(null)
-                    setCreateAlert(null)
-                    importFormRef.current.setAttribute('form-action', 'import')
-                    importFormRef.current.setAttribute('target-id', '')
-                    importFormBtnLaunchRef.current.click()
-                  }
-                },
-              },*/
               {
                 text: '<i class="fa fa-paper-plane me-1" aria-hidden="true"></i>Attribuer aux régions',
                 className: 'dt-btn datatable-button rounded dt-btnAttribute btnAttribute ms-2 my-1',
                 enabled: regions && sims && regions.length > 0 && sims.length > 0 ? true : false,
                 action: () => {
                   if (attributeFormRef.current && attributeFormBtnLaunchRef.current) {
-                    //   setCreateFormAction('create')
-                    // setAttribute('multiple')
-                    // const d = demandes && demandes.length + ' demande(s) à satisfaire avec '
-                    // const s = sims && sims.length + ' carte(s) SIM !'
-                    // $('#attributeFormHeader').text(d + s)
                     attributeFormBtnLaunchRef.current.click()
                   }
                 },
@@ -318,20 +249,6 @@ const Sim = ({ auth }) => {
                   },
                 },
               },
-              /*{
-                extend: 'print',
-                text: '<i class="fa fa-print" aria-hidden="true"></i>',
-                titleAttr: 'Imprimer',
-                className: 'dt-btn datatable-export-button mx-1 rounded',
-                enabled: data && data.length > 0 ? true : false,
-                filename: exportConstants.title,
-                exportOptions: {
-                  columns: exportConstants.columns,
-                  modifier: {
-                    page: 'current',
-                  },
-                },
-              },*/
             ],
           },
         },
